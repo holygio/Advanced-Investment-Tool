@@ -47,11 +47,16 @@ export default function Performance() {
         returns: portfolioData.returns[ticker].map((d: any) => d.ret)
       }));
 
+      // Use SPY as market ticker if it's in the portfolio, otherwise use first ticker
+      const marketTicker = Object.keys(portfolioData.returns).includes('SPY') 
+        ? 'SPY' 
+        : Object.keys(portfolioData.returns)[0];
+
       const response = await apiRequest("/api/risk/multi-asset-metrics", {
         method: "POST",
         body: JSON.stringify({
           assets,
-          market_ticker: globalState.marketProxy,
+          market_ticker: marketTicker,
           rf: globalState.riskFreeRate,
           interval: "1mo"
         }),
@@ -97,38 +102,6 @@ export default function Performance() {
     });
   })() : [];
 
-  // Calculate correlation matrix
-  const correlationData = portfolioData?.returns ? (() => {
-    const tickers = Object.keys(portfolioData.returns);
-    const n = tickers.length;
-    const corrMatrix: number[][] = Array(n).fill(0).map(() => Array(n).fill(0));
-    
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) {
-        const returns1 = portfolioData.returns[tickers[i]].map((d: any) => d.ret);
-        const returns2 = portfolioData.returns[tickers[j]].map((d: any) => d.ret);
-        
-        const mean1 = returns1.reduce((a: number, b: number) => a + b, 0) / returns1.length;
-        const mean2 = returns2.reduce((a: number, b: number) => a + b, 0) / returns2.length;
-        
-        let cov = 0;
-        let var1 = 0;
-        let var2 = 0;
-        
-        for (let k = 0; k < returns1.length; k++) {
-          const diff1 = returns1[k] - mean1;
-          const diff2 = returns2[k] - mean2;
-          cov += diff1 * diff2;
-          var1 += diff1 * diff1;
-          var2 += diff2 * diff2;
-        }
-        
-        corrMatrix[i][j] = cov / Math.sqrt(var1 * var2);
-      }
-    }
-    
-    return { tickers, matrix: corrMatrix };
-  })() : null;
 
   const theory = (
     <div className="space-y-6 py-6">
@@ -202,13 +175,12 @@ export default function Performance() {
   );
 
   return (
-    <ModuleLayout title="Risk & Performance" theory={theory}>
+    <ModuleLayout title="Risk" theory={theory}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4" data-testid="tabs-performance">
+        <TabsList className="grid w-full grid-cols-3" data-testid="tabs-performance">
           <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
           <TabsTrigger value="lpm-frontier" data-testid="tab-lpm-frontier">LPM & Frontier</TabsTrigger>
           <TabsTrigger value="metrics" data-testid="tab-metrics">Ratios & Performance</TabsTrigger>
-          <TabsTrigger value="correlations" data-testid="tab-correlations">Correlations</TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Overview */}
@@ -541,112 +513,6 @@ export default function Performance() {
           </Card>
         </TabsContent>
 
-        {/* Tab 4: Correlations */}
-        <TabsContent value="correlations" className="space-y-6">
-          <Card className="p-6 bg-card border-border">
-            <h2 className="text-xl font-semibold mb-4">Correlation Matrix</h2>
-            <div className="h-96">
-              {correlationData ? (
-                <Plot
-                  data={[
-                    {
-                      z: correlationData.matrix,
-                      x: correlationData.tickers,
-                      y: correlationData.tickers,
-                      type: "heatmap",
-                      colorscale: [
-                        [0, "#ef4444"],
-                        [0.5, "#f3f4f6"],
-                        [1, "#22c55e"],
-                      ],
-                      zmin: -1,
-                      zmax: 1,
-                      colorbar: {
-                        title: "Correlation",
-                        titleside: "right",
-                      },
-                    },
-                  ]}
-                  layout={{
-                    autosize: true,
-                    paper_bgcolor: "rgba(0,0,0,0)",
-                    plot_bgcolor: "rgba(0,0,0,0)",
-                    font: { color: "#1f2937", family: "Inter, sans-serif", size: 10 },
-                    margin: { l: 60, r: 60, t: 20, b: 80 },
-                  }}
-                  config={{ responsive: true, displayModeBar: false }}
-                  style={{ width: "100%", height: "100%" }}
-                />
-              ) : (
-                <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
-                  <p className="text-sm text-muted-foreground">Loading correlations...</p>
-                </div>
-              )}
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-card border-border">
-            <h2 className="text-xl font-semibold mb-4">Beta vs Market ({globalState.marketProxy})</h2>
-            <div className="h-80">
-              {metricsData?.metrics?.length > 0 ? (
-                <Plot
-                  data={[
-                    {
-                      x: metricsData.metrics.filter((m: any) => m.beta !== null).map((m: any) => m.ticker),
-                      y: metricsData.metrics.filter((m: any) => m.beta !== null).map((m: any) => m.beta),
-                      type: "bar",
-                      marker: { 
-                        color: metricsData.metrics.filter((m: any) => m.beta !== null).map((m: any) => 
-                          m.beta > 1 ? "#ef4444" : m.beta < 1 ? "#22c55e" : "#3b82f6"
-                        ) 
-                      },
-                    },
-                  ]}
-                  layout={{
-                    autosize: true,
-                    paper_bgcolor: "rgba(0,0,0,0)",
-                    plot_bgcolor: "rgba(0,0,0,0)",
-                    font: { color: "#1f2937", family: "Inter, sans-serif", size: 12 },
-                    xaxis: { 
-                      title: "Asset",
-                      gridcolor: "#e5e7eb",
-                    },
-                    yaxis: { 
-                      title: "Beta", 
-                      gridcolor: "#e5e7eb",
-                      showgrid: true,
-                      zeroline: true,
-                      zerolinecolor: "#9ca3af",
-                    },
-                    shapes: [{
-                      type: 'line',
-                      x0: -0.5,
-                      x1: metricsData.metrics.filter((m: any) => m.beta !== null).length - 0.5,
-                      y0: 1,
-                      y1: 1,
-                      line: {
-                        color: '#6b7280',
-                        width: 2,
-                        dash: 'dash',
-                      },
-                    }],
-                    margin: { l: 60, r: 20, t: 20, b: 80 },
-                    showlegend: false,
-                  }}
-                  config={{ responsive: true, displayModeBar: false }}
-                  style={{ width: "100%", height: "100%" }}
-                />
-              ) : (
-                <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
-                  <p className="text-sm text-muted-foreground">Loading beta data...</p>
-                </div>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground mt-4">
-              Beta {'>'} 1 (red): More volatile than market | Beta {'<'} 1 (green): Less volatile than market | Beta = 1 (blue): Market-like volatility
-            </p>
-          </Card>
-        </TabsContent>
       </Tabs>
     </ModuleLayout>
   );

@@ -158,9 +158,15 @@ async def calculate_multi_asset_metrics(request: MultiAssetRequest):
         periods_per_year = {"1d": 252, "1wk": 52, "1mo": 12}.get(request.interval, 12)
         rf_period = request.rf / periods_per_year
         
-        # Build returns DataFrame
+        # Build returns DataFrame and drop any rows with NaN values
         returns_dict = {asset.ticker: asset.returns for asset in request.assets}
         returns_df = pd.DataFrame(returns_dict)
+        
+        # Drop rows with any NaN values to ensure clean data
+        returns_df = returns_df.dropna()
+        
+        if len(returns_df) < 2:
+            raise HTTPException(status_code=400, detail="Insufficient data points after cleaning (need at least 2)")
         
         # Get market returns
         if request.market_ticker not in returns_df.columns:
@@ -172,60 +178,75 @@ async def calculate_multi_asset_metrics(request: MultiAssetRequest):
         metrics_list = []
         
         for ticker in returns_df.columns:
-            asset_returns = returns_df[ticker].values
-            mean_return = np.mean(asset_returns) * periods_per_year
-            std_return = np.std(asset_returns) * np.sqrt(periods_per_year)
-            sharpe = (mean_return - request.rf) / std_return if std_return > 0 else 0
-            
-            # CAPM regression for non-market assets
-            beta = None
-            treynor = None
-            info_ratio = None
-            jensen_alpha = None
-            m2 = None
-            
-            if ticker != request.market_ticker:
-                excess_returns = asset_returns - rf_period
-                X = sm.add_constant(excess_market)
-                model = sm.OLS(excess_returns, X).fit()
+            try:
+                asset_returns = returns_df[ticker].values
+                mean_return = float(np.mean(asset_returns)) * periods_per_year
+                std_return = float(np.std(asset_returns)) * np.sqrt(periods_per_year)
+                sharpe = (mean_return - request.rf) / std_return if std_return > 0 else 0
                 
-                alpha_period = model.params[0]
-                beta = model.params[1]
-                alpha_annual = alpha_period * periods_per_year
-                residual_std = model.resid.std() * np.sqrt(periods_per_year)
+                # CAPM regression for non-market assets
+                beta = None
+                treynor = None
+                info_ratio = None
+                jensen_alpha = None
+                m2 = None
                 
-                treynor = (mean_return - request.rf) / beta if beta != 0 else None
-                info_ratio = alpha_annual / residual_std if residual_std > 0 else None
-                jensen_alpha = alpha_annual
+                if ticker != request.market_ticker:
+                    excess_returns = asset_returns - rf_period
+                    X = sm.add_constant(excess_market)
+                    model = sm.OLS(excess_returns, X).fit()
+                    
+                    # Access params using .iloc for positional indexing
+                    alpha_period = float(model.params.iloc[0])
+                    beta = float(model.params.iloc[1])
+                    alpha_annual = alpha_period * periods_per_year
+                    residual_std = float(model.resid.std()) * np.sqrt(periods_per_year)
+                    
+                    treynor = (mean_return - request.rf) / beta if beta != 0 else None
+                    info_ratio = alpha_annual / residual_std if residual_std > 0 else None
+                    jensen_alpha = alpha_annual
+                    
+                    # M² calculation
+                    market_std = float(np.std(market_returns)) * np.sqrt(periods_per_year)
+                    if std_return > 0:
+                        market_mean = float(np.mean(market_returns)) * periods_per_year
+                        adjusted_return = request.rf + sharpe * market_std
+                        m2 = adjusted_return - market_mean
+                else:
+                    # Market asset has beta = 1
+                    beta = 1.0
+                    treynor = mean_return - request.rf
+                    jensen_alpha = 0.0
+                    m2 = 0.0
                 
-                # M² calculation
-                market_std = np.std(market_returns) * np.sqrt(periods_per_year)
-                if std_return > 0:
-                    market_mean = np.mean(market_returns) * periods_per_year
-                    adjusted_return = request.rf + sharpe * market_std
-                    m2 = adjusted_return - market_mean
-            else:
-                # Market asset has beta = 1
-                beta = 1.0
-                treynor = mean_return - request.rf
-                jensen_alpha = 0.0
-                m2 = 0.0
-            
-            metrics_list.append(AssetMetrics(
-                ticker=ticker,
-                mean=round(mean_return, 4),
-                std=round(std_return, 4),
-                sharpe=round(sharpe, 4),
-                treynor=round(treynor, 4) if treynor is not None else None,
-                info_ratio=round(info_ratio, 4) if info_ratio is not None else None,
-                jensen_alpha=round(jensen_alpha, 4) if jensen_alpha is not None else None,
-                m2=round(m2, 4) if m2 is not None else None,
-                beta=round(beta, 4) if beta is not None else None
-            ))
+                metrics_list.append(AssetMetrics(
+                    ticker=ticker,
+                    mean=round(mean_return, 4),
+                    std=round(std_return, 4),
+                    sharpe=round(sharpe, 4),
+                    treynor=round(treynor, 4) if treynor is not None else None,
+                    info_ratio=round(info_ratio, 4) if info_ratio is not None else None,
+                    jensen_alpha=round(jensen_alpha, 4) if jensen_alpha is not None else None,
+                    m2=round(m2, 4) if m2 is not None else None,
+                    beta=round(beta, 4) if beta is not None else None
+                ))
+            except Exception as ticker_error:
+                print(f"Error processing ticker {ticker}: {str(ticker_error)}")
+                import traceback
+                traceback.print_exc()
+                # Continue with other tickers
+                continue
+        
+        if not metrics_list:
+            raise HTTPException(status_code=500, detail="No metrics could be calculated for any asset")
         
         return MultiAssetMetricsResponse(metrics=metrics_list)
     
+    except HTTPException:
+        raise
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error calculating multi-asset metrics: {str(e)}")
 
 
@@ -249,9 +270,14 @@ class LPMFrontierResponse(BaseModel):
 async def calculate_lpm_frontier(request: LPMFrontierRequest):
     """Calculate Return-LPM efficient frontier"""
     try:
-        # Build returns matrix
+        # Build returns matrix and clean NaN values
         returns_dict = {asset.ticker: asset.returns for asset in request.assets}
         returns_df = pd.DataFrame(returns_dict)
+        returns_df = returns_df.dropna()
+        
+        if len(returns_df) < 2:
+            raise HTTPException(status_code=400, detail="Insufficient data points for LPM frontier (need at least 2)")
+        
         returns_matrix = returns_df.values
         mu = returns_df.mean().values
         tickers = returns_df.columns.tolist()
