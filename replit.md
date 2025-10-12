@@ -60,14 +60,30 @@ This is an interactive web platform for exploring advanced investment concepts i
 - **Fixed Pydantic Serialization**: Added `Field(serialization_alias='return')` to properly serialize `return_` field
   - FastAPI now correctly emits `"return": 0.17` instead of `"return_": 0.17`
   - Frontend properly reads tangency.return for Expected Return metric
+
+### Security Market Line Improvements
+- **Added Expected Return Field**: Backend now includes `expected_return` in CAPM results
+- **Enhanced SML Visualization**: 
+  - Red dashed SML line using backend-calculated data points
+  - Asset points with ticker labels and white borders
+  - Green diamond marker for risk-free rate (β=0)
+  - Orange star marker for market portfolio (β=1)
+  - Interactive tooltips with detailed metrics
   
-- **Expanded Default Portfolio**: Increased from 5 to 10 tickers for better diversification
-  - SPY (S&P 500), TLT (Long Bonds), GLD (Gold), VNQ (REITs), EEM (Emerging Markets)
-  - QQQ (Tech/Nasdaq), IWM (Small Cap), EFA (International), AGG (Agg Bonds), DBC (Commodities)
+- **Multi-Asset Default Portfolio**: Replaced old tickers with diversified 10-asset mix
+  - **Equities**: SPY (S&P 500), QQQ (Tech/Growth), IWM (Small Cap), XLF (Financials)
+  - **Fixed Income**: TLT (Long Treasuries), HYG (High Yield Bonds)
+  - **Commodities**: GLD (Gold), SLV (Silver)
+  - **FX**: UUP (US Dollar Index)
+  - **Volatility**: VIXY (VIX Futures - tail risk hedge)
+  - Enables testing of growth/value cycles, term/credit dynamics, commodity/FX diversification, and negative correlation effects
 
 ### UX Improvements
 - **Auto-Execution**: CAPM analysis now auto-runs when portfolio data loads (removed "Run CAPM" button)
-- **Locked Configuration**: Sidebar becomes read-only after data loads to prevent accidental reconfiguration
+- **Always-Accessible Configuration**: Portfolio configuration sidebar is now always editable (removed lock mechanism)
+  - Users can modify tickers, dates, and constraints at any time
+  - No need to return to home page to reconfigure
+  - Live updates when clicking "Load Data & Optimize Portfolio"
 
 ## User Preferences
 
@@ -97,7 +113,7 @@ Preferred communication style: Simple, everyday language.
 3. Navigates to /portfolio route
 4. **Both Portfolio Builder AND CAPM automatically run** with configured parameters
 5. Results are displayed immediately with graphs and theory tabs
-6. Configuration is locked (read-only) after initial load
+6. Configuration sidebar remains accessible for live updates and reconfiguration
 
 **State Management:**
 - Global state managed via React Context (`GlobalStateContext`) for shared parameters:

@@ -19,6 +19,7 @@ class CAPMResult(BaseModel):
     t_alpha: float
     t_beta: float
     r2: float
+    expected_return: float
 
 class SMLPoint(BaseModel):
     beta: float
@@ -27,6 +28,8 @@ class SMLPoint(BaseModel):
 class CAPMRequest(BaseModel):
     returns: Dict[str, List[ReturnDataPoint]]
     market: str
+    rf: float = 0.025  # Annual risk-free rate
+    interval: str = "1wk"  # Data interval
     rf_series: Optional[List[Dict[str, Any]]] = None
 
 class CAPMResponse(BaseModel):
@@ -48,11 +51,17 @@ async def run_capm(request: CAPMRequest):
         
         market_returns = returns_df[request.market]
         
-        # Assume constant risk-free rate if not provided
-        rf = 0.02 / 252  # Daily risk-free rate
+        # Convert annual risk-free rate to period rate
+        annualization_factors = {
+            "1d": 252,
+            "1wk": 52,
+            "1mo": 12,
+        }
+        annualization = annualization_factors.get(request.interval, 52)
+        rf_period = request.rf / annualization
         
         # Calculate excess returns
-        market_excess = market_returns - rf
+        market_excess = market_returns - rf_period
         
         results = []
         betas = []
@@ -63,7 +72,7 @@ async def run_capm(request: CAPMRequest):
                 continue
             
             asset_returns = returns_df[ticker]
-            asset_excess = asset_returns - rf
+            asset_excess = asset_returns - rf_period
             
             # Run OLS regression
             X = sm.add_constant(market_excess)
@@ -85,34 +94,42 @@ async def run_capm(request: CAPMRequest):
             t_beta = float(model.tvalues[1])
             r2 = float(model.rsquared)
             
+            # Calculate expected return using CAPM formula
+            market_return_annual = market_returns.mean() * annualization
+            market_premium = market_return_annual - request.rf
+            expected_return = alpha * annualization + beta * market_premium
+            
             results.append(CAPMResult(
                 ticker=ticker,
-                alpha=alpha * 252,  # Annualize alpha
+                alpha=alpha * annualization,  # Annualize alpha
                 beta=beta,
                 t_alpha=t_alpha,
                 t_beta=t_beta,
-                r2=r2
+                r2=r2,
+                expected_return=expected_return
             ))
             
             betas.append(beta)
-            expected_returns.append(alpha * 252 + beta * (market_returns.mean() * 252 - rf * 252))
+            expected_returns.append(expected_return)
         
         # Calculate SML
+        market_return_annual = market_returns.mean() * annualization
+        market_premium = market_return_annual - request.rf
+        
         if betas:
             beta_range = np.linspace(min(betas) - 0.5, max(betas) + 0.5, 50)
-            market_premium = market_returns.mean() * 252 - rf * 252
             sml_points = [
-                SMLPoint(beta=float(b), expectedReturn=float(rf * 252 + b * market_premium))
+                SMLPoint(beta=float(b), expectedReturn=float(request.rf + b * market_premium))
                 for b in beta_range
             ]
         else:
             sml_points = []
         
         summary = {
-            "market_return": float(market_returns.mean() * 252),
-            "market_volatility": float(market_returns.std() * np.sqrt(252)),
-            "risk_free_rate": float(rf * 252),
-            "market_premium": float(market_returns.mean() * 252 - rf * 252)
+            "market_return": float(market_return_annual),
+            "market_volatility": float(market_returns.std() * np.sqrt(annualization)),
+            "risk_free_rate": float(request.rf),
+            "market_premium": float(market_premium)
         }
         
         return CAPMResponse(results=results, sml=sml_points, summary=summary)

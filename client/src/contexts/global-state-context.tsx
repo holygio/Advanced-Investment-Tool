@@ -21,7 +21,7 @@ const GlobalStateContext = createContext<GlobalStateContextType | undefined>(und
 
 export function GlobalStateProvider({ children }: { children: ReactNode }) {
   const [globalState, setGlobalState] = useState<GlobalState>({
-    tickers: ["SPY", "TLT", "GLD", "VNQ", "EEM", "QQQ", "IWM", "EFA", "AGG", "DBC"],  // Diversified portfolio: US stocks, tech, small-cap, bonds, gold, real estate, emerging markets, international, commodities
+    tickers: ["SPY", "QQQ", "IWM", "XLF", "TLT", "HYG", "GLD", "SLV", "UUP", "VIXY"],  // Multi-asset portfolio: equities (SPY/QQQ/IWM/XLF), bonds (TLT/HYG), commodities (GLD/SLV), FX (UUP), volatility (VIXY)
     startDate: "2018-01-01",
     endDate: new Date().toISOString().split("T")[0],
     riskFreeRate: 0.025,

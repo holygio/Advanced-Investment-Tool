@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Play, Info, Lock } from "lucide-react";
+import { Play, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState } from "react";
 import { useLocation } from "wouter";
@@ -15,9 +15,6 @@ export function PortfolioConfigSidebar() {
   const { globalState, updateGlobalState } = useGlobalState();
   const [tickerText, setTickerText] = useState(globalState.tickers.join("\n"));
   const [location, setLocation] = useLocation();
-  
-  // Lock configuration when on /portfolio route (data already loaded)
-  const isLocked = location === "/portfolio";
 
   const handleTickerChange = (text: string) => {
     setTickerText(text);
@@ -56,19 +53,7 @@ export function PortfolioConfigSidebar() {
   return (
     <div className="w-80 border-r border-border bg-card flex flex-col h-screen">
       <div className="p-6 border-b border-border">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Portfolio Configuration</h2>
-          {isLocked && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Lock className="h-4 w-4 text-muted-foreground" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Configuration locked. Return to home to modify.</p>
-              </TooltipContent>
-            </Tooltip>
-          )}
-        </div>
+        <h2 className="text-lg font-semibold">Portfolio Configuration</h2>
       </div>
 
       <div className="flex-1 overflow-auto p-6 space-y-6">
@@ -88,10 +73,9 @@ export function PortfolioConfigSidebar() {
           <Textarea
             value={tickerText}
             onChange={(e) => handleTickerChange(e.target.value)}
-            placeholder="SPY&#10;AAPL&#10;MSFT&#10;BND"
+            placeholder="SPY&#10;QQQ&#10;TLT&#10;GLD"
             className="font-mono text-sm min-h-[120px]"
             data-testid="input-tickers"
-            disabled={isLocked}
           />
           <p className="text-xs text-muted-foreground">
             {globalState.tickers.length} ticker{globalState.tickers.length !== 1 ? 's' : ''} selected
@@ -117,7 +101,6 @@ export function PortfolioConfigSidebar() {
               step={1}
               className="w-full"
               data-testid="slider-lookback-years"
-              disabled={isLocked}
             />
           </div>
 
@@ -146,7 +129,6 @@ export function PortfolioConfigSidebar() {
                 onChange={(e) => handleRiskFreeRateChange(e.target.value)}
                 className="flex-1"
                 data-testid="input-risk-free-rate"
-                disabled={isLocked}
               />
               <span className="text-sm text-muted-foreground">%</span>
             </div>
@@ -168,7 +150,6 @@ export function PortfolioConfigSidebar() {
                 updateGlobalState({ allowShortSelling: checked as boolean })
               }
               data-testid="checkbox-allow-short"
-              disabled={isLocked}
             />
           </div>
 
@@ -200,7 +181,6 @@ export function PortfolioConfigSidebar() {
                 }}
                 className="flex-1"
                 data-testid="input-max-weight"
-                disabled={isLocked}
               />
               <span className="text-sm text-muted-foreground">%</span>
             </div>
@@ -212,7 +192,6 @@ export function PortfolioConfigSidebar() {
               step={5}
               className="w-full"
               data-testid="slider-max-weight"
-              disabled={isLocked}
             />
           </div>
         </Card>
@@ -224,19 +203,9 @@ export function PortfolioConfigSidebar() {
           size="lg"
           onClick={() => setLocation("/portfolio")}
           data-testid="button-load-optimize"
-          disabled={isLocked}
         >
-          {isLocked ? (
-            <>
-              <Lock className="h-4 w-4" />
-              Configuration Locked
-            </>
-          ) : (
-            <>
-              <Play className="h-4 w-4" />
-              Load Data & Optimize Portfolio
-            </>
-          )}
+          <Play className="h-4 w-4" />
+          Load Data & Optimize Portfolio
         </Button>
       </div>
     </div>

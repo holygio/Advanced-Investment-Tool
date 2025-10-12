@@ -49,6 +49,8 @@ export default function CAPMTester() {
         body: JSON.stringify({
           returns: priceData.returns,
           market: globalState.marketProxy,
+          rf: globalState.riskFreeRate / 100,  // Convert from percentage to decimal
+          interval: interval,
         }),
       });
       return response;
@@ -163,9 +165,20 @@ export default function CAPMTester() {
           </div>
           
           <div className="h-96">
-            {capmData?.results ? (
+            {capmData?.results && capmData.results.length > 0 ? (
               <Plot
                 data={[
+                  // Security Market Line
+                  capmData.sml && capmData.sml.length > 0 ? {
+                    x: capmData.sml.map((p: any) => p.beta),
+                    y: capmData.sml.map((p: any) => p.expectedReturn),
+                    type: "scatter",
+                    mode: "lines",
+                    name: "SML (CAPM)",
+                    line: { color: "#dc2626", width: 3, dash: "dash" },
+                    hovertemplate: "β: %{x:.2f}<br>E[R]: %{y:.1%}<extra></extra>",
+                  } : null,
+                  // Asset scatter points
                   {
                     x: capmData.results.map((r: any) => r.beta),
                     y: capmData.results.map((r: any) => r.expected_return),
@@ -174,40 +187,83 @@ export default function CAPMTester() {
                     name: "Assets",
                     text: capmData.results.map((r: any) => r.ticker),
                     textposition: "top center",
-                    marker: { size: 12, color: "#2563eb" },
+                    textfont: { size: 10, color: "#374151" },
+                    marker: { 
+                      size: 14, 
+                      color: "#2563eb",
+                      line: { width: 2, color: "#ffffff" }
+                    },
+                    hovertemplate: "%{text}<br>β: %{x:.3f}<br>E[R]: %{y:.1%}<extra></extra>",
                   },
-                  {
-                    x: [0, Math.max(...capmData.results.map((r: any) => r.beta)) * 1.1],
-                    y: [globalState.riskFreeRate, globalState.riskFreeRate + (capmData.market_premium * Math.max(...capmData.results.map((r: any) => r.beta)) * 1.1)],
+                  // Risk-free rate point
+                  capmData.summary ? {
+                    x: [0],
+                    y: [capmData.summary.risk_free_rate],
                     type: "scatter",
-                    mode: "lines",
-                    name: "SML",
-                    line: { color: "#dc2626", width: 2, dash: "dash" },
-                  },
-                ]}
+                    mode: "markers",
+                    name: "Risk-Free Rate",
+                    marker: { 
+                      size: 12, 
+                      color: "#10b981",
+                      symbol: "diamond",
+                      line: { width: 2, color: "#ffffff" }
+                    },
+                    hovertemplate: "Rf: %{y:.1%}<extra></extra>",
+                  } : null,
+                  // Market portfolio point
+                  capmData.summary ? {
+                    x: [1],
+                    y: [capmData.summary.market_return],
+                    type: "scatter",
+                    mode: "markers",
+                    name: "Market Portfolio",
+                    marker: { 
+                      size: 14, 
+                      color: "#f59e0b",
+                      symbol: "star",
+                      line: { width: 2, color: "#ffffff" }
+                    },
+                    hovertemplate: "Market<br>β: 1.00<br>E[R]: %{y:.1%}<extra></extra>",
+                  } : null,
+                ].filter(Boolean)}
                 layout={{
                   autosize: true,
                   paper_bgcolor: "rgba(0,0,0,0)",
                   plot_bgcolor: "rgba(0,0,0,0)",
                   font: { color: "#1f2937", family: "Inter, sans-serif", size: 12 },
                   xaxis: { 
-                    title: "Beta (β)", 
+                    title: { text: "Beta (β)", font: { size: 14, weight: 600 } }, 
                     gridcolor: "#e5e7eb",
                     showgrid: true,
                     zeroline: true,
+                    zerolinecolor: "#9ca3af",
+                    zerolinewidth: 1,
                   },
                   yaxis: { 
-                    title: "Expected Return", 
+                    title: { text: "Expected Return (Annual)", font: { size: 14, weight: 600 } }, 
                     gridcolor: "#e5e7eb",
                     showgrid: true,
-                    zeroline: false,
+                    zeroline: true,
+                    zerolinecolor: "#9ca3af",
                     tickformat: ".1%",
                   },
-                  margin: { l: 60, r: 20, t: 20, b: 60 },
+                  margin: { l: 70, r: 40, t: 40, b: 70 },
                   showlegend: true,
-                  legend: { x: 0.02, y: 0.98 },
+                  legend: { 
+                    x: 0.02, 
+                    y: 0.98,
+                    bgcolor: "rgba(255,255,255,0.9)",
+                    bordercolor: "#e5e7eb",
+                    borderwidth: 1,
+                  },
+                  hovermode: "closest",
                 }}
-                config={{ responsive: true }}
+                config={{ 
+                  responsive: true,
+                  displayModeBar: true,
+                  displaylogo: false,
+                  modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d'],
+                }}
                 style={{ width: "100%", height: "100%" }}
               />
             ) : (
