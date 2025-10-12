@@ -144,15 +144,12 @@ export default function CAPMTester() {
   return (
     <ModuleLayout title="CAPM Model Tester" theory={theory}>
       <div className="space-y-6">
-        {/* Controls */}
+        {/* Regression Analysis Header */}
         <Card className="p-6 bg-card border-card-border">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Regression Analysis</h2>
-            <Button data-testid="button-run-capm">
-              <Play className="h-4 w-4 mr-2" />
-              Run CAPM
-            </Button>
-          </div>
+          <h2 className="text-xl font-semibold">Regression Analysis</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            {loadingPrices ? "Loading market data..." : capmMutation.isPending ? "Running CAPM analysis..." : capmData ? "Analysis complete" : "Load portfolio data to begin"}
+          </p>
         </Card>
 
         {/* SML Chart */}
