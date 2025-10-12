@@ -3,9 +3,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 import { PortfolioConfigSidebar } from "@/components/portfolio-config-sidebar";
+import { ModuleLayoutWrapper } from "@/components/module-layout-wrapper";
 import { GlobalStateProvider } from "@/contexts/global-state-context";
 
 // Pages
@@ -21,38 +20,59 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Landing} />
-      <Route path="/portfolio" component={PortfolioBuilder} />
-      <Route path="/capm" component={CAPMTester} />
-      <Route path="/factors" component={FactorAnalyzer} />
-      <Route path="/performance" component={Performance} />
-      <Route path="/utility" component={UtilityExplorer} />
-      <Route path="/fixed-income" component={FixedIncome} />
-      <Route component={NotFound} />
+      <Route path="/">
+        <ModuleLayoutWrapper>
+          <Landing />
+        </ModuleLayoutWrapper>
+      </Route>
+      <Route path="/portfolio">
+        <ModuleLayoutWrapper>
+          <PortfolioBuilder />
+        </ModuleLayoutWrapper>
+      </Route>
+      <Route path="/capm">
+        <ModuleLayoutWrapper>
+          <CAPMTester />
+        </ModuleLayoutWrapper>
+      </Route>
+      <Route path="/factors">
+        <ModuleLayoutWrapper>
+          <FactorAnalyzer />
+        </ModuleLayoutWrapper>
+      </Route>
+      <Route path="/performance">
+        <ModuleLayoutWrapper>
+          <Performance />
+        </ModuleLayoutWrapper>
+      </Route>
+      <Route path="/utility">
+        <ModuleLayoutWrapper>
+          <UtilityExplorer />
+        </ModuleLayoutWrapper>
+      </Route>
+      <Route path="/fixed-income">
+        <ModuleLayoutWrapper>
+          <FixedIncome />
+        </ModuleLayoutWrapper>
+      </Route>
+      <Route>
+        <NotFound />
+      </Route>
     </Switch>
   );
 }
 
 function App() {
-  // Custom sidebar width
-  const style = {
-    "--sidebar-width": "20rem",
-    "--sidebar-width-icon": "4rem",
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <GlobalStateProvider>
-          <SidebarProvider style={style as React.CSSProperties}>
-            <div className="flex h-screen w-full">
-              <PortfolioConfigSidebar />
-              <AppSidebar />
-              <main className="flex-1 overflow-auto">
-                <Router />
-              </main>
-            </div>
-          </SidebarProvider>
+          <div className="flex h-screen w-full">
+            <PortfolioConfigSidebar />
+            <main className="flex-1 overflow-auto">
+              <Router />
+            </main>
+          </div>
         </GlobalStateProvider>
         <Toaster />
       </TooltipProvider>
