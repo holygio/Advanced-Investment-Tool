@@ -162,65 +162,133 @@ export default function CAPMTester() {
             </Button>
           </div>
           
-          <div className="h-96 bg-background/50 rounded-md flex items-center justify-center border border-border">
-            <p className="text-sm text-muted-foreground">SML Chart will appear here</p>
+          <div className="h-96">
+            {capmData?.results ? (
+              <Plot
+                data={[
+                  {
+                    x: capmData.results.map((r: any) => r.beta),
+                    y: capmData.results.map((r: any) => r.expected_return),
+                    type: "scatter",
+                    mode: "markers+text",
+                    name: "Assets",
+                    text: capmData.results.map((r: any) => r.ticker),
+                    textposition: "top center",
+                    marker: { size: 12, color: "#2563eb" },
+                  },
+                  {
+                    x: [0, Math.max(...capmData.results.map((r: any) => r.beta)) * 1.1],
+                    y: [globalState.riskFreeRate, globalState.riskFreeRate + (capmData.market_premium * Math.max(...capmData.results.map((r: any) => r.beta)) * 1.1)],
+                    type: "scatter",
+                    mode: "lines",
+                    name: "SML",
+                    line: { color: "#dc2626", width: 2, dash: "dash" },
+                  },
+                ]}
+                layout={{
+                  autosize: true,
+                  paper_bgcolor: "rgba(0,0,0,0)",
+                  plot_bgcolor: "rgba(0,0,0,0)",
+                  font: { color: "#1f2937", family: "Inter, sans-serif", size: 12 },
+                  xaxis: { 
+                    title: "Beta (β)", 
+                    gridcolor: "#e5e7eb",
+                    showgrid: true,
+                    zeroline: true,
+                  },
+                  yaxis: { 
+                    title: "Expected Return", 
+                    gridcolor: "#e5e7eb",
+                    showgrid: true,
+                    zeroline: false,
+                    tickformat: ".1%",
+                  },
+                  margin: { l: 60, r: 20, t: 20, b: 60 },
+                  showlegend: true,
+                  legend: { x: 0.02, y: 0.98 },
+                }}
+                config={{ responsive: true }}
+                style={{ width: "100%", height: "100%" }}
+              />
+            ) : (
+              <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
+                <p className="text-sm text-muted-foreground">
+                  {loadingPrices ? "Loading data..." : capmMutation.isPending ? "Analyzing..." : "Load portfolio data to see SML"}
+                </p>
+              </div>
+            )}
           </div>
         </Card>
 
         {/* Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <MetricCard label="Market Beta" value={1.15} precision={3} />
-          <MetricCard label="Alpha (α)" value={0.025} format="percentage" />
-          <MetricCard label="R-Squared" value={0.68} format="percentage" precision={1} />
-          <MetricCard label="T-Stat (β)" value={8.45} precision={2} />
-        </div>
+        {capmData?.results && capmData.results.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard 
+              label="Market Beta" 
+              value={capmData.results[0].beta || 0} 
+              precision={3} 
+            />
+            <MetricCard 
+              label="Alpha (α)" 
+              value={capmData.results[0].alpha || 0} 
+              format="percentage" 
+            />
+            <MetricCard 
+              label="R-Squared" 
+              value={capmData.results[0].r2 || 0} 
+              format="percentage" 
+              precision={1} 
+            />
+            <MetricCard 
+              label="T-Stat (β)" 
+              value={capmData.results[0].t_beta || 0} 
+              precision={2} 
+            />
+          </div>
+        )}
 
         {/* Results Table */}
-        <Card className="p-6 bg-card border-card-border">
-          <h2 className="text-xl font-semibold mb-4">CAPM Regression Results</h2>
-          <DataTable
-            data={[
-              { ticker: "AAPL", alpha: 0.012, beta: 1.25, t_alpha: 1.82, t_beta: 12.45, r2: 0.72 },
-              { ticker: "MSFT", alpha: 0.008, beta: 1.15, t_alpha: 1.35, t_beta: 10.88, r2: 0.68 },
-              { ticker: "META", alpha: -0.005, beta: 1.42, t_alpha: -0.65, t_beta: 14.22, r2: 0.75 },
-              { ticker: "TSLA", alpha: 0.035, beta: 1.85, t_alpha: 2.15, t_beta: 15.33, r2: 0.62 },
-              { ticker: "NVDA", alpha: 0.028, beta: 1.65, t_alpha: 2.05, t_beta: 13.75, r2: 0.70 },
-            ]}
-            columns={[
-              { key: "ticker", label: "Ticker", align: "left" },
-              { 
-                key: "alpha", 
-                label: "α", 
-                align: "right",
-                format: (v) => `${(v * 100).toFixed(2)}%`
-              },
-              { 
-                key: "beta", 
-                label: "β", 
-                align: "right",
-                format: (v) => v.toFixed(3)
-              },
-              { 
-                key: "t_alpha", 
-                label: "t(α)", 
-                align: "right",
-                format: (v) => v.toFixed(2)
-              },
-              { 
-                key: "t_beta", 
-                label: "t(β)", 
-                align: "right",
-                format: (v) => v.toFixed(2)
-              },
-              { 
-                key: "r2", 
-                label: "R²", 
-                align: "right",
-                format: (v) => `${(v * 100).toFixed(1)}%`
-              },
-            ]}
-          />
-        </Card>
+        {capmData?.results && (
+          <Card className="p-6 bg-card border-card-border">
+            <h2 className="text-xl font-semibold mb-4">CAPM Regression Results</h2>
+            <DataTable
+              data={capmData.results}
+              columns={[
+                { key: "ticker", label: "Ticker", align: "left" },
+                { 
+                  key: "alpha", 
+                  label: "α", 
+                  align: "right",
+                  format: (v) => `${(v * 100).toFixed(2)}%`
+                },
+                { 
+                  key: "beta", 
+                  label: "β", 
+                  align: "right",
+                  format: (v) => v.toFixed(3)
+                },
+                { 
+                  key: "t_alpha", 
+                  label: "t(α)", 
+                  align: "right",
+                  format: (v) => v.toFixed(2)
+                },
+                { 
+                  key: "t_beta", 
+                  label: "t(β)", 
+                  align: "right",
+                  format: (v) => v.toFixed(2)
+                },
+                { 
+                  key: "r2", 
+                  label: "R²", 
+                  align: "right",
+                  format: (v) => `${(v * 100).toFixed(1)}%`
+                },
+              ]}
+            />
+          </Card>
+        )}
       </div>
     </ModuleLayout>
   );
