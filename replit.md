@@ -34,10 +34,13 @@ This is an interactive web platform for exploring advanced investment concepts i
 
 2. **Model Tester** - CAPM regression and Security Market Line analysis
 
-3. **Factor Analyzer** - Multi-factor models (Fama-French, momentum, etc.)
-   - Factor regression with beta loadings
-   - R-squared comparison
-   - Annualized factor premia
+3. **Factor Analyzer** - Fama-French 3-Factor & 5-Factor Models
+   - Historical factor data from Kenneth French Data Library (1926-2024)
+   - FF3: Market (Mkt-RF), Size (SMB), Value (HML)
+   - FF5: Adds Profitability (RMW) and Investment (CMA)
+   - Regression analysis with alpha, betas, t-statistics for user portfolios
+   - GRS test for joint alpha significance testing
+   - Correlation heatmap and cumulative factor returns visualization
 
 4. **Risk & Performance** - Performance metrics and higher moments analysis
    - Sharpe, Treynor, Information Ratio, Jensen's Alpha
@@ -84,6 +87,35 @@ This is an interactive web platform for exploring advanced investment concepts i
   - Users can modify tickers, dates, and constraints at any time
   - No need to return to home page to reconfigure
   - Live updates when clicking "Load Data & Optimize Portfolio"
+
+### Fama-French Factor Analysis Module (October 2025)
+- **Complete Rewrite**: Replaced synthetic factor generation with real historical Fama-French data
+  - CSV files stored in `server/data/factors/` (FF3: 1926-2024, FF5: 1963-2024)
+  - Monthly factor returns from Kenneth French Data Library
+  - All returns converted to decimals with proper date handling
+
+- **Backend API** (`server/api/ff_factors.py`):
+  - `/api/ff/data` - Load and filter factor data by date range with descriptive statistics
+  - `/api/ff/analyze` - Run FF3/FF5 regressions on user portfolios
+  - `/api/ff/grs` - GRS test for joint hypothesis testing of alphas
+  - Data alignment with user portfolio returns using pandas merge
+
+- **Frontend** (`client/src/pages/factor-analyzer.tsx`):
+  - Model selector (FF3 vs FF5) with radio buttons
+  - Theory tabs with complete factor formulas and interpretations
+  - Three tabbed views:
+    1. **Descriptive Statistics** - Annualized means, std devs, min/max for each factor
+    2. **Correlations** - Plotly heatmap showing factor correlation matrix
+    3. **Factor Premia** - Cumulative return chart (log scale) showing factor performance over time
+  - Regression results table: Alpha (annualized), betas, t-stats, R² for each user ticker
+  - GRS test card: F-statistic, p-value, interpretation, degrees of freedom
+
+- **Technical Implementation**:
+  - Monthly frequency matching Fama-French data (changed from weekly)
+  - Annualization: multiply monthly returns by 12, std dev by √12
+  - Excess returns: User portfolio returns minus risk-free rate / 12
+  - Robust OLS regression using statsmodels with t-statistics and R²
+  - GRS statistic calculation with proper F-distribution
 
 ## User Preferences
 
