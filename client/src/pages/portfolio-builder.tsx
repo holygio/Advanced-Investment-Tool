@@ -54,6 +54,7 @@ export default function PortfolioBuilder() {
           rf: globalState.riskFreeRate,
           allow_short: globalState.allowShortSelling,
           max_weight: globalState.maxWeight,
+          interval: interval,
         }),
       });
       
@@ -215,7 +216,7 @@ export default function PortfolioBuilder() {
                     type: "scatter",
                     mode: "lines",
                     name: "Efficient Frontier",
-                    line: { color: "hsl(var(--primary))", width: 3 },
+                    line: { color: "#2563eb", width: 3 },
                   },
                   {
                     x: frontierData.cml.map((p: any) => p.risk),
@@ -223,7 +224,7 @@ export default function PortfolioBuilder() {
                     type: "scatter",
                     mode: "lines",
                     name: "Capital Market Line",
-                    line: { color: "hsl(var(--accent))", width: 2, dash: "dash" },
+                    line: { color: "#dc2626", width: 2, dash: "dash" },
                   },
                   {
                     x: [frontierData.tangency.risk],
@@ -231,16 +232,26 @@ export default function PortfolioBuilder() {
                     type: "scatter",
                     mode: "markers",
                     name: "Tangency Portfolio",
-                    marker: { size: 12, color: "hsl(var(--accent))" },
+                    marker: { size: 12, color: "#16a34a", symbol: "star" },
                   },
                 ]}
                 layout={{
                   autosize: true,
-                  paper_bgcolor: "transparent",
-                  plot_bgcolor: "transparent",
-                  font: { color: "hsl(var(--foreground))", family: "Inter, sans-serif" },
-                  xaxis: { title: "Risk (σ)", gridcolor: "hsl(var(--border))" },
-                  yaxis: { title: "Expected Return", gridcolor: "hsl(var(--border))" },
+                  paper_bgcolor: "rgba(0,0,0,0)",
+                  plot_bgcolor: "rgba(0,0,0,0)",
+                  font: { color: "#000", family: "Inter, sans-serif", size: 12 },
+                  xaxis: { 
+                    title: "Risk (σ)", 
+                    gridcolor: "#e5e7eb",
+                    showgrid: true,
+                    zeroline: false,
+                  },
+                  yaxis: { 
+                    title: "Expected Return", 
+                    gridcolor: "#e5e7eb",
+                    showgrid: true,
+                    zeroline: false,
+                  },
                   margin: { l: 60, r: 20, t: 20, b: 60 },
                   showlegend: true,
                   legend: { x: 0.02, y: 0.98 },

@@ -43,6 +43,7 @@ class EfficientFrontierRequest(BaseModel):
     rf: float
     allow_short: bool
     max_weight: float = 1.0  # Maximum weight per asset
+    interval: str = "1d"  # Data frequency for annualization
 
 class EfficientFrontierResponse(BaseModel):
     frontier: List[EfficientFrontierPoint]
@@ -57,9 +58,17 @@ async def calculate_efficient_frontier(request: EfficientFrontierRequest):
         for ticker, returns in request.returns.items():
             returns_df[ticker] = [r.ret for r in returns]
         
+        # Determine annualization factor based on data frequency
+        annualization_factors = {
+            "1d": 252,   # Daily: 252 trading days/year
+            "1wk": 52,   # Weekly: 52 weeks/year
+            "1mo": 12,   # Monthly: 12 months/year
+        }
+        annualization = annualization_factors.get(request.interval, 252)
+        
         # Calculate expected returns and covariance matrix
-        mu = returns_df.mean() * 252  # Annualize
-        cov = returns_df.cov() * 252  # Annualize
+        mu = returns_df.mean() * annualization  # Annualize
+        cov = returns_df.cov() * annualization  # Annualize
         
         n_assets = len(mu)
         tickers = list(mu.index)

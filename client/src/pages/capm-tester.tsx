@@ -4,7 +4,7 @@ import { ModuleLayout } from "@/components/module-layout";
 import { MetricCard } from "@/components/metric-card";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Play } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useGlobalState } from "@/contexts/global-state-context";
 import { apiRequest } from "@/lib/queryClient";
