@@ -42,6 +42,7 @@ class EfficientFrontierRequest(BaseModel):
     returns: Dict[str, List[ReturnDataPoint]]
     rf: float
     allow_short: bool
+    max_weight: float = 1.0  # Maximum weight per asset
 
 class EfficientFrontierResponse(BaseModel):
     frontier: List[EfficientFrontierPoint]
@@ -83,6 +84,10 @@ async def calculate_efficient_frontier(request: EfficientFrontierRequest):
             if not request.allow_short:
                 constraints.append(w >= 0)  # no short selling
             
+            # Add max weight constraint if specified
+            if request.max_weight < 1.0:
+                constraints.append(w <= request.max_weight)
+            
             # Solve
             problem = cp.Problem(objective, constraints)
             problem.solve(solver=cp.OSQP)
@@ -96,33 +101,32 @@ async def calculate_efficient_frontier(request: EfficientFrontierRequest):
                 ))
         
         # Calculate tangency portfolio (max Sharpe ratio)
-        w = cp.Variable(n_assets)
-        excess_return = mu.values - request.rf
-        
-        objective = cp.Maximize(w @ excess_return)
-        constraints = [
-            cp.quad_form(w, cov.values) <= 1,
-            cp.sum(w) == 1
-        ]
-        
-        if not request.allow_short:
-            constraints.append(w >= 0)
-        
-        problem = cp.Problem(objective, constraints)
-        problem.solve(solver=cp.OSQP)
-        
-        if problem.status == 'optimal':
-            tangency_weights = w.value / np.sum(w.value)
-            tangency_return = float(mu.values @ tangency_weights)
-            tangency_risk = float(np.sqrt(tangency_weights @ cov.values @ tangency_weights))
-            tangency_sharpe = (tangency_return - request.rf) / tangency_risk if tangency_risk > 0 else 0
+        # Find the portfolio on the frontier with maximum Sharpe ratio
+        if frontier_points:
+            max_sharpe = -np.inf
+            tangency = None
             
-            tangency = TangencyPortfolio(
-                risk=tangency_risk,
-                return_=tangency_return,
-                sharpe=tangency_sharpe,
-                weights={ticker: float(tangency_weights[i]) for i, ticker in enumerate(tickers)}
-            )
+            for point in frontier_points:
+                if point.risk > 0:
+                    sharpe = (point.return_ - request.rf) / point.risk
+                    if sharpe > max_sharpe:
+                        max_sharpe = sharpe
+                        tangency = TangencyPortfolio(
+                            risk=point.risk,
+                            return_=point.return_,
+                            sharpe=sharpe,
+                            weights=point.weights
+                        )
+            
+            # If no valid tangency found, use first valid frontier point
+            if tangency is None and frontier_points:
+                point = frontier_points[len(frontier_points)//2]  # Use middle point
+                tangency = TangencyPortfolio(
+                    risk=point.risk,
+                    return_=point.return_,
+                    sharpe=(point.return_ - request.rf) / point.risk if point.risk > 0 else 0,
+                    weights=point.weights
+                )
         else:
             # Fallback: use equal weights
             tangency_weights = np.ones(n_assets) / n_assets

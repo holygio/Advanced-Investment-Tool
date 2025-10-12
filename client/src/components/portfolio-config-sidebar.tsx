@@ -155,10 +155,34 @@ export function PortfolioConfigSidebar() {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm">Maximum weight per asset (%)</Label>
-              <span className="text-sm font-medium" data-testid="text-max-weight">
-                {(globalState.maxWeight * 100).toFixed(0)}
-              </span>
+              <Label htmlFor="max-weight-input" className="text-sm">Maximum weight per asset</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p>Maximum allocation to any single asset (5-100%)</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input
+                id="max-weight-input"
+                type="number"
+                step="5"
+                min="5"
+                max="100"
+                value={(globalState.maxWeight * 100).toFixed(0)}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  if (!isNaN(value) && value >= 5 && value <= 100) {
+                    updateGlobalState({ maxWeight: value / 100 });
+                  }
+                }}
+                className="flex-1"
+                data-testid="input-max-weight"
+              />
+              <span className="text-sm text-muted-foreground">%</span>
             </div>
             <Slider
               value={[globalState.maxWeight * 100]}

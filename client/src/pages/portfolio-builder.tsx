@@ -17,9 +17,9 @@ import { useGlobalState } from "@/contexts/global-state-context";
 
 export default function PortfolioBuilder() {
   const { globalState } = useGlobalState();
-  const [interval, setInterval] = useState<"1d" | "1wk" | "1mo">("1wk");
+  const interval = "1wk";  // Fixed to weekly frequency
   const { toast } = useToast();
-  const hasAutoOptimized = useRef(false);
+  const lastOptimizedParams = useRef<string | null>(null);
 
   // Fetch price data
   const { data: priceData, isLoading: loadingPrices } = useQuery({
@@ -76,14 +76,23 @@ export default function PortfolioBuilder() {
 
   const frontierData = optimizeMutation.data;
 
-  // Auto-trigger optimization ONCE when price data first loads
-  // For subsequent changes, user must click "Re-Optimize Portfolio"
+  // Auto-trigger optimization when price data loads OR constraints change
   useEffect(() => {
-    if (priceData?.returns && !loadingPrices && !hasAutoOptimized.current && !optimizeMutation.isPending) {
-      hasAutoOptimized.current = true;
-      optimizeMutation.mutate();
+    if (priceData?.returns && !loadingPrices && !optimizeMutation.isPending) {
+      const currentParams = JSON.stringify({
+        tickers: globalState.tickers,
+        rf: globalState.riskFreeRate,
+        allowShort: globalState.allowShortSelling,
+        maxWeight: globalState.maxWeight
+      });
+      
+      // Only optimize if parameters have changed
+      if (lastOptimizedParams.current !== currentParams) {
+        lastOptimizedParams.current = currentParams;
+        optimizeMutation.mutate();
+      }
     }
-  }, [priceData, loadingPrices]);
+  }, [priceData, loadingPrices, globalState.riskFreeRate, globalState.allowShortSelling, globalState.maxWeight]);
 
   const theory = (
     <div className="space-y-6 py-6">
@@ -168,39 +177,14 @@ export default function PortfolioBuilder() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Controls Panel */}
         <Card className="p-6 bg-card border-card-border">
-          <h2 className="text-xl font-semibold mb-6">Visualization Settings</h2>
+          <h2 className="text-xl font-semibold mb-6">Export Results</h2>
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="interval-select">Rebalance Frequency</Label>
-              <select
-                id="interval-select"
-                data-testid="select-interval"
-                value={interval}
-                onChange={(e) => setInterval(e.target.value as "1d" | "1wk" | "1mo")}
-                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="1d">Daily</option>
-                <option value="1wk">Weekly</option>
-                <option value="1mo">Monthly</option>
-              </select>
-            </div>
-
-            <div className="pt-2 space-y-2">
               <p className="text-sm text-muted-foreground">
-                Configure portfolio settings in the left sidebar. Click below to re-run optimization with updated parameters.
+                Portfolio is automatically optimized using weekly returns. Adjust parameters in the left sidebar to see updated results.
               </p>
             </div>
-
-            <Button 
-              className="w-full" 
-              data-testid="button-optimize"
-              onClick={() => optimizeMutation.mutate()}
-              disabled={loadingPrices || optimizeMutation.isPending || !priceData?.returns}
-            >
-              <Play className="h-4 w-4 mr-2" />
-              {optimizeMutation.isPending ? "Optimizing..." : "Optimize Portfolio"}
-            </Button>
 
             <Button 
               variant="outline" 
@@ -267,7 +251,7 @@ export default function PortfolioBuilder() {
             ) : (
               <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
                 <p className="text-sm text-muted-foreground">
-                  {loadingPrices ? "Loading price data..." : "Click 'Optimize Portfolio' to see results"}
+                  {loadingPrices ? "Loading price data..." : optimizeMutation.isPending ? "Optimizing portfolio..." : "Configure portfolio in the left sidebar to begin"}
                 </p>
               </div>
             )}

@@ -34,100 +34,73 @@ async def fetch_prices(request: FetchPricesRequest):
         returns_data = {}
         
         # Download all tickers at once for efficiency
+        # Only fetch Close prices to minimize data transfer and processing time
+        tickers_str = ' '.join(request.tickers)
         data = yf.download(
-            request.tickers,
+            tickers_str,
             start=request.start,
             end=request.end,
             interval=request.interval,
             progress=False,
-            auto_adjust=True  # Use adjusted prices
+            auto_adjust=True,
+            actions=False  # Don't fetch dividends/splits  
         )
         
         if data.empty:
             return FetchPricesResponse(prices={}, returns={})
         
-        # Handle single vs multiple tickers
+        # Extract only Close prices
         if len(request.tickers) == 1:
-            ticker = request.tickers[0]
-            
-            # For single ticker, columns are simple
-            if hasattr(data.columns, 'nlevels') and data.columns.nlevels > 1:
-                # Still MultiIndex even for single ticker
-                adj_close = data['Close'].iloc[:, 0] if 'Close' in data.columns else data.iloc[:, 0]
-            elif 'Close' in list(data.columns):
-                adj_close = data['Close']
-            else:
-                adj_close = data.iloc[:, 0]  # Take first column
-            
-            # Convert to lists
-            prices = []
-            for date, price in adj_close.items():
-                if pd.notna(price):
-                    prices.append(PriceDataPoint(
-                        date=date.strftime('%Y-%m-%d'),
-                        adjClose=float(price)
-                    ))
-            
-            prices_data[ticker] = prices
-            
-            # Calculate returns
-            if request.log_returns:
-                returns = np.log(adj_close / adj_close.shift(1))
-            else:
-                returns = adj_close.pct_change()
-            
-            returns_list = []
-            for date, ret in returns.items():
-                if pd.notna(ret):
-                    returns_list.append(ReturnDataPoint(
-                        date=date.strftime('%Y-%m-%d'),
-                        ret=float(ret)
-                    ))
-            
-            returns_data[ticker] = returns_list
+            # Single ticker - data is a simple DataFrame
+            close_data = data['Close'] if 'Close' in data.columns else data
         else:
-            # Multiple tickers - columns are MultiIndex
-            for ticker in request.tickers:
-                try:
-                    # Get close prices for this ticker
-                    if isinstance(data.columns, pd.MultiIndex):
-                        if ('Close', ticker) in data.columns:
-                            adj_close = data[('Close', ticker)]
-                        else:
-                            continue
-                    else:
+            # Multiple tickers - extract Close column
+            if isinstance(data.columns, pd.MultiIndex):
+                close_data = data['Close']
+            else:
+                close_data = data
+        
+        # Process each ticker
+        for ticker in request.tickers:
+            try:
+                # Get close prices for this ticker
+                if len(request.tickers) == 1:
+                    adj_close = close_data
+                else:
+                    if ticker not in close_data.columns:
                         continue
-                    
-                    # Convert to lists
-                    prices = []
-                    for date, price in adj_close.items():
-                        if pd.notna(price):
-                            prices.append(PriceDataPoint(
-                                date=date.strftime('%Y-%m-%d'),
-                                adjClose=float(price)
-                            ))
-                    
-                    prices_data[ticker] = prices
-                    
-                    # Calculate returns
-                    if request.log_returns:
-                        returns = np.log(adj_close / adj_close.shift(1))
-                    else:
-                        returns = adj_close.pct_change()
-                    
-                    returns_list = []
-                    for date, ret in returns.items():
-                        if pd.notna(ret):
-                            returns_list.append(ReturnDataPoint(
-                                date=date.strftime('%Y-%m-%d'),
-                                ret=float(ret)
-                            ))
-                    
-                    returns_data[ticker] = returns_list
+                    adj_close = close_data[ticker]
                 
-                except Exception as e:
-                    print(f"Error processing {ticker}: {str(e)}")
-                    continue
+                # Convert to price lists
+                prices = []
+                for date, price in adj_close.items():
+                    if pd.notna(price):
+                        prices.append(PriceDataPoint(
+                            date=date.strftime('%Y-%m-%d'),
+                            adjClose=float(price)
+                        ))
+                
+                prices_data[ticker] = prices
+                
+                # Calculate returns
+                if request.log_returns:
+                    returns = np.log(adj_close / adj_close.shift(1))
+                else:
+                    returns = adj_close.pct_change()
+                
+                returns_list = []
+                for date, ret in returns.items():
+                    if pd.notna(ret):
+                        returns_list.append(ReturnDataPoint(
+                            date=date.strftime('%Y-%m-%d'),
+                            ret=float(ret)
+                        ))
+                
+                returns_data[ticker] = returns_list
+            
+            except Exception as e:
+                print(f"Error processing {ticker}: {str(e)}")
+                continue
         
         return FetchPricesResponse(prices=prices_data, returns=returns_data)
     
