@@ -185,8 +185,8 @@ export default function Performance() {
         <p className="text-sm text-muted-foreground mb-3">
           LPM measures downside risk relative to a target return τ:
         </p>
-        <div className="bg-background p-4 rounded font-mono text-sm">
-          <p>LPM<sub>n</sub>(τ) = (1/T) Σ [min(r<sub>t</sub> - τ, 0)]<sup>n</sup></p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">LPM<sub>n</sub>(τ) = (1/T) Σ [min(r<sub>t</sub> - τ, 0)]<sup>n</sup></p>
           <p className="text-xs text-muted-foreground mt-2">
             n = 2, τ = 0 gives semivariance (downside volatility)
           </p>

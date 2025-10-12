@@ -99,13 +99,13 @@ export default function CAPMTester() {
 
       <div className="bg-card rounded-md p-4 border border-border">
         <h3 className="text-lg font-semibold mb-3">CAPM Equation</h3>
-        <div className="bg-background p-4 rounded font-mono text-sm space-y-2">
-          <p>E[R<sub>i</sub>] = R<sub>f</sub> + β<sub>i</sub>(E[R<sub>M</sub>] - R<sub>f</sub>)</p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
+          <p className="text-foreground">E[R<sub>i</sub>] = R<sub>f</sub> + β<sub>i</sub>(E[R<sub>M</sub>] - R<sub>f</sub>)</p>
           <p className="mt-3 text-xs text-muted-foreground">where:</p>
-          <p className="text-xs">E[R<sub>i</sub>] = Expected return on asset i</p>
-          <p className="text-xs">R<sub>f</sub> = Risk-free rate</p>
-          <p className="text-xs">β<sub>i</sub> = Beta of asset i (systematic risk)</p>
-          <p className="text-xs">E[R<sub>M</sub>] = Expected market return</p>
+          <p className="text-xs text-foreground">E[R<sub>i</sub>] = Expected return on asset i</p>
+          <p className="text-xs text-foreground">R<sub>f</sub> = Risk-free rate</p>
+          <p className="text-xs text-foreground">β<sub>i</sub> = Beta of asset i (systematic risk)</p>
+          <p className="text-xs text-foreground">E[R<sub>M</sub>] = Expected market return</p>
         </div>
       </div>
 
@@ -114,8 +114,8 @@ export default function CAPMTester() {
         <p className="text-sm text-muted-foreground mb-3">
           We estimate CAPM parameters using OLS regression on excess returns:
         </p>
-        <div className="bg-background p-4 rounded font-mono text-sm">
-          <p>R<sub>i,t</sub> - R<sub>f,t</sub> = α<sub>i</sub> + β<sub>i</sub>(R<sub>M,t</sub> - R<sub>f,t</sub>) + ε<sub>i,t</sub></p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">R<sub>i,t</sub> - R<sub>f,t</sub> = α<sub>i</sub> + β<sub>i</sub>(R<sub>M,t</sub> - R<sub>f,t</sub>) + ε<sub>i,t</sub></p>
           <p className="mt-3 text-xs text-muted-foreground">
             α (alpha) represents abnormal return after adjusting for market risk
           </p>

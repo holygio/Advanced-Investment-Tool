@@ -148,10 +148,10 @@ export default function PortfolioBuilder() {
         <p className="text-sm text-muted-foreground mb-3">
           The efficient frontier is constructed from expected returns (μ) and covariance matrix (Σ):
         </p>
-        <div className="bg-background p-4 rounded font-mono text-sm">
-          <p>Minimize: ω'Σω</p>
-          <p>Subject to: ω'μ = R<sub>target</sub></p>
-          <p className="mt-2">where ω = portfolio weights</p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">Minimize: ω'Σω</p>
+          <p className="text-foreground">Subject to: ω'μ = R<sub>target</sub></p>
+          <p className="mt-2 text-foreground">where ω = portfolio weights</p>
         </div>
       </div>
 
@@ -160,8 +160,8 @@ export default function PortfolioBuilder() {
         <p className="text-sm text-muted-foreground mb-3">
           With a risk-free asset, investors combine the tangency portfolio with the risk-free rate:
         </p>
-        <div className="bg-background p-4 rounded font-mono text-sm">
-          <p>E[R<sub>p</sub>] = R<sub>f</sub> + [(E[R<sub>M</sub>] - R<sub>f</sub>) / σ<sub>M</sub>] × σ<sub>p</sub></p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">E[R<sub>p</sub>] = R<sub>f</sub> + [(E[R<sub>M</sub>] - R<sub>f</sub>) / σ<sub>M</sub>] × σ<sub>p</sub></p>
         </div>
       </div>
 

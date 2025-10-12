@@ -147,8 +147,8 @@ export default function FactorAnalyzer() {
 
       <div className="bg-card rounded-md p-6 border border-border">
         <h3 className="text-lg font-semibold mb-4">Model Equation</h3>
-        <div className="bg-background p-4 rounded font-mono text-sm overflow-x-auto">
-          <p className="whitespace-nowrap">
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm overflow-x-auto border border-border">
+          <p className="whitespace-nowrap text-foreground">
             R<sub>i</sub> - R<sub>f</sub> = α<sub>i</sub> + β<sub>M</sub>(R<sub>M</sub> - R<sub>f</sub>) + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML + ε<sub>i</sub>
           </p>
         </div>
@@ -207,11 +207,11 @@ export default function FactorAnalyzer() {
 
       <div className="bg-card rounded-md p-6 border border-border">
         <h3 className="text-lg font-semibold mb-4">Model Equation</h3>
-        <div className="bg-background p-4 rounded font-mono text-sm overflow-x-auto">
-          <p className="whitespace-nowrap mb-2">
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm overflow-x-auto border border-border">
+          <p className="whitespace-nowrap mb-2 text-foreground">
             R<sub>i</sub> - R<sub>f</sub> = α<sub>i</sub> + β<sub>M</sub>(R<sub>M</sub> - R<sub>f</sub>) + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML
           </p>
-          <p className="whitespace-nowrap ml-16">
+          <p className="whitespace-nowrap ml-16 text-foreground">
             + β<sub>RMW</sub>·RMW + β<sub>CMA</sub>·CMA + ε<sub>i</sub>
           </p>
         </div>
@@ -361,6 +361,47 @@ export default function FactorAnalyzer() {
               </div>
             </div>
           </RadioGroup>
+        </Card>
+
+        {/* Data Source & Model Formula */}
+        <Card className="p-6 bg-muted/30">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Model Equation</h3>
+              <div className="bg-muted/50 p-4 rounded font-mono text-sm overflow-x-auto border border-border">
+                {selectedModel === "FF3" ? (
+                  <p className="whitespace-nowrap text-foreground">
+                    R<sub>i</sub> - R<sub>f</sub> = α<sub>i</sub> + β<sub>M</sub>(R<sub>M</sub> - R<sub>f</sub>) + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML + ε<sub>i</sub>
+                  </p>
+                ) : (
+                  <>
+                    <p className="whitespace-nowrap mb-2 text-foreground">
+                      R<sub>i</sub> - R<sub>f</sub> = α<sub>i</sub> + β<sub>M</sub>(R<sub>M</sub> - R<sub>f</sub>) + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML
+                    </p>
+                    <p className="whitespace-nowrap ml-16 text-foreground">
+                      + β<sub>RMW</sub>·RMW + β<sub>CMA</sub>·CMA + ε<sub>i</sub>
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            <div className="pt-2 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                <strong>Data Source:</strong> Historical factor returns from the{" "}
+                <a 
+                  href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Kenneth French Data Library
+                </a>{" "}
+                at Dartmouth College. Factor data: FF3 (1926-2024), FF5 (1963-2024). Your portfolio returns 
+                are from Yahoo Finance and tested against these established factors.
+              </p>
+            </div>
+          </div>
         </Card>
 
         {/* Summary Metrics */}
@@ -538,15 +579,16 @@ export default function FactorAnalyzer() {
                 <p className="text-3xl font-mono font-semibold">{grsResults.num_portfolios}</p>
               </div>
             </div>
-            <div className="mt-6 p-4 bg-background/50 rounded-md border border-border">
+            <div className="mt-6 p-4 bg-muted/30 rounded-md border border-border">
               <p className="text-sm font-medium mb-2">Interpretation:</p>
               <p className="text-sm text-muted-foreground">{grsResults.interpretation}</p>
             </div>
-            <div className="mt-4 p-4 bg-background/50 rounded-md border border-border">
+            <div className="mt-4 p-4 bg-muted/30 rounded-md border border-border">
               <p className="text-xs text-muted-foreground">
-                The GRS test jointly tests whether all alphas are zero. A low p-value (&lt; 0.05) indicates 
-                the model fails to price the assets correctly. Test statistic: F({grsResults.num_portfolios}, 
-                {grsResults.num_observations - grsResults.num_portfolios - (selectedModel === "FF3" ? 3 : 5)})
+                <strong>Methodology:</strong> The GRS test uses your portfolio returns from Yahoo Finance 
+                and tests them against the historical Fama-French factors. It jointly tests whether all 
+                alphas are zero. A low p-value (&lt; 0.05) indicates the model fails to price the assets correctly. 
+                Test statistic: F({grsResults.num_portfolios}, {grsResults.num_observations - grsResults.num_portfolios - (selectedModel === "FF3" ? 3 : 5)})
               </p>
             </div>
           </Card>

@@ -79,9 +79,9 @@ export default function FixedIncome() {
         <p className="text-sm text-muted-foreground mb-3">
           Extending factors to bonds and stocks:
         </p>
-        <div className="bg-background p-4 rounded font-mono text-sm">
-          <p>R<sub>i</sub> - R<sub>f</sub> = α + β<sub>MKT</sub>MKT + β<sub>SMB</sub>SMB + β<sub>HML</sub>HML</p>
-          <p className="ml-16">+ β<sub>TERM</sub>TERM + β<sub>CREDIT</sub>CREDIT + ε</p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">R<sub>i</sub> - R<sub>f</sub> = α + β<sub>MKT</sub>MKT + β<sub>SMB</sub>SMB + β<sub>HML</sub>HML</p>
+          <p className="ml-16 text-foreground">+ β<sub>TERM</sub>TERM + β<sub>CREDIT</sub>CREDIT + ε</p>
         </div>
       </div>
 
@@ -90,9 +90,9 @@ export default function FixedIncome() {
         <p className="text-sm text-muted-foreground mb-3">
           Binomial model: find risk-neutral probabilities p such that:
         </p>
-        <div className="bg-background p-4 rounded font-mono text-sm">
-          <p>E<sup>Q</sup>[R] = r<sub>f</sub></p>
-          <p className="mt-2">p = (e<sup>r</sup> - d) / (u - d)</p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">E<sup>Q</sup>[R] = r<sub>f</sub></p>
+          <p className="mt-2 text-foreground">p = (e<sup>r</sup> - d) / (u - d)</p>
         </div>
       </div>
     </div>

@@ -28,19 +28,19 @@ export default function UtilityExplorer() {
       <div className="bg-card rounded-md p-4 border border-border">
         <h3 className="text-lg font-semibold mb-3">Risk Aversion Types</h3>
         <div className="space-y-4 text-sm">
-          <div className="bg-background p-3 rounded">
+          <div className="bg-muted/50 p-3 rounded border border-border">
             <p className="font-semibold mb-1">CRRA (Constant Relative Risk Aversion)</p>
-            <p className="font-mono text-sm mb-1">U(x) = x<sup>1-γ</sup> / (1-γ)</p>
+            <p className="font-mono text-sm mb-1 text-foreground">U(x) = x<sup>1-γ</sup> / (1-γ)</p>
             <p className="text-muted-foreground">Risk aversion constant as percentage of wealth</p>
           </div>
-          <div className="bg-background p-3 rounded">
+          <div className="bg-muted/50 p-3 rounded border border-border">
             <p className="font-semibold mb-1">CARA (Constant Absolute Risk Aversion)</p>
-            <p className="font-mono text-sm mb-1">U(x) = -e<sup>-γx</sup></p>
+            <p className="font-mono text-sm mb-1 text-foreground">U(x) = -e<sup>-γx</sup></p>
             <p className="text-muted-foreground">Risk aversion constant in absolute terms</p>
           </div>
-          <div className="bg-background p-3 rounded">
+          <div className="bg-muted/50 p-3 rounded border border-border">
             <p className="font-semibold mb-1">DARA (Decreasing Absolute Risk Aversion)</p>
-            <p className="font-mono text-sm mb-1">U(x) = ln(x)</p>
+            <p className="font-mono text-sm mb-1 text-foreground">U(x) = ln(x)</p>
             <p className="text-muted-foreground">Risk aversion decreases with wealth</p>
           </div>
         </div>
@@ -51,8 +51,8 @@ export default function UtilityExplorer() {
         <p className="text-sm text-muted-foreground mb-3">
           The SDF relates to marginal utility:
         </p>
-        <div className="bg-background p-4 rounded font-mono text-sm space-y-2">
-          <p>m<sub>t+1</sub> = U'(c<sub>t+1</sub>) / U'(c<sub>t</sub>)</p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
+          <p className="text-foreground">m<sub>t+1</sub> = U'(c<sub>t+1</sub>) / U'(c<sub>t</sub>)</p>
           <p className="mt-3 text-xs text-muted-foreground">
             Asset prices: p<sub>t</sub> = E[m<sub>t+1</sub> · x<sub>t+1</sub>]
           </p>
@@ -64,8 +64,8 @@ export default function UtilityExplorer() {
         <p className="text-sm text-muted-foreground mb-3">
           In the CAPM, the SDF is affine in the market return:
         </p>
-        <div className="bg-background p-4 rounded font-mono text-sm">
-          <p>m<sub>t+1</sub> = a + b · R<sub>M,t+1</sub></p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">m<sub>t+1</sub> = a + b · R<sub>M,t+1</sub></p>
         </div>
         <p className="text-sm text-muted-foreground mt-3">
           This linear relationship emerges from quadratic utility or normal returns with exponential utility.
