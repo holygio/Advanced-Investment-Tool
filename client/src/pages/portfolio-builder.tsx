@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { ModuleLayout } from "@/components/module-layout";
 import { MetricCard } from "@/components/metric-card";
@@ -17,9 +17,9 @@ import { useGlobalState } from "@/contexts/global-state-context";
 
 export default function PortfolioBuilder() {
   const { globalState } = useGlobalState();
-  const [allowShort, setAllowShort] = useState(false);
   const [interval, setInterval] = useState<"1d" | "1wk" | "1mo">("1wk");
   const { toast } = useToast();
+  const hasAutoOptimized = useRef(false);
 
   // Fetch price data
   const { data: priceData, isLoading: loadingPrices } = useQuery({
@@ -52,13 +52,14 @@ export default function PortfolioBuilder() {
         body: JSON.stringify({
           returns: priceData.returns,
           rf: globalState.riskFreeRate,
-          allow_short: allowShort,
+          allow_short: globalState.allowShortSelling,
+          max_weight: globalState.maxWeight,
         }),
       });
       
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Optimization Complete",
         description: "Portfolio optimization completed successfully",
@@ -74,6 +75,15 @@ export default function PortfolioBuilder() {
   });
 
   const frontierData = optimizeMutation.data;
+
+  // Auto-trigger optimization ONCE when price data first loads
+  // For subsequent changes, user must click "Re-Optimize Portfolio"
+  useEffect(() => {
+    if (priceData?.returns && !loadingPrices && !hasAutoOptimized.current && !optimizeMutation.isPending) {
+      hasAutoOptimized.current = true;
+      optimizeMutation.mutate();
+    }
+  }, [priceData, loadingPrices]);
 
   const theory = (
     <div className="space-y-6 py-6">
@@ -158,7 +168,7 @@ export default function PortfolioBuilder() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Controls Panel */}
         <Card className="p-6 bg-card border-card-border">
-          <h2 className="text-xl font-semibold mb-6">Optimization Settings</h2>
+          <h2 className="text-xl font-semibold mb-6">Visualization Settings</h2>
           
           <div className="space-y-4">
             <div className="space-y-2">
@@ -176,23 +186,17 @@ export default function PortfolioBuilder() {
               </select>
             </div>
 
-            <div className="flex items-center justify-between py-2">
-              <Label htmlFor="allow-short" className="text-sm">
-                Allow Short Selling
-              </Label>
-              <Switch
-                id="allow-short"
-                data-testid="switch-allow-short"
-                checked={allowShort}
-                onCheckedChange={setAllowShort}
-              />
+            <div className="pt-2 space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Configure portfolio settings in the left sidebar. Click below to re-run optimization with updated parameters.
+              </p>
             </div>
 
             <Button 
               className="w-full" 
               data-testid="button-optimize"
               onClick={() => optimizeMutation.mutate()}
-              disabled={loadingPrices || optimizeMutation.isPending}
+              disabled={loadingPrices || optimizeMutation.isPending || !priceData?.returns}
             >
               <Play className="h-4 w-4 mr-2" />
               {optimizeMutation.isPending ? "Optimizing..." : "Optimize Portfolio"}

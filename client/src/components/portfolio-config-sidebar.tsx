@@ -9,10 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Play, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 export function PortfolioConfigSidebar() {
   const { globalState, updateGlobalState } = useGlobalState();
   const [tickerText, setTickerText] = useState(globalState.tickers.join("\n"));
+  const [_, setLocation] = useLocation();
 
   const handleTickerChange = (text: string) => {
     setTickerText(text);
@@ -175,6 +177,7 @@ export function PortfolioConfigSidebar() {
         <Button 
           className="w-full gap-2" 
           size="lg"
+          onClick={() => setLocation("/portfolio")}
           data-testid="button-load-optimize"
         >
           <Play className="h-4 w-4" />
