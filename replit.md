@@ -42,11 +42,11 @@ This is an interactive web platform for exploring advanced investment concepts i
    - GRS test for joint alpha significance testing
    - Correlation heatmap and cumulative factor returns visualization
 
-4. **Risk & Performance** - Performance metrics and higher moments analysis
-   - Sharpe, Treynor, Information Ratio, Jensen's Alpha
-   - Skewness, Kurtosis, Jarque-Bera test
+4. **Risk** - Performance metrics and higher moments analysis
+   - Sharpe, Treynor, Information Ratio, Jensen's Alpha, M²
    - Return distribution histogram
    - Lower Partial Moments (LPM) with configurable tau and n
+   - Return-LPM Frontier visualization
 
 5. **Utility Explorer** - Utility functions (CRRA, CARA, DARA) and SDF concepts
 
@@ -123,11 +123,15 @@ This is an interactive web platform for exploring advanced investment concepts i
 - **Technical Implementation**:
   - Monthly frequency matching Fama-French data (changed from weekly)
   - Annualization: multiply monthly returns by 12, std dev by √12
-  - Excess returns: User portfolio returns minus time-varying RF from FF data
-  - Date normalization: Portfolio dates converted to first-of-month to align with FF data
-  - Robust OLS regression using statsmodels with t-statistics and R²
-  - GRS statistic calculation with proper F-distribution
-  - Data validation: Minimum observations required for GRS test (N + K + 1)
+
+### Risk Module Improvements (October 2025)
+- **Module Title**: Changed from "Risk & Performance" to "Risk" per user feedback
+- **UI Restructuring**: Removed Correlations tab, now 3 tabs: Overview, LPM & Frontier, Ratios & Performance
+- **Multi-Asset Metrics**: Updated to use all 10 portfolio assets for performance metrics calculation
+- **Bug Fixes**:
+  - Fixed `model.params.iloc[0]` AttributeError - changed to array indexing `model.params[0]`
+  - Fixed portfolio optimization default max_weight from 0.5 (50%) to 0.2 (20%)
+  - Ensures portfolio respects maximum weight per asset constraint
 
 ## User Preferences
 

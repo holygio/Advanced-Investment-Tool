@@ -28,7 +28,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     marketProxy: "^GSPC",
     lookbackYears: 5,
     allowShortSelling: false,
-    maxWeight: 0.5,
+    maxWeight: 0.2,
   });
 
   const updateGlobalState = (updates: Partial<GlobalState>) => {

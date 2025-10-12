@@ -196,9 +196,9 @@ async def calculate_multi_asset_metrics(request: MultiAssetRequest):
                     X = sm.add_constant(excess_market)
                     model = sm.OLS(excess_returns, X).fit()
                     
-                    # Access params using .iloc for positional indexing
-                    alpha_period = float(model.params.iloc[0])
-                    beta = float(model.params.iloc[1])
+                    # Access params using array indexing (model.params is numpy array)
+                    alpha_period = float(model.params[0])
+                    beta = float(model.params[1])
                     alpha_annual = alpha_period * periods_per_year
                     residual_std = float(model.resid.std()) * np.sqrt(periods_per_year)
                     
