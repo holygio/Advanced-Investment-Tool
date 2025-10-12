@@ -49,6 +49,26 @@ This is an interactive web platform for exploring advanced investment concepts i
 
 6. **Fixed Income** - Term structure and credit spread analysis
 
+## Recent Changes (October 2025)
+
+### Portfolio Optimization Fixes
+- **Fixed Expected Return Bug**: Rewrote efficient frontier calculation to properly compute tangency portfolio metrics
+  - Was displaying 0.00% due to optimization failures
+  - Now correctly shows 17.03% annualized return using robust Markowitz optimization
+  - Algorithm: Min variance → Max return → 50 frontier points → Tangency selection via max Sharpe ratio
+  
+- **Fixed Pydantic Serialization**: Added `Field(serialization_alias='return')` to properly serialize `return_` field
+  - FastAPI now correctly emits `"return": 0.17` instead of `"return_": 0.17`
+  - Frontend properly reads tangency.return for Expected Return metric
+  
+- **Expanded Default Portfolio**: Increased from 5 to 10 tickers for better diversification
+  - SPY (S&P 500), TLT (Long Bonds), GLD (Gold), VNQ (REITs), EEM (Emerging Markets)
+  - QQQ (Tech/Nasdaq), IWM (Small Cap), EFA (International), AGG (Agg Bonds), DBC (Commodities)
+
+### UX Improvements
+- **Auto-Execution**: CAPM analysis now auto-runs when portfolio data loads (removed "Run CAPM" button)
+- **Locked Configuration**: Sidebar becomes read-only after data loads to prevent accidental reconfiguration
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
