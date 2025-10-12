@@ -145,8 +145,8 @@ export default function FactorAnalyzer() {
         </p>
       </div>
 
-      <div className="bg-card rounded-md p-6 border border-border">
-        <h3 className="text-lg font-semibold mb-4">Model Equation</h3>
+      <div className="bg-white rounded-md p-6 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 text-foreground">Model Equation</h3>
         <div className="bg-muted/50 p-4 rounded font-mono text-sm overflow-x-auto border border-border">
           <p className="whitespace-nowrap text-foreground">
             R<sub>i</sub> - R<sub>f</sub> = α<sub>i</sub> + β<sub>M</sub>(R<sub>M</sub> - R<sub>f</sub>) + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML + ε<sub>i</sub>
@@ -155,7 +155,7 @@ export default function FactorAnalyzer() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-card rounded-md p-4 border border-border">
+        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
             <Network className="h-4 w-4 text-primary" />
             Mkt-RF (Market)
@@ -164,7 +164,7 @@ export default function FactorAnalyzer() {
             Excess return on the market portfolio - captures systematic market risk
           </p>
         </div>
-        <div className="bg-card rounded-md p-4 border border-border">
+        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-primary" />
             SMB (Size)
@@ -173,7 +173,7 @@ export default function FactorAnalyzer() {
             Small Minus Big - captures the size premium (small cap outperformance)
           </p>
         </div>
-        <div className="bg-card rounded-md p-4 border border-border">
+        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-primary" />
             HML (Value)
@@ -184,8 +184,8 @@ export default function FactorAnalyzer() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Interpretation</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Interpretation</h3>
         <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
           <li><strong>α (alpha):</strong> If significant and non-zero, the model fails to price the asset</li>
           <li><strong>β coefficients:</strong> Factor loadings indicating exposure to each risk factor</li>
@@ -205,8 +205,8 @@ export default function FactorAnalyzer() {
         </p>
       </div>
 
-      <div className="bg-card rounded-md p-6 border border-border">
-        <h3 className="text-lg font-semibold mb-4">Model Equation</h3>
+      <div className="bg-white rounded-md p-6 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 text-foreground">Model Equation</h3>
         <div className="bg-muted/50 p-4 rounded font-mono text-sm overflow-x-auto border border-border">
           <p className="whitespace-nowrap mb-2 text-foreground">
             R<sub>i</sub> - R<sub>f</sub> = α<sub>i</sub> + β<sub>M</sub>(R<sub>M</sub> - R<sub>f</sub>) + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML
@@ -218,7 +218,7 @@ export default function FactorAnalyzer() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-card rounded-md p-4 border border-border">
+        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-primary" />
             RMW (Profitability)
@@ -227,7 +227,7 @@ export default function FactorAnalyzer() {
             Robust Minus Weak - captures the profitability premium (profitable firms outperform)
           </p>
         </div>
-        <div className="bg-card rounded-md p-4 border border-border">
+        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-primary" />
             CMA (Investment)
@@ -238,8 +238,8 @@ export default function FactorAnalyzer() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Why Five Factors?</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Why Five Factors?</h3>
         <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
           <li>Profitability and investment patterns are independent sources of average return</li>
           <li>The five-factor model better captures variation in average returns than the three-factor model</li>

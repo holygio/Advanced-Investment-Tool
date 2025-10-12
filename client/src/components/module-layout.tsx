@@ -46,7 +46,7 @@ export function ModuleLayout({ title, children, theory }: ModuleLayoutProps) {
         {activeTab === "practice" ? (
           <div className="max-w-7xl mx-auto space-y-8">{children}</div>
         ) : (
-          <div className="max-w-4xl mx-auto prose prose-invert">{theory}</div>
+          <div className="max-w-4xl mx-auto prose prose-slate prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground">{theory}</div>
         )}
       </div>
     </div>

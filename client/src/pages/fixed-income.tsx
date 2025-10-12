@@ -24,8 +24,8 @@ export default function FixedIncome() {
         </p>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Bond Risk Factors</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Bond Risk Factors</h3>
         <div className="space-y-3 text-sm">
           <div>
             <p className="font-semibold text-foreground">Interest Rate Risk</p>
@@ -42,8 +42,8 @@ export default function FixedIncome() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Term Structure</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Term Structure</h3>
         <p className="text-sm text-muted-foreground mb-3">
           The yield curve shows relationship between yields and maturities:
         </p>
@@ -60,8 +60,8 @@ export default function FixedIncome() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Credit Spreads</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Credit Spreads</h3>
         <p className="text-sm text-muted-foreground mb-3">
           Credit spread = Yield on risky bond - Yield on Treasury
         </p>
@@ -74,8 +74,8 @@ export default function FixedIncome() {
         </ul>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Five-Factor SDF</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Five-Factor SDF</h3>
         <p className="text-sm text-muted-foreground mb-3">
           Extending factors to bonds and stocks:
         </p>
@@ -85,8 +85,8 @@ export default function FixedIncome() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Risk-Neutral Pricing</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Risk-Neutral Pricing</h3>
         <p className="text-sm text-muted-foreground mb-3">
           Binomial model: find risk-neutral probabilities p such that:
         </p>

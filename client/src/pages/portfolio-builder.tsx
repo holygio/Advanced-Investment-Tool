@@ -143,8 +143,8 @@ export default function PortfolioBuilder() {
         </p>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">The Efficient Frontier</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">The Efficient Frontier</h3>
         <p className="text-sm text-muted-foreground mb-3">
           The efficient frontier is constructed from expected returns (μ) and covariance matrix (Σ):
         </p>
@@ -155,8 +155,8 @@ export default function PortfolioBuilder() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Capital Market Line (CML)</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Capital Market Line (CML)</h3>
         <p className="text-sm text-muted-foreground mb-3">
           With a risk-free asset, investors combine the tangency portfolio with the risk-free rate:
         </p>
@@ -165,8 +165,8 @@ export default function PortfolioBuilder() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Key Assumptions</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Key Assumptions</h3>
         <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
           <li>Investors are risk-averse and maximize expected utility</li>
           <li>Returns are normally distributed</li>

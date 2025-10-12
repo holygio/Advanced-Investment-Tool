@@ -1,0 +1,388 @@
+🎯 Goal
+
+Upgrade the existing Risk module of the Advanced Investments Interactive Lab to a comprehensive real-data analytics lab combining:
+
+Five risk-adjusted performance metrics (Sharpe, Treynor, Information Ratio, Jensen’s Alpha, M²)
+
+Downside risk modeling using Lower Partial Moments (LPM)
+
+Return–LPM Efficient Frontier, computed directly from the user’s real Yahoo Finance portfolio (10 tickers).
+
+The objective is to unify theory and practice — showing how each metric and frontier connects back to the Advanced Investments lecture slides.
+
+🧠 1. Theoretical Foundation (TheoryCard content)
+Metric	Formula	Interpretation
+Sharpe Ratio	
+(
+𝑟
+𝑝
+−
+𝑟
+𝑓
+)
+/
+𝜎
+𝑝
+(r
+p
+	​
+
+−r
+f
+	​
+
+)/σ
+p
+	​
+
+	Excess return per unit of total volatility.
+Treynor Ratio	
+(
+𝑟
+𝑝
+−
+𝑟
+𝑓
+)
+/
+𝛽
+𝑝
+(r
+p
+	​
+
+−r
+f
+	​
+
+)/β
+p
+	​
+
+	Excess return per unit of systematic risk (beta).
+Information Ratio	
+𝛼
+𝑝
+/
+𝜎
+𝜀
+,
+𝑝
+α
+p
+	​
+
+/σ
+ε,p
+	​
+
+	Alpha per unit of idiosyncratic (tracking) error.
+Jensen’s Alpha	
+𝑟
+𝑝
+−
+[
+𝑟
+𝑓
++
+𝛽
+𝑝
+(
+𝑟
+𝑚
+−
+𝑟
+𝑓
+)
+]
+r
+p
+	​
+
+−[r
+f
+	​
+
++β
+p
+	​
+
+(r
+m
+	​
+
+−r
+f
+	​
+
+)]	Portion of return not explained by CAPM (manager skill).
+Modigliani–Modigliani (M²)	
+𝑟
+𝑝
+,
+𝑎
+𝑑
+𝑗
+−
+𝑟
+𝑚
+r
+p,adj
+	​
+
+−r
+m
+	​
+
+	Portfolio return adjusted to have the same volatility as the benchmark (Sharpe ratio in %).
+Lower Partial Moment (LPM)	
+𝐸
+[
+(
+min
+⁡
+(
+0
+,
+𝑅
+−
+𝜏
+)
+)
+𝑛
+]
+E[(min(0,R−τ))
+n
+]	Downside risk measure capturing only losses below threshold τ.
+
+💡 “While mean–variance theory treats all volatility as risk, LPM focuses only on downside outcomes, aligning better with investor preferences. The Return–LPM frontier extends the efficient frontier using this asymmetric risk measure.”
+
+⚙️ 2. Backend (Python / FastAPI → /backend/risk_world.py)
+
+Use the real Yahoo Finance data already pulled from the portfolio configuration (10 tickers, monthly frequency).
+
+Core Risk & Performance Functions
+import numpy as np
+import pandas as pd
+from scipy.stats import skew, kurtosis, jarque_bera
+from scipy.optimize import minimize
+import statsmodels.api as sm
+
+def compute_performance_metrics(returns, rf=0.02/12, market_col='SPY'):
+    """
+    Compute five risk-adjusted performance metrics using real Yahoo Finance data.
+    Assumes `returns` DataFrame includes market_col (e.g., SPY).
+    """
+    mean = returns.mean()
+    std = returns.std()
+    market = returns[market_col]
+    excess_mkt = market - rf
+    beta = {}
+    alpha = {}
+    residual_std = {}
+
+    for col in returns.columns:
+        if col == market_col: continue
+        y = returns[col] - rf
+        X = sm.add_constant(excess_mkt)
+        model = sm.OLS(y, X).fit()
+        beta[col] = model.params[1]
+        alpha[col] = model.params[0]
+        residual_std[col] = model.resid.std()
+
+    beta = pd.Series(beta)
+    alpha = pd.Series(alpha)
+    residual_std = pd.Series(residual_std)
+
+    sharpe = (mean - rf) / std
+    treynor = (mean - rf) / beta
+    info_ratio = alpha / residual_std
+    jensen_alpha = alpha
+    market_std = std[market_col]
+    m2 = rf + sharpe * market_std  # Sharpe scaled to market volatility
+
+    metrics = pd.DataFrame({
+        'Mean': mean,
+        'Std': std,
+        'Sharpe': sharpe,
+        'Treynor': treynor,
+        'Info_Ratio': info_ratio,
+        'Jensen_Alpha': jensen_alpha,
+        'M²': m2,
+        'Beta': beta
+    }).dropna()
+
+    return metrics.round(4)
+
+LPM & Return–LPM Frontier (Bawa–Lindenberg)
+def lpm(returns, tau=0.0, n=2):
+    """Lower Partial Moment below threshold τ."""
+    diff = np.minimum(0, returns - tau)
+    return (np.mean(np.abs(diff)**n))**(1/n)
+
+def compute_lpm_frontier(returns, tau=0.0, n=2):
+    """
+    Return–LPM Efficient Frontier using real Yahoo Finance data.
+    Replaces variance with LPM(τ,n).
+    """
+    mu = returns.mean().values
+    N = len(mu)
+
+    def lpm_obj(w):
+        port = returns @ w
+        downside = np.minimum(0, port - tau)
+        return np.mean(np.abs(downside)**n)
+
+    target_returns = np.linspace(mu.min(), mu.max(), 25)
+    results = []
+    for mu_target in target_returns:
+        cons = [
+            {'type': 'eq', 'fun': lambda w: np.sum(w) - 1},
+            {'type': 'eq', 'fun': lambda w: w @ mu - mu_target}
+        ]
+        bounds = [(0, 1)] * N
+        w0 = np.ones(N) / N
+        opt = minimize(lpm_obj, w0, constraints=cons, bounds=bounds)
+        if opt.success:
+            results.append({'target_return': mu_target, 'LPM': lpm_obj(opt.x)})
+    return pd.DataFrame(results)
+
+💻 3. Frontend (Next.js + Tailwind + Plotly → /frontend/app/risk/page.tsx)
+Tabs and Views
+
+Tabs:
+
+Overview
+
+LPM & Frontier
+
+Ratios & Performance
+
+Correlations
+
+🟦 Tab 1 — Overview
+
+Histogram + KDE overlay (return distribution)
+
+QQ plot + JB test result
+
+Max drawdown visualization
+
+VaR & CVaR shading
+
+🟨 Tab 2 — LPM & Frontier
+
+LPM surface (τ × n heatmap)
+
+Semivariance vs Variance scatter
+
+Return–LPM Frontier (new)
+
+x-axis: LPM(τ,n)
+
+y-axis: Expected Return
+
+Overlay Mean–Variance Frontier
+
+Controls:
+
+τ slider: [−0.02 → 0.02]
+
+n slider: [1 → 3]
+
+Tooltip:
+
+“The Return–LPM frontier generalizes the efficient frontier using downside risk, better reflecting real investor preferences.”
+
+🟩 Tab 3 — Ratios & Performance
+
+Interactive bar chart: Sharpe, Treynor, Info Ratio, Jensen’s α, M²
+
+Data table (sortable, exportable)
+
+Highlight top performer per metric
+
+Tooltip:
+
+“Each measure captures a different dimension of risk-adjusted performance:
+
+Sharpe: total volatility
+
+Treynor: systematic risk
+
+Information: idiosyncratic skill
+
+Jensen’s α: CAPM outperformance
+
+M²: Sharpe translated into percentage return.”
+
+🟥 Tab 4 — Correlations
+
+Correlation heatmap (ρ_ij)
+
+Beta vs SPY bar chart
+
+Portfolio risk contribution pie chart
+
+📊 4. API Endpoints
+
+Create endpoints under /api/risk/:
+
+Endpoint	Function
+POST /api/risk/metrics	returns 5 performance metrics (Sharpe → M²)
+POST /api/risk/lpm	returns LPM grid and τ/n surface
+POST /api/risk/frontier	returns Return–LPM frontier data
+📚 5. TheoryCard Content
+
+Display above the charts:
+
+Portfolio Performance and Risk in Practice
+
+The five classical performance metrics assess efficiency across different risk types:
+
+Sharpe → total risk
+
+Treynor → systematic risk
+
+Information Ratio → idiosyncratic tracking error
+
+Jensen’s Alpha → CAPM excess
+
+M² → Sharpe ratio expressed as % return
+
+In parallel, Lower Partial Moments (LPM) and the Return–LPM Frontier extend risk measurement to asymmetric losses.
+
+Add ExplainTips on hover:
+
+“Treynor isolates market risk via β.”
+
+“Information Ratio captures manager-specific alpha efficiency.”
+
+“M² transforms Sharpe into a comparable scale versus the market.”
+
+“LPM penalizes downside only, improving realism when distributions are non-normal.”
+
+✅ 6. Acceptance Criteria
+
+✅ Uses real Yahoo Finance data from the 10-ticker portfolio.
+
+✅ Computes all 5 metrics (Sharpe, Treynor, Info Ratio, Jensen’s α, M²).
+
+✅ Displays a dynamic Return–LPM Frontier using real returns.
+
+✅ Includes τ and n sliders for interactive LPM exploration.
+
+✅ Adds TheoryCard with formulas and explanations.
+
+✅ Exports tables and plots to CSV/PNG.
+
+✅ All charts are interactive and responsive (Plotly.js).
+
+🧩 7. Final Agent Instruction
+
+Implement this specification into the Risk module of the “Advanced Investments Interactive Lab.”
+Use the existing Yahoo Finance portfolio data (monthly).
+Add a new “Ratios & Performance” section with the five classical metrics.
+Integrate LPM and the Return–LPM Frontier inside the “LPM & Frontier” tab.
+Include a TheoryCard explaining formulas and risk concepts.
+Ensure all visuals are dynamic, interactive, and exportable.

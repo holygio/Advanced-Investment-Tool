@@ -136,8 +136,8 @@ export default function Performance() {
         </p>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Risk-Adjusted Performance</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Risk-Adjusted Performance</h3>
         <div className="space-y-3 text-sm">
           <div className="bg-background p-3 rounded">
             <p className="font-semibold mb-1">Sharpe Ratio</p>
@@ -162,8 +162,8 @@ export default function Performance() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Higher Moments</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Higher Moments</h3>
         <div className="space-y-2 text-sm text-muted-foreground">
           <p>
             <span className="font-semibold text-foreground">Skewness:</span> Measures asymmetry of return distribution.
@@ -180,8 +180,8 @@ export default function Performance() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Lower Partial Moments (LPM)</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Lower Partial Moments (LPM)</h3>
         <p className="text-sm text-muted-foreground mb-3">
           LPM measures downside risk relative to a target return τ:
         </p>

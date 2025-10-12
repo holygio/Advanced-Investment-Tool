@@ -25,8 +25,8 @@ export default function UtilityExplorer() {
         </p>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Risk Aversion Types</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Risk Aversion Types</h3>
         <div className="space-y-4 text-sm">
           <div className="bg-muted/50 p-3 rounded border border-border">
             <p className="font-semibold mb-1">CRRA (Constant Relative Risk Aversion)</p>
@@ -46,8 +46,8 @@ export default function UtilityExplorer() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Stochastic Discount Factor</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Stochastic Discount Factor</h3>
         <p className="text-sm text-muted-foreground mb-3">
           The SDF relates to marginal utility:
         </p>
@@ -59,8 +59,8 @@ export default function UtilityExplorer() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">CAPM and SDF</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">CAPM and SDF</h3>
         <p className="text-sm text-muted-foreground mb-3">
           In the CAPM, the SDF is affine in the market return:
         </p>

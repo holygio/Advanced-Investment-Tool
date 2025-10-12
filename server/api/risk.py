@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict
 from scipy import stats
+from scipy.optimize import minimize
+import statsmodels.api as sm
 
 router = APIRouter()
 
@@ -120,3 +122,215 @@ async def calculate_performance(request: PerformanceRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating performance: {str(e)}")
+
+
+# === NEW ENDPOINTS FOR ENHANCED RISK MODULE ===
+
+class AssetReturns(BaseModel):
+    ticker: str
+    returns: List[float]
+
+class MultiAssetRequest(BaseModel):
+    assets: List[AssetReturns]
+    market_ticker: str = "SPY"
+    rf: float = Field(default=0.02, description="Annual risk-free rate")
+    interval: str = Field(default="1mo", description="Data frequency")
+
+class AssetMetrics(BaseModel):
+    ticker: str
+    mean: float
+    std: float
+    sharpe: float
+    treynor: Optional[float] = None
+    info_ratio: Optional[float] = None
+    jensen_alpha: Optional[float] = None
+    m2: Optional[float] = None
+    beta: Optional[float] = None
+
+class MultiAssetMetricsResponse(BaseModel):
+    metrics: List[AssetMetrics]
+
+@router.post("/risk/multi-asset-metrics", response_model=MultiAssetMetricsResponse)
+async def calculate_multi_asset_metrics(request: MultiAssetRequest):
+    """Calculate performance metrics for multiple assets using CAPM regressions"""
+    try:
+        # Annualization factor
+        periods_per_year = {"1d": 252, "1wk": 52, "1mo": 12}.get(request.interval, 12)
+        rf_period = request.rf / periods_per_year
+        
+        # Build returns DataFrame
+        returns_dict = {asset.ticker: asset.returns for asset in request.assets}
+        returns_df = pd.DataFrame(returns_dict)
+        
+        # Get market returns
+        if request.market_ticker not in returns_df.columns:
+            raise HTTPException(status_code=400, detail=f"Market ticker {request.market_ticker} not found in assets")
+        
+        market_returns = returns_df[request.market_ticker].values
+        excess_market = market_returns - rf_period
+        
+        metrics_list = []
+        
+        for ticker in returns_df.columns:
+            asset_returns = returns_df[ticker].values
+            mean_return = np.mean(asset_returns) * periods_per_year
+            std_return = np.std(asset_returns) * np.sqrt(periods_per_year)
+            sharpe = (mean_return - request.rf) / std_return if std_return > 0 else 0
+            
+            # CAPM regression for non-market assets
+            beta = None
+            treynor = None
+            info_ratio = None
+            jensen_alpha = None
+            m2 = None
+            
+            if ticker != request.market_ticker:
+                excess_returns = asset_returns - rf_period
+                X = sm.add_constant(excess_market)
+                model = sm.OLS(excess_returns, X).fit()
+                
+                alpha_period = model.params[0]
+                beta = model.params[1]
+                alpha_annual = alpha_period * periods_per_year
+                residual_std = model.resid.std() * np.sqrt(periods_per_year)
+                
+                treynor = (mean_return - request.rf) / beta if beta != 0 else None
+                info_ratio = alpha_annual / residual_std if residual_std > 0 else None
+                jensen_alpha = alpha_annual
+                
+                # M² calculation
+                market_std = np.std(market_returns) * np.sqrt(periods_per_year)
+                if std_return > 0:
+                    market_mean = np.mean(market_returns) * periods_per_year
+                    adjusted_return = request.rf + sharpe * market_std
+                    m2 = adjusted_return - market_mean
+            else:
+                # Market asset has beta = 1
+                beta = 1.0
+                treynor = mean_return - request.rf
+                jensen_alpha = 0.0
+                m2 = 0.0
+            
+            metrics_list.append(AssetMetrics(
+                ticker=ticker,
+                mean=round(mean_return, 4),
+                std=round(std_return, 4),
+                sharpe=round(sharpe, 4),
+                treynor=round(treynor, 4) if treynor is not None else None,
+                info_ratio=round(info_ratio, 4) if info_ratio is not None else None,
+                jensen_alpha=round(jensen_alpha, 4) if jensen_alpha is not None else None,
+                m2=round(m2, 4) if m2 is not None else None,
+                beta=round(beta, 4) if beta is not None else None
+            ))
+        
+        return MultiAssetMetricsResponse(metrics=metrics_list)
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error calculating multi-asset metrics: {str(e)}")
+
+
+class LPMFrontierRequest(BaseModel):
+    assets: List[AssetReturns]
+    tau: float = Field(default=0.0, description="Threshold return for LPM")
+    n: float = Field(default=2.0, description="LPM power parameter")
+    num_points: int = Field(default=25, description="Number of frontier points")
+
+class FrontierPoint(BaseModel):
+    target_return: float
+    lpm: float
+    weights: Dict[str, float]
+
+class LPMFrontierResponse(BaseModel):
+    frontier: List[FrontierPoint]
+    tau: float
+    n: float
+
+@router.post("/risk/lpm-frontier", response_model=LPMFrontierResponse)
+async def calculate_lpm_frontier(request: LPMFrontierRequest):
+    """Calculate Return-LPM efficient frontier"""
+    try:
+        # Build returns matrix
+        returns_dict = {asset.ticker: asset.returns for asset in request.assets}
+        returns_df = pd.DataFrame(returns_dict)
+        returns_matrix = returns_df.values
+        mu = returns_df.mean().values
+        tickers = returns_df.columns.tolist()
+        N = len(tickers)
+        
+        def lpm_objective(weights):
+            """Calculate LPM for given weights"""
+            portfolio_returns = returns_matrix @ weights
+            shortfalls = np.minimum(portfolio_returns - request.tau, 0)
+            return np.mean(np.abs(shortfalls) ** request.n)
+        
+        # Generate frontier
+        target_returns = np.linspace(mu.min(), mu.max(), request.num_points)
+        frontier_points = []
+        
+        for mu_target in target_returns:
+            constraints = [
+                {'type': 'eq', 'fun': lambda w: np.sum(w) - 1},
+                {'type': 'eq', 'fun': lambda w: w @ mu - mu_target}
+            ]
+            bounds = [(0, 1)] * N
+            w0 = np.ones(N) / N
+            
+            result = minimize(lpm_objective, w0, method='SLSQP', 
+                            constraints=constraints, bounds=bounds, 
+                            options={'maxiter': 1000})
+            
+            if result.success:
+                weights_dict = {ticker: round(float(w), 4) for ticker, w in zip(tickers, result.x)}
+                frontier_points.append(FrontierPoint(
+                    target_return=round(float(mu_target), 6),
+                    lpm=round(float(lpm_objective(result.x)), 6),
+                    weights=weights_dict
+                ))
+        
+        return LPMFrontierResponse(
+            frontier=frontier_points,
+            tau=request.tau,
+            n=request.n
+        )
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error calculating LPM frontier: {str(e)}")
+
+
+class LPMSurfaceRequest(BaseModel):
+    returns: List[float]
+    tau_range: List[float] = Field(default=[-0.02, 0.02], description="Range for tau")
+    n_range: List[float] = Field(default=[1.0, 3.0], description="Range for n")
+    grid_size: int = Field(default=10, description="Grid resolution")
+
+class LPMSurfacePoint(BaseModel):
+    tau: float
+    n: float
+    lpm: float
+
+class LPMSurfaceResponse(BaseModel):
+    surface: List[LPMSurfacePoint]
+
+@router.post("/risk/lpm-surface", response_model=LPMSurfaceResponse)
+async def calculate_lpm_surface(request: LPMSurfaceRequest):
+    """Calculate LPM surface over tau and n parameter space"""
+    try:
+        returns_array = np.array(request.returns)
+        tau_grid = np.linspace(request.tau_range[0], request.tau_range[1], request.grid_size)
+        n_grid = np.linspace(request.n_range[0], request.n_range[1], request.grid_size)
+        
+        surface_points = []
+        for tau in tau_grid:
+            for n in n_grid:
+                shortfalls = np.minimum(returns_array - tau, 0)
+                lpm_value = float(np.mean(np.abs(shortfalls) ** n))
+                surface_points.append(LPMSurfacePoint(
+                    tau=round(float(tau), 4),
+                    n=round(float(n), 4),
+                    lpm=round(lpm_value, 6)
+                ))
+        
+        return LPMSurfaceResponse(surface=surface_points)
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error calculating LPM surface: {str(e)}")

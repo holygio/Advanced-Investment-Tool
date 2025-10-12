@@ -97,8 +97,8 @@ export default function CAPMTester() {
         </p>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">CAPM Equation</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">CAPM Equation</h3>
         <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
           <p className="text-foreground">E[R<sub>i</sub>] = R<sub>f</sub> + β<sub>i</sub>(E[R<sub>M</sub>] - R<sub>f</sub>)</p>
           <p className="mt-3 text-xs text-muted-foreground">where:</p>
@@ -109,8 +109,8 @@ export default function CAPMTester() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Regression Model</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Regression Model</h3>
         <p className="text-sm text-muted-foreground mb-3">
           We estimate CAPM parameters using OLS regression on excess returns:
         </p>
@@ -122,16 +122,16 @@ export default function CAPMTester() {
         </div>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Security Market Line (SML)</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Security Market Line (SML)</h3>
         <p className="text-sm text-muted-foreground">
           The SML is the graphical representation of the CAPM, showing expected return as a function of beta.
           Securities above the SML are undervalued (positive alpha), while those below are overvalued (negative alpha).
         </p>
       </div>
 
-      <div className="bg-card rounded-md p-4 border border-border">
-        <h3 className="text-lg font-semibold mb-3">Key Assumptions</h3>
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Key Assumptions</h3>
         <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
           <li>All investors hold the market portfolio</li>
           <li>Returns follow a normal distribution</li>
