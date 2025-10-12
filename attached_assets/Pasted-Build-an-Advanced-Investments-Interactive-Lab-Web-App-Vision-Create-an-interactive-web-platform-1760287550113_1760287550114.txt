@@ -1,0 +1,628 @@
+Build an “Advanced Investments Interactive Lab” (Web App)
+Vision
+
+Create an interactive web platform that lets users explore, visualize, and test every key concept from an Advanced Investments course (Lectures 1–6), using real market data from Yahoo Finance. The app merges theory (MV, CAPM, factors, LPM, utility, SDF, Black-Litterman) with practice (live data, regressions, optimization, performance).
+
+Stack & Project Setup
+
+Frontend: Next.js (App Router) + React + TailwindCSS
+
+Charts: Plotly.js (interactive), with reusable chart components
+
+Backend API: Python FastAPI (served within the same project), mounted at /api
+
+Data & Math: pandas, numpy, scipy, statsmodels, cvxpy, PyPortfolioOpt, yfinance
+
+Optional data: pandas_datareader (FRED), custom CSV loaders (Kenneth French Data Library)
+
+Build: One monorepo with frontend/ and backend/. Provide requirements.txt and package.json.
+
+No paid keys: Use yfinance (free). For FRED, add a placeholder for an API key but don’t require it.
+
+High-Level Features (map each lecture to a module)
+
+Portfolio Builder (Lectures 1–2: Mean–Variance + CAPM)
+
+Select tickers + date range → fetch prices with yfinance → compute returns.
+
+Show efficient frontier and Capital Market Line (CML); compute tangency portfolio.
+
+Sliders: risk-free rate, rebalance frequency, allow short-selling (on/off).
+
+Display optimal weights, expected return, volatility, Sharpe.
+
+One-click export of results (CSV) and chart (PNG).
+
+Model Tester (Lecture 2: SDF + Testing)
+
+CAPM: regress asset/portfolio excess returns on market proxy (e.g., ^GSPC or user-chosen ETF).
+
+Plot Security Market Line (SML): 
+𝐸
+[
+𝑟
+]
+E[r] vs 
+𝛽
+β. Show 
+𝛼
+,
+𝛽
+,
+α,β, t-stats, 
+𝑅
+2
+R
+2
+.
+
+Fama–MacBeth (optional) two-pass cross-section test.
+
+GRS test (optional): joint alpha test for N portfolios on K factors.
+
+Factor Analyzer (Lecture 3: Anomalies + Multi-Factor)
+
+Load Fama–French factors (CSV upload or auto-download where possible): MKT-RF, SMB, HML, (and optionally MOM, RMW, CMA).
+
+Add TERM and CREDIT factor proxies (from FRED or ETF spreads).
+
+Estimate multi-factor betas, show factor premia and correlation heatmap.
+
+Compare single-factor CAPM vs multi-factor 
+𝑅
+2
+R
+2
+ improvement.
+
+Risk & Performance (Lecture 4: Higher Moments + Metrics)
+
+Compute skewness, kurtosis, Jarque–Bera for assets/portfolios.
+
+LPM module: plot downside risk for thresholds 
+𝜏
+τ and orders 
+𝑛
+n (e.g., semivariance 
+𝑛
+=
+2
+n=2, 
+𝜏
+=
+0
+τ=0 or 
+𝜏
+=
+𝑟
+𝑓
+τ=r
+f
+	​
+
+).
+
+Performance metrics: Sharpe, Treynor, Information Ratio, Jensen’s 
+𝛼
+α, M². Time-series and summary.
+
+Utility Explorer (Lecture 5: Utility & SDF)
+
+Sliders: choose CRRA/CARA/DARA and risk-aversion parameter 
+𝛾
+γ.
+
+Plot 
+𝑈
+(
+𝑥
+)
+U(x) and 
+𝑈
+′
+(
+𝑥
+)
+U
+′
+(x); show SDF conceptually 
+𝑚
+𝑡
+∝
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+/
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m
+t
+	​
+
+∝U
+′
+(c
+t+1
+	​
+
+)/U
+′
+(c
+t
+	​
+
+).
+
+Overlay CAPM SDF (affine in market return) for comparison and intuition.
+
+Fixed Income & Derivatives (Lecture 6)
+
+Yield curve view: fetch rates (^IRX, ^TNX, ^TYX) and/or FRED series; compute term spread (10y–3m).
+
+Credit proxy: spread via LQD vs TLT or HYG vs IEF (as approximation).
+
+Integrate 5-factor SDF (Market, SMB, HML, TERM, CREDIT) across stocks and bonds.
+
+Risk-neutral demo: simple binomial tree and risk-neutral probabilities from option prices (via yfinance.options when available); small, educational.
+
+Data Pipeline (end-to-end)
+
+User selects tickers and date range in the UI.
+
+Backend fetches Adj Close prices via yfinance, resamples by chosen frequency, computes log or simple returns.
+
+Backend computes 
+𝜇
+μ (expected returns) and 
+Σ
+Σ (covariance), then runs MV optimization (min-var, max-Sharpe, efficient frontier).
+
+Model modules run CAPM, multi-factor regressions, and (optionally) Fama–MacBeth / GRS.
+
+Frontend renders charts + tables; user can export CSV/PNG.
+
+Backend API (FastAPI) — endpoints & payloads
+
+Create clean, typed endpoints with Pydantic models:
+
+POST /api/data/prices
+
+Body: { tickers: string[], start: string(YYYY-MM-DD), end: string, interval?: "1d"|"1wk"|"1mo", log_returns?: boolean }
+
+Return: { prices: { [ticker]: [ { date, adjClose } ] }, returns: { [ticker]: [ { date, ret } ] } }
+
+POST /api/portfolio/efficient-frontier
+
+Body: { returns: Record<ticker, {date, ret}[]>, rf: number, allow_short: boolean }
+
+Return: { frontier: [{risk, return, weights: {[ticker]: number}}...], tangency: { risk, return, sharpe, weights }, cml: [{risk, return}...] }
+
+POST /api/model/capm
+
+Body: { returns: Record<ticker, {date, ret}[]>, market: string, rf_series?: {date, rf}[] }
+
+Return: { results: [{ticker, alpha, beta, t_alpha, t_beta, r2}], sml: [{beta, expectedReturn}], summary: {...} }
+
+POST /api/model/factors
+
+Body: { portfolio: {date, ret}[], factors: {date, MKT_RF, SMB?, HML?, MOM?, RMW?, CMA?, TERM?, CREDIT?}[] }
+
+Return: { loadings: [{factor, beta, t}], alpha, r2, corr: number[][], factorMeans: {[factor]: number} }
+
+POST /api/risk/performance
+
+Body: { portfolio: {date, ret}[], benchmark?: {date, ret}[], rf?: number, lpm?: {tau:number, n:number} }
+
+Return: { sharpe, treynor, informationRatio, jensenAlpha, m2, skew, kurtosis, jb }
+
+POST /api/utility/sdf
+
+Body: { type: "CRRA"|"CARA"|"DARA", gamma: number, x_range?: [number, number] }
+
+Return: { pointsU: [{x, U}], pointsUPrime: [{x, Uprime}], notes: string }
+
+POST /api/fixedincome/term-credit
+
+Body: { useFRED?: boolean }
+
+Return: { yieldCurve: [{tenor, yield}], termSpread: number, creditProxy: {series: [{date, spread}], latest: number} }
+
+POST /api/derivatives/risk-neutral
+
+Body: { ticker: string, expiry: string, s: number, r: number, u: number, d: number }
+
+Return: { p_up: number, p_down: number, notes: string }
+
+Include error handling and clear messages.
+
+Core Algorithms (must implement)
+
+MV optimization: Max-Sharpe and min-variance using cvxpy or PyPortfolioOpt; efficient frontier sampling.
+
+CAPM: OLS on excess returns: 
+𝑟
+𝑖
+−
+𝑟
+𝑓
+=
+𝛼
+𝑖
++
+𝛽
+𝑖
+(
+𝑟
+𝑀
+−
+𝑟
+𝑓
+)
++
+𝜀
+𝑖
+r
+i
+	​
+
+−r
+f
+	​
+
+=α
+i
+	​
+
++β
+i
+	​
+
+(r
+M
+	​
+
+−r
+f
+	​
+
+)+ε
+i
+	​
+
+.
+
+SML: expected return vs estimated 
+𝛽
+β; plot and identify 
+𝛼
+α visually (distance from SML).
+
+Multi-factor: OLS on 
+𝑀
+𝐾
+𝑇
+,
+𝑆
+𝑀
+𝐵
+,
+𝐻
+𝑀
+𝐿
+,
+(
+𝑀
+𝑂
+𝑀
+,
+𝑅
+𝑀
+𝑊
+,
+𝐶
+𝑀
+𝐴
+)
+,
+𝑇
+𝐸
+𝑅
+𝑀
+,
+𝐶
+𝑅
+𝐸
+𝐷
+𝐼
+𝑇
+MKT,SMB,HML,(MOM,RMW,CMA),TERM,CREDIT; return betas, t-stats, 
+𝑅
+2
+R
+2
+.
+
+Higher moments: sample skew, kurtosis, Jarque–Bera.
+
+LPM: 
+𝐿
+𝑃
+𝑀
+𝑛
+(
+𝜏
+)
+=
+1
+𝑇
+∑
+min
+⁡
+(
+𝑟
+𝑡
+−
+𝜏
+,
+0
+)
+𝑛
+LPM
+n
+	​
+
+(τ)=
+T
+1
+	​
+
+∑min(r
+t
+	​
+
+−τ,0)
+n
+. Provide 
+𝜏
+τ and 
+𝑛
+n sliders.
+
+Performance: Sharpe, Treynor, Information Ratio, Jensen’s 
+𝛼
+α, M² (risk-match to benchmark).
+
+Utility: CRRA/CARA/DARA functions + U′; show SDF intuition.
+
+Term/Credit: simple loaders; compute 10y–3m spread; credit proxy via LQD-TLT or HYG-IEF.
+
+Risk-neutral demo: binomial 
+𝑝
+p such that 
+𝐸
+𝑄
+[
+𝑅
+]
+=
+𝑟
+𝑓
+E
+Q
+[R]=r
+f
+	​
+
+.
+
+Frontend UI/UX
+
+Global layout: left sidebar (modules), top bar (date range, rf, market proxy), main canvas (chart + table + theory).
+
+Modules as pages:
+
+Portfolio Builder
+
+Model Tester
+
+Factor Analyzer
+
+Risk & Performance
+
+Utility Explorer
+
+Fixed Income & Derivatives
+
+Each module has 2 tabs:
+
+Practice: controls, charts, metrics, exports
+
+Theory: concise model summary with equations & assumptions
+
+Charts (Plotly):
+
+Frontier + CML overlay; hover tooltip shows weights.
+
+SML (points = assets/portfolios), with 
+𝛼
+α distances on hover.
+
+Factor correlation heatmap.
+
+Distribution histogram with normal overlay; LPM curve.
+
+Yield curve line chart; credit spread time series.
+
+Tables: sortable betas/alphas/t-stats; weights; performance metrics.
+
+Seed Defaults (so the app runs immediately)
+
+Tickers: ["AAPL","MSFT","META","TSLA","NVDA","^GSPC"], start=2018-01-01, end=today
+
+Market proxy default: ^GSPC
+
+Risk-free default: 0.02 (2% annualized), with UI override
+
+Factors: if download fails, allow CSV upload (headers documented in UI)
+
+Theory Tab Content (short, embedded Markdown per module)
+
+MV & CML: frontier from 
+𝜇
+,
+Σ
+μ,Σ; CML touches at tangency; two-fund separation.
+
+CAPM: 
+𝐸
+[
+𝑟
+𝑖
+]
+=
+𝑟
+𝑓
++
+𝛽
+𝑖
+(
+𝐸
+[
+𝑟
+𝑀
+]
+−
+𝑟
+𝑓
+)
+E[r
+i
+	​
+
+]=r
+f
+	​
+
++β
+i
+	​
+
+(E[r
+M
+	​
+
+]−r
+f
+	​
+
+). Assumptions A8–A10; Roll’s critique.
+
+Multi-factor: add priced exposures (SMB,HML,MOM,RMW,CMA,TERM,CREDIT); economics behind each.
+
+Higher moments: skew/kurtosis; JB test; LPM definition.
+
+Utility & SDF: CRRA/CARA/DARA; SDF 
+𝑚
+∝
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+/
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m∝U
+′
+(c
+t+1
+	​
+
+)/U
+′
+(c
+t
+	​
+
+); CAPM SDF is affine in 
+𝑅
+𝑀
+R
+M
+	​
+
+.
+
+Fixed income & derivatives: term/credit; risk-neutral measure intuition.
+
+Non-Functional Requirements
+
+Clean error states (e.g., missing data, ill-posed optimization, singular covariance).
+
+Deterministic computations; document annualization conventions.
+
+Accessibility (keyboard nav, alt text for charts).
+
+Export buttons (CSV for tables, PNG for charts).
+
+Unit tests for backend math utilities (at least MV weights, CAPM regression, LPM).
+
+Acceptance Criteria
+
+I can select tickers/date → see frontier & CML and tangency weights.
+
+I can click Test CAPM → get SML plot + 
+𝛼
+,
+𝛽
+,
+𝑡
+α,β,t table.
+
+I can load factors (auto or CSV) → see betas, premia, heatmap, and higher 
+𝑅
+2
+R
+2
+ vs CAPM.
+
+I can compute skew/kurtosis/JB; toggle LPM with 
+𝜏
+,
+𝑛
+τ,n; see metrics Sharpe/Treynor/IR/α/M².
+
+I can adjust utility sliders → see 
+𝑈
+,
+𝑈
+′
+U,U
+′
+ curves and SDF note.
+
+I can view yield curve, term spread, and a credit proxy; run the simple risk-neutral demo.
+
+Stretch Goals (optional)
+
+Black–Litterman: input absolute/relative views + confidence; show posterior expected returns and new weights.
+
+Scenario shocks: e.g., +100 bps rates → reprice bonds; market drawdown → show portfolio P&L.
+
+PDF report: export a one-pager with all charts/metrics.
