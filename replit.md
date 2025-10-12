@@ -100,6 +100,16 @@ This is an interactive web platform for exploring advanced investment concepts i
   - `/api/ff/grs` - GRS test for joint hypothesis testing of alphas
   - Data alignment with user portfolio returns using pandas merge
 
+- **Data Source Transparency**: 
+  - Added Kenneth French Data Library citation with hyperlink to Dartmouth College source
+  - Model formulas displayed prominently in both Theory and Practice tabs
+  - GRS test methodology documented: uses Yahoo Finance portfolio returns tested against historical FF factors
+
+- **UX/Styling Fixes**:
+  - Fixed theory section styling across ALL modules (CAPM, Portfolio Builder, Risk/Performance, Fixed Income, Utility Explorer, Factor Analyzer)
+  - Replaced invisible white text (`bg-background`) with proper contrast (`bg-muted/50 border border-border text-foreground`)
+  - All mathematical formulas now clearly visible in theory tabs
+
 - **Frontend** (`client/src/pages/factor-analyzer.tsx`):
   - Model selector (FF3 vs FF5) with radio buttons
   - Theory tabs with complete factor formulas and interpretations
