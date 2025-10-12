@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { PortfolioConfigSidebar } from "@/components/portfolio-config-sidebar";
 import { ModuleLayoutWrapper } from "@/components/module-layout-wrapper";
 import { GlobalStateProvider } from "@/contexts/global-state-context";
+import { ModeProvider } from "@/contexts/mode-context";
 
 // Pages
 import Landing from "@/pages/landing";
@@ -66,15 +67,17 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <GlobalStateProvider>
-          <div className="flex h-screen w-full">
-            <PortfolioConfigSidebar />
-            <main className="flex-1 overflow-auto">
-              <Router />
-            </main>
-          </div>
-        </GlobalStateProvider>
-        <Toaster />
+        <ModeProvider>
+          <GlobalStateProvider>
+            <div className="flex h-screen w-full">
+              <PortfolioConfigSidebar />
+              <main className="flex-1 overflow-auto">
+                <Router />
+              </main>
+            </div>
+          </GlobalStateProvider>
+          <Toaster />
+        </ModeProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

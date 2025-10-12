@@ -1,0 +1,731 @@
+Add “Theory Mode” with Offline Model Worlds (Advanced Investments Lab)
+Goal
+
+Augment the existing “Advanced Investments Interactive Lab” so users can see models and theory working without relying on APIs or their current portfolio. Add a global Theory/Practice toggle. In Theory Mode, provide six offline “Model Worlds” (synthetic/curated datasets) that manifest the lecture ideas clearly. Reuse the same charts and metrics as Practice Mode, but power them with generated or bundled data.
+
+High-Level Requirements
+
+Global toggle in the header: Theory Mode / Practice Mode
+
+In Theory Mode, show a “Model Worlds” landing page with six tiles:
+
+CAPM World
+
+FF-5(+MOM) World (Anomalies/Multi-factor)
+
+LPM / Higher-Moments World
+
+Utility & SDF World
+
+Term & Credit (Fixed Income) World
+
+Risk-Neutral (Options) World
+
+Each World has:
+
+Left panel: “Theory Card” (equations + assumptions), “Knobs” (sliders/inputs), a Generate button (fixed seed for reproducibility), and Reset.
+
+Right panel: Charts + Tables that mirror existing Practice module visuals (frontier, SML, factor tables, heatmaps, QQ plots, LPM surfaces, yield curve, etc.), plus a short “What this shows” tooltip on each chart.
+
+Ship with a /data/casepacks/ folder: small CSVs for demo runs (so everything works offline out-of-the-box).
+
+No external API calls required in Theory Mode.
+
+Tech/Structure (reuse existing stack)
+
+Frontend: Next.js (App Router) + React + Tailwind + Plotly
+
+Backend: FastAPI (Python)
+
+Math/Data: numpy, pandas, scipy, statsmodels, (optional) cvxpy / PyPortfolioOpt for frontiers
+
+Create new backend modules:
+
+/backend/theory/
+  generators.py          # synthetic data generators for each World
+  capm_world.py          # wrappers that produce returns, betas, expected returns, etc.
+  ff_world.py
+  lpm_world.py
+  utility_world.py
+  fixed_income_world.py
+  risk_neutral_world.py
+  diagnostics.py         # NW SEs, block bootstrap, QQ points, LPM surfaces
+
+
+Create new frontend pages/components:
+
+/frontend/app/theory/page.tsx            # Worlds landing
+/frontend/app/theory/[world]/page.tsx    # World detail pages (capm, ff, lpm, utility, fixed-income, risk-neutral)
+/frontend/components/theory/KnobsPanel.tsx
+/frontend/components/theory/TheoryCard.tsx
+/frontend/components/shared/ExplainTip.tsx
+/frontend/components/charts/*            # reuse: FrontierChart, SMLPlot, FactorHeatmap, LPMHeatmap, QQPlot, YieldCurvePlot, etc.
+
+Data & UI Conventions
+
+All generated data are monthly unless otherwise specified (set slider for T=120 default).
+
+Annualization: clearly display assumptions (e.g., multiply monthly mean by 12, vol by √12).
+
+Provide Export buttons: CSV for series/tables; PNG for charts.
+
+World 1 — CAPM World (Lectures 1–2)
+
+Purpose: See CML/SML, beta pricing, Fama–MacBeth, and (optionally) GRS cleanly under correct specification.
+
+Knobs (defaults in brackets):
+
+Number of assets K [25], Sample length T months [120]
+
+Risk-free 
+𝑟
+𝑓
+r
+f
+	​
+
+ [0.02 annual], Market mean μ_M [0.06], Market vol σ_M [0.16]
+
+Beta dispersion std [0.4], Idiosyncratic vol range [0.10–0.25]
+
+Random seed [42]
+
+Generator (backend):
+
+Draw factors: 
+𝑓
+𝑀
+,
+𝑡
+∼
+𝑁
+(
+𝜇
+𝑀
+/
+12
+,
+ 
+(
+𝜎
+𝑀
+/
+12
+)
+2
+)
+f
+M,t
+	​
+
+∼N(μ
+M
+	​
+
+/12, (σ
+M
+	​
+
+/
+12
+	​
+
+)
+2
+).
+
+Draw true betas 
+𝛽
+𝑖
+∼
+𝑁
+(
+1
+,
+𝜎
+𝛽
+2
+)
+β
+i
+	​
+
+∼N(1,σ
+β
+2
+	​
+
+), idio vol per asset 
+𝜎
+𝜀
+,
+𝑖
+σ
+ε,i
+	​
+
+.
+
+Returns: 
+𝑟
+𝑖
+,
+𝑡
+=
+𝑟
+𝑓
+/
+12
++
+𝛽
+𝑖
+𝑓
+𝑀
+,
+𝑡
++
+𝜀
+𝑖
+,
+𝑡
+r
+i,t
+	​
+
+=r
+f
+	​
+
+/12+β
+i
+	​
+
+f
+M,t
+	​
+
++ε
+i,t
+	​
+
+, 
+𝜀
+𝑖
+,
+𝑡
+∼
+𝑁
+(
+0
+,
+𝜎
+𝜀
+,
+𝑖
+2
+/
+12
+)
+ε
+i,t
+	​
+
+∼N(0,σ
+ε,i
+2
+	​
+
+/12).
+
+Outputs (frontend):
+
+Efficient frontier + CML + Tangency (Markowitz on generated assets)
+
+SML plot: 
+𝐸
+[
+𝑟
+𝑖
+]
+E[r
+i
+	​
+
+] vs estimated 
+𝛽
+𝑖
+β
+i
+	​
+
+; table with 
+𝛼
+,
+𝛽
+,
+𝑡
+α,β,t, 
+𝑅
+2
+R
+2
+ (NW SEs)
+
+Fama–MacBeth: cross-sectional price of risk 
+𝜆
+^
+𝑀
+λ
+^
+M
+	​
+
+ and t-stat
+
+(Optional) GRS joint-alpha test on K assets vs CAPM factor
+
+ExplainTip examples:
+
+“Under CAPM, assets lie on the SML; distance = alpha.”
+
+World 2 — FF-5(+MOM) World (Lecture 3)
+
+Purpose: Show multi-factor pricing, R² improvement vs CAPM, loadings heatmap.
+
+Knobs:
+
+K assets [25], T [240], Factors included: MKT, SMB, HML, RMW, CMA, (MOM optional)
+
+Factor means (annual) & covariance matrix (UI seeds with reasonable values)
+
+Beta structure: choose patterns (e.g., small stocks load +SMB), add noise
+
+Omit-factor checkbox (to create alphas intentionally)
+
+Seed [43]
+
+Generator:
+
+𝑓
+𝑡
+∼
+𝑁
+(
+𝜇
+𝑓
+/
+12
+,
+ 
+Σ
+𝑓
+/
+12
+)
+f
+t
+	​
+
+∼N(μ
+f
+	​
+
+/12, Σ
+f
+	​
+
+/12)
+
+Asset returns: 
+𝑟
+𝑖
+,
+𝑡
+=
+𝑟
+𝑓
+/
+12
++
+𝛽
+𝑖
+⊤
+𝑓
+𝑡
++
+𝜀
+𝑖
+,
+𝑡
+r
+i,t
+	​
+
+=r
+f
+	​
+
+/12+β
+i
+⊤
+	​
+
+f
+t
+	​
+
++ε
+i,t
+	​
+
+
+Outputs:
+
+Factor premia (sample means), correlation heatmap
+
+Loadings table (betas + t-stats)
+
+R² comparison: CAPM vs Multi-factor (bar chart of R² by asset)
+
+Highlight alphas when a relevant factor is omitted
+
+ExplainTip:
+
+“Adding priced factors raises R² and should shrink alphas if the model is correctly specified.”
+
+World 3 — LPM / Higher-Moments World (Lecture 4)
+
+Purpose: Demonstrate non-normality, LPM vs variance, semivariance frontier.
+
+Knobs:
+
+Distribution: Mixture Normal (weights, μ1, σ1, μ2, σ2) or Skew-t (df, skew)
+
+𝜏
+τ threshold [0 or 
+𝑟
+𝑓
+/
+12
+r
+f
+	​
+
+/12], order 
+𝑛
+∈
+{
+1
+,
+2
+,
+3
+}
+n∈{1,2,3} [2]
+
+Number of assets [10]; correlation between assets [0.3]
+
+T [240], seed [44]
+
+Generator:
+
+Simulate returns per chosen distribution; induce correlation via Cholesky on Σ.
+
+Outputs:
+
+Histogram + QQ plot, skew/kurtosis/JB
+
+LPM surface heatmap over grid of 
+𝜏
+,
+𝑛
+τ,n
+
+Frontier comparison: MV vs Semivariance (n=2, τ choice)
+
+Co-LPM beta vs covariance beta for a chosen benchmark
+
+ExplainTip:
+
+“When left tails are fat, variance underestimates downside. LPM focuses only on below-threshold losses.”
+
+World 4 — Utility & SDF World (Lecture 5)
+
+Purpose: Connect preferences to state prices and the pricing equation 
+1
+=
+𝐸
+[
+𝑚
+𝑅
+]
+1=E[mR].
+
+Knobs:
+
+Utility: CRRA, CARA, DARA; risk aversion γ [3], discount β [0.99]
+
+Simulate consumption growth Δlog c ~ Normal(μ_c, σ_c) or AR(1); correlation with asset returns [-0.3 to +0.3]
+
+Two assets with configurable comovement w.r.t. consumption (one “recession hedge”)
+
+T [240], seed [45]
+
+Generator:
+
+Build consumption path; compute SDF 
+𝑚
+𝑡
+∝
+𝛽
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m
+t
+	​
+
+∝β
+U
+′
+(c
+t
+	​
+
+)
+U
+′
+(c
+t+1
+	​
+
+)
+	​
+
+
+Simulate asset returns correlated with consumption
+
+Outputs:
+
+Plots: U(x), U′(x) (given γ); SDF path; state weighting
+
+Pricing identity: compute 
+Δ
+=
+1
+−
+𝐸
+[
+𝑚
+𝑅
+]
+Δ=1−E[mR] for each asset (should be ~0 if priced)
+
+Overlay CAPM SDF (affine in market return) vs utility-based SDF (shape comparison)
+
+ExplainTip:
+
+“Risk aversion implies higher state prices in bad times; assets paying in recessions need lower average returns.”
+
+World 5 — Term & Credit (Fixed Income) World (Lecture 6)
+
+Purpose: Yield curves, term spreads, credit premia—fully offline.
+
+Knobs:
+
+Yield curve entry: user inputs 3–5 points (e.g., 3m, 2y, 10y) per scenario; or choose presets (Normal, Steep, Inverted)
+
+Fit Nelson–Siegel–Svensson curve; animate over dates (slider)
+
+Credit: rating bucket OAS levels; downgrade probability
+
+Seed [46]
+
+Generator:
+
+Use NSS to produce smooth curves; compute term spread (10y–3m)
+
+Create synthetic bond baskets and credit spread paths via OAS + downgrades
+
+Outputs:
+
+Yield curve plot (per date), term spread time series, credit spread series
+
+Example 5-factor SDF schematic across stocks+bonds (Market, SMB, HML, TERM, CREDIT)
+
+Sensitivity: bond price change for ±100 bps shock
+
+ExplainTip:
+
+“Term and credit are bond risk premia that extend the equity factor story into fixed income.”
+
+World 6 — Risk-Neutral (Options) World (Lecture 6)
+
+Purpose: Intuition for Q vs P measures and risk-neutral probabilities.
+
+Knobs:
+
+Binomial mode: S, u, d, r, T=1 step
+
+BS sandbox: S, K, r, T, σ (educational only)
+
+Seed [47]
+
+Generator/Calcs:
+
+Binomial: solve 
+𝑝
+𝑄
+p
+Q
+	​
+
+ so that 
+𝐸
+𝑄
+[
+𝑅
+]
+=
+𝑟
+𝑓
+E
+Q
+[R]=r
+f
+	​
+
+; price call
+
+BS: compute call price and show implied state prices visualization
+
+Outputs:
+
+State payoff diagram, 
+𝑝
+𝑄
+p
+Q
+	​
+
+, call value
+
+Comparison: physical vs risk-neutral expectation
+
+ExplainTip:
+
+“Under Q, expected return equals 
+𝑟
+𝑓
+r
+f
+	​
+
+; option prices encode state prices.”
+
+Backend API (Theory Mode)
+
+Create new endpoints (FastAPI) under /api/theory/*:
+
+POST /api/theory/capm/generate
+Body: {K,T,rf,mu_mkt,sigma_mkt,beta_dispersion,idio_vol_min,idio_vol_max,seed}
+Return: {assets: {id, series: [{date, ret}]...}, market: [...], rf, est: {betas, alphas, tvals, r2}, frontier, cml, tangency, fmb:{lambda,t}, grs?:{F,p}}
+
+POST /api/theory/ff/generate
+Body includes selected factors, means, cov, K, T, beta pattern, omit_flags, seed
+Return: {factors:{name,series}, assets:{...}, loadings:{...}, alpha_table, r2_capm, r2_multifactor, corr_heatmap}
+
+POST /api/theory/lpm/generate
+Body: {dist:"mixture"|"skewt", params:{...}, K,T, corr, tau, n, seed}
+Return: {assets, stats:{skew,kurt,jb,qq}, lpm_surface, mv_frontier, sv_frontier, beta_cov, beta_colpm}
+
+POST /api/theory/utility/generate
+Body: {utility:"CRRA"|"CARA"|"DARA", gamma, beta, cons:{type:"iid"|"ar1", params}, assets:{count, corr_with_c}, T, seed}
+Return: {U_curve, Uprime_curve, sdf_series, pricing_errors, capm_sdf_overlay}
+
+POST /api/theory/fixedincome/generate
+Body: {curve_points:[{tenor,yield}], presets?, animate?:{dates, n}, credit:{oas_by_rating, downgrade_prob}, seed}
+Return: {curve_series, term_spread_series, credit_spread_series, shock_sensitivity}
+
+POST /api/theory/riskneutral/generate
+Body: {mode:"binomial"|"bs", params:{...}}
+Return: {p_q, call_value, state_prices_plot_points}
+
+Diagnostics helpers (/api/theory/diagnostics/*):
+
+Newey–West SEs, block bootstrap CIs, QQ points, LPM grid
+
+Casepacks (bundle offline CSVs)
+
+Under /data/casepacks/ include:
+
+capm_demo.csv (market & 15 assets, monthly 10 years)
+
+ff_demo.csv (factors + 20 synthetic assets)
+
+lpm_demo.csv (skewed returns for 8 assets)
+
+utility_demo.csv (consumption path + 2 asset returns)
+
+yield_demo.csv (a few dated curves), credit_demo.csv (spread path)
+
+rn_demo.csv (toy parameters)
+
+Each World can Load Demo to bypass generation.
+
+Frontend UX Details
+
+Header switch: Practice | Theory (persist in local storage)
+
+Theory landing: six tiles with short 1-line purpose + “Open”
+
+World page layout:
+Left column: Theory Card (markdown), KnobsPanel, Generate / Reset
+Right column: charts + tables with ExplainTip icon
+
+Exports: CSV (series/tables), PNG (charts)
+
+Accessibility: tab order, aria labels, keyboard toggles
+
+Acceptance Criteria
+
+I can switch to Theory Mode, open CAPM World, click Generate, and immediately see: frontier + CML + SML + α/β table + Fama–MacBeth results (no internet).
+
+In FF-5 World, I can toggle factors and see R² rise vs CAPM, with a loadings heatmap and factor premia table.
+
+In LPM World, selecting a skewed distribution makes the JB test reject normality, the LPM surface display, and the semivariance frontier differ from MV.
+
+In Utility World, changing γ updates U, U′, the SDF path, and the pricing error 
+1
+−
+𝐸
+[
+𝑚
+𝑅
+]
+1−E[mR].
+
+In Fixed-Income World, I can enter 3–5 yields, fit a curve, view term spread, and see bond P&L for a ±100 bps shock.
+
+In Risk-Neutral World, I can set (S,u,d,r) and get p_Q and call price with a state-price visualization.
+
+Non-Functional
+
+Offline-first: no API calls in Theory Mode.
+
+Deterministic via seeds; document annualization.
+
+Clear validation messages for knob inputs.
+
+Unit tests for generators: dimensions, moments (approx), regression recovery under correct spec.

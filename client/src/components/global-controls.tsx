@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Moon, Sun } from "lucide-react";
+import { Moon, Sun, FlaskConical, TrendingUp } from "lucide-react";
+import { useMode } from "@/contexts/mode-context";
 
 interface GlobalControlsProps {
   tickers: string[];
@@ -30,6 +31,7 @@ export function GlobalControls({
   onMarketProxyChange,
 }: GlobalControlsProps) {
   const [isDark, setIsDark] = useState(false);
+  const { mode, toggleMode } = useMode();
 
   const toggleTheme = () => {
     setIsDark(!isDark);
@@ -112,6 +114,25 @@ export function GlobalControls({
       </div>
 
       <div className="flex items-center gap-2">
+        <Button
+          variant={mode === "theory" ? "default" : "outline"}
+          size="sm"
+          onClick={toggleMode}
+          data-testid="button-mode-toggle"
+          className="h-8"
+        >
+          {mode === "theory" ? (
+            <>
+              <FlaskConical className="h-4 w-4 mr-2" />
+              Theory
+            </>
+          ) : (
+            <>
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Practice
+            </>
+          )}
+        </Button>
         <Button
           variant="ghost"
           size="icon"

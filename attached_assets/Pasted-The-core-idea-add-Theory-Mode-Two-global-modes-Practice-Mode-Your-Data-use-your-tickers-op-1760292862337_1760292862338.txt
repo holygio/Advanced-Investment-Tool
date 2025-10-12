@@ -1,0 +1,911 @@
+The core idea: add “Theory Mode”
+
+Two global modes:
+
+Practice Mode (Your Data): use your tickers (optional, API/CSV).
+
+Theory Mode (Model Worlds): pick a “world” with built-in data generators or casepacks designed to manifest each theory.
+
+Each module then works in both modes. In Theory Mode we don’t need APIs at all.
+
+Theory Worlds (offline, reproducible)
+1) CAPM World
+
+Goal: see CML/SML, beta pricing, Fama–MacBeth, GRS, all cleanly.
+
+Generator: choose K assets with “true” betas 
+𝛽
+𝑖
+∼
+𝑁
+(
+1
+,
+0.5
+2
+)
+β
+i
+	​
+
+∼N(1,0.5
+2
+). Simulate market factor 
+𝑓
+𝑀
+f
+M
+	​
+
+ and idiosyncratic 
+𝜀
+𝑖
+ε
+i
+	​
+
+:
+
+𝑟
+𝑖
+,
+𝑡
+=
+𝑟
+𝑓
++
+𝛽
+𝑖
+𝑓
+𝑀
+,
+𝑡
++
+𝜀
+𝑖
+,
+𝑡
+r
+i,t
+	​
+
+=r
+f
+	​
+
++β
+i
+	​
+
+f
+M,t
+	​
+
++ε
+i,t
+	​
+
+
+𝑓
+𝑀
+,
+𝑡
+∼
+𝑁
+(
+𝜇
+𝑀
+,
+𝜎
+𝑀
+2
+)
+,
+ 
+𝜀
+𝑖
+,
+𝑡
+∼
+𝑁
+(
+0
+,
+𝜎
+𝜀
+,
+𝑖
+2
+)
+f
+M,t
+	​
+
+∼N(μ
+M
+	​
+
+,σ
+M
+2
+	​
+
+), ε
+i,t
+	​
+
+∼N(0,σ
+ε,i
+2
+	​
+
+)
+
+Knobs: 
+𝑟
+𝑓
+,
+𝜇
+𝑀
+,
+𝜎
+𝑀
+r
+f
+	​
+
+,μ
+M
+	​
+
+,σ
+M
+	​
+
+, cross-sectional dispersion of 
+𝛽
+β, idio variances, T (sample length).
+
+Demonstrations: Efficient frontier → tangency; SML plot with true vs estimated betas; Fama–MacBeth recovers 
+𝜆
+𝑀
+λ
+M
+	​
+
+; GRS ~ don’t reject under correct spec.
+
+2) FF-5(+MOM) World (Anomalies / Multi-factor)
+
+Goal: show size/value/momentum/etc. really price returns.
+
+Generator: factors 
+𝑓
+=
+[
+𝑀
+𝐾
+𝑇
+,
+𝑆
+𝑀
+𝐵
+,
+𝐻
+𝑀
+𝐿
+,
+𝑅
+𝑀
+𝑊
+,
+𝐶
+𝑀
+𝐴
+,
+𝑀
+𝑂
+𝑀
+]
+f=[MKT,SMB,HML,RMW,CMA,MOM] with chosen means/cov, assets with “true” betas:
+
+𝑟
+𝑖
+,
+𝑡
+=
+𝑟
+𝑓
++
+∑
+𝑘
+𝛽
+𝑖
+𝑘
+𝑓
+𝑘
+,
+𝑡
++
+𝜀
+𝑖
+,
+𝑡
+r
+i,t
+	​
+
+=r
+f
+	​
+
++∑
+k
+	​
+
+β
+ik
+	​
+
+f
+k,t
+	​
+
++ε
+i,t
+	​
+
+
+Knobs: switch factors on/off, adjust factor means/correlations, add mild mis-specification (omit a factor in the regression) to produce alphas on purpose.
+
+Demo: CAPM 
+𝑅
+2
+R
+2
+ low → multi-factor 
+𝑅
+2
+R
+2
+ higher; visualize R² improvement and loadings heatmap.
+
+3) LPM / Downside World (Higher moments without APIs)
+
+Goal: show why variance misses downside risk.
+
+Generator A (mixture-normal): draw returns from a 2-mix Normal to get fat left tails (controls for skew/kurtosis).
+
+Generator B (skew-t): directly set skewness/kurtosis (skew-t or Johnson SU).
+
+Knobs: skew, tail index, threshold 
+𝜏
+τ (0, 
+𝑟
+𝑓
+r
+f
+	​
+
+, benchmark return), order 
+𝑛
+n (1,2,3).
+
+Demo: compare MV vs semivariance frontiers; LPM surface heatmap; co-LPM “beta” vs covariance beta.
+
+4) Utility & SDF World
+
+Goal: see how preferences map to state pricing.
+
+Generator: simulate consumption growth path 
+Δ
+log
+⁡
+𝑐
+𝑡
+Δlogc
+t
+	​
+
+ (AR(1) or iid), plus one or two asset returns tied to “good/bad states”.
+
+Knobs: utility family (CRRA/CARA/DARA), 
+𝛾
+γ, discount 
+𝛽
+β, correlation between returns and consumption.
+
+Demo: compute 
+𝑚
+𝑡
+∝
+𝛽
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m
+t
+	​
+
+∝β
+U
+′
+(c
+t
+	​
+
+)
+U
+′
+(c
+t+1
+	​
+
+)
+	​
+
+ → show 
+1
+−
+𝐸
+[
+𝑚
+𝑅
+]
+1−E[mR] pricing error for assets; overlay CAPM SDF (affine in 
+𝑅
+𝑀
+R
+M
+	​
+
+) vs utility-based SDF; highlight bad states.
+
+5) Term/Credit (Fixed Income) World
+
+Goal: yield curves, term spread, credit premia—no external data.
+
+Generator: choose Nelson-Siegel-Svensson parameters 
+(
+𝛽
+0
+,
+𝛽
+1
+,
+𝛽
+2
+,
+𝛽
+3
+,
+𝜏
+1
+,
+𝜏
+2
+)
+(β
+0
+	​
+
+,β
+1
+	​
+
+,β
+2
+	​
+
+,β
+3
+	​
+
+,τ
+1
+	​
+
+,τ
+2
+	​
+
+) per date to simulate curves; compute bond prices/durations.
+
+Credit: add rating-bucket OAS levels; simulate downgrades to show discontinuities.
+
+Demo: “normal vs inverted” curves; term spread path; equity-bond 5-factor SDF example (Market/SMB/HML/TERM/CREDIT).
+
+6) Risk-Neutral World (Options)
+
+Goal: intuition for 
+𝑄
+Q vs 
+𝑃
+P.
+
+Generator: single-period binomial or Black-Scholes sandbox.
+
+Knobs: 
+𝑆
+,
+𝐾
+,
+𝑟
+,
+𝑇
+,
+𝜎
+S,K,r,T,σ (or 
+𝑢
+,
+𝑑
+u,d).
+
+Demo: compute risk-neutral 
+𝑝
+𝑄
+p
+Q
+	​
+
+, price a call, compare to physical expected payoffs; visualize payoff states and state prices.
+
+UI: how to switch and what to show
+
+Global toggle: Theory Mode / Practice Mode.
+
+Theory Mode landing: grid of “Worlds”. Each world opens with:
+
+a small theory card (equations + assumptions),
+
+knobs (sliders/inputs),
+
+Generate button (fixed random seed for reproducibility),
+
+charts + tables that mirror the Practice module visuals.
+
+Examples:
+
+Factor Analyzer in Theory Mode → Generate FF-5 world → plot factor premia, correlation heatmap, loadings table, R² improvement chart—no API.
+
+Risk & Performance in Theory Mode → Generate LPM world → histogram + QQ plot, JB test, LPM heatmap, semivariance frontier.
+
+Minimal math details (so Lovable can implement)
+
+CAPM World:
+
+Draw 
+𝑓
+𝑀
+∼
+𝑁
+(
+𝜇
+𝑀
+,
+𝜎
+𝑀
+2
+)
+f
+M
+	​
+
+∼N(μ
+M
+	​
+
+,σ
+M
+2
+	​
+
+), 
+𝜀
+𝑖
+∼
+𝑁
+(
+0
+,
+𝜎
+𝜀
+,
+𝑖
+2
+)
+ε
+i
+	​
+
+∼N(0,σ
+ε,i
+2
+	​
+
+).
+
+Set 
+𝑟
+𝑖
+,
+𝑡
+=
+𝑟
+𝑓
++
+𝛽
+𝑖
+𝑓
+𝑀
+,
+𝑡
++
+𝜀
+𝑖
+,
+𝑡
+r
+i,t
+	​
+
+=r
+f
+	​
+
++β
+i
+	​
+
+f
+M,t
+	​
+
++ε
+i,t
+	​
+
+.
+
+Estimate via OLS on 
+𝑟
+𝑖
+,
+𝑡
+−
+𝑟
+𝑓
+r
+i,t
+	​
+
+−r
+f
+	​
+
+ vs 
+𝑓
+𝑀
+,
+𝑡
+f
+M,t
+	​
+
+. Newey–West SEs optional.
+
+FF-World:
+
+Factors 
+𝑓
+𝑡
+∼
+𝑁
+(
+𝜇
+𝑓
+,
+Σ
+𝑓
+)
+f
+t
+	​
+
+∼N(μ
+f
+	​
+
+,Σ
+f
+	​
+
+), assets 
+𝑟
+𝑖
+,
+𝑡
+=
+𝑟
+𝑓
++
+𝛽
+𝑖
+⊤
+𝑓
+𝑡
++
+𝜀
+𝑖
+,
+𝑡
+r
+i,t
+	​
+
+=r
+f
+	​
+
++β
+i
+⊤
+	​
+
+f
+t
+	​
+
++ε
+i,t
+	​
+
+.
+
+Compare 
+𝑅
+2
+R
+2
+ under CAPM vs full 
+𝐾
+K-factor.
+
+LPM:
+
+Mixture Normal: 
+𝑅
+∼
+𝜋
+𝑁
+(
+𝜇
+1
+,
+𝜎
+1
+2
+)
++
+(
+1
+−
+𝜋
+)
+𝑁
+(
+𝜇
+2
+,
+𝜎
+2
+2
+)
+R∼πN(μ
+1
+	​
+
+,σ
+1
+2
+	​
+
+)+(1−π)N(μ
+2
+	​
+
+,σ
+2
+2
+	​
+
+).
+
+𝐿
+𝑃
+𝑀
+𝑛
+(
+𝜏
+)
+=
+1
+𝑇
+∑
+min
+⁡
+(
+𝑅
+𝑡
+−
+𝜏
+,
+0
+)
+𝑛
+LPM
+n
+	​
+
+(τ)=
+T
+1
+	​
+
+∑min(R
+t
+	​
+
+−τ,0)
+n
+.
+
+Plot MV vs semivariance frontier side-by-side.
+
+Utility & SDF:
+
+CRRA: 
+𝑈
+(
+𝑥
+)
+=
+𝑥
+1
+−
+𝛾
+1
+−
+𝛾
+U(x)=
+1−γ
+x
+1−γ
+	​
+
+ (log if 
+𝛾
+=
+1
+γ=1).
+
+SDF: 
+𝑚
+𝑡
+∝
+𝛽
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m
+t
+	​
+
+∝β
+U
+′
+(c
+t
+	​
+
+)
+U
+′
+(c
+t+1
+	​
+
+)
+	​
+
+.
+
+Show 
+pricing error
+=
+1
+−
+𝐸
+[
+𝑚
+𝑅
+]
+pricing error=1−E[mR].
+
+Yield curve:
+
+Fit NSS curve locally to a few points; compute term spread (10y–3m).
+
+Credit proxy = OAS level per rating bucket (user slider) or difference of two synthetic bond baskets.
+
+Risk-neutral:
+
+Binomial: solve 
+𝑝
+𝑄
+p
+Q
+	​
+
+ from 
+𝐸
+𝑄
+[
+𝑅
+]
+=
+𝑟
+𝑓
+E
+Q
+[R]=r
+f
+	​
+
+.
+
+Black-Scholes sandbox for intuition; no live chains needed.
+
+Implementation sketch (Lovable follow-up prompt)
+
+“Add a Theory Mode with six offline Model Worlds (CAPM, FF-5, LPM, Utility/SDF, Term/Credit, Risk-Neutral). For each:
+
+Provide a generator function with a fixed random seed, adjustable knobs, and a Generate button.
+
+Reuse existing charts/tables from Practice Mode (frontier, SML, factor table, heatmaps, LPM surfaces, yield curves).
+
+Ship a data/casepacks/ folder with small CSVs as defaults (so users can click through without inputs).
+
+Expose a global toggle in the header: Theory / Practice.
+
+Ensure every Theory chart has a short “What this shows” tooltip tying back to lecture slides.”
+
+Why this works
+
+You see the model on data that actually demonstrates it (no API, no fragile links).
+
+You can dial in skew, kurtosis, factor premia, yield curves—so the theory becomes visual and tactile.
+
+Then, when you want, switch to Practice Mode and try your own 5–10 stocks—knowing exactly what to expect (and not expect).

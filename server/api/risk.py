@@ -20,6 +20,7 @@ class PerformanceRequest(BaseModel):
     benchmark: Optional[List[ReturnDataPoint]] = None
     rf: Optional[float] = 0.02
     lpm: Optional[LPMParams] = None
+    interval: Optional[str] = "1d"  # Data frequency for annualization
 
 class PerformanceResponse(BaseModel):
     sharpe: float
@@ -38,8 +39,13 @@ async def calculate_performance(request: PerformanceRequest):
         # Convert portfolio returns to array
         portfolio_returns = np.array([r.ret for r in request.portfolio])
         
-        # Annualization factor (assuming daily returns)
-        periods_per_year = 252
+        # Determine annualization factor based on data frequency
+        annualization_factors = {
+            "1d": 252,   # Daily: 252 trading days/year
+            "1wk": 52,   # Weekly: 52 weeks/year
+            "1mo": 12,   # Monthly: 12 months/year
+        }
+        periods_per_year = annualization_factors.get(request.interval, 252)
         
         # Calculate basic statistics
         mean_return = np.mean(portfolio_returns) * periods_per_year

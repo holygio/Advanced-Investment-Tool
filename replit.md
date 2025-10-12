@@ -4,12 +4,49 @@
 
 This is an interactive web platform for exploring advanced investment concepts including portfolio theory, CAPM, factor models, risk metrics, utility functions, and fixed income analysis. The application provides hands-on tools to visualize and test financial models using real market data from Yahoo Finance.
 
-The platform is structured as six learning modules:
+## Two Modes of Operation
+
+### Practice Mode (Your Data)
+- Use real market data from Yahoo Finance
+- Configure your own portfolio with tickers, dates, and constraints
+- Analyze actual historical returns and correlations
+- All calculations use weekly data with proper annualization (52 weeks/year)
+
+### Theory Mode (Model Worlds) - IN DEVELOPMENT
+- Explore financial theories with synthetic data generators
+- Six "Model Worlds" with known parameters:
+  - CAPM World - Perfect beta pricing with known betas
+  - Fama-French World - Multi-factor models with configurable factors
+  - LPM/Higher-Moments World - Non-normal distributions and downside risk
+  - Utility & SDF World - Preference-based asset pricing
+  - Fixed Income World - Term structure and credit spreads
+  - Risk-Neutral World - Options pricing
+- Reproducible with fixed random seeds
+- No API calls required - works offline
+
+## Six Learning Modules
+
 1. **Portfolio Builder** - Mean-Variance Optimization & Capital Market Line
+   - Efficient frontier visualization
+   - Pie chart allocation
+   - Correlation heatmap
+   - Optimal weights table
+
 2. **Model Tester** - CAPM regression and Security Market Line analysis
+
 3. **Factor Analyzer** - Multi-factor models (Fama-French, momentum, etc.)
+   - Factor regression with beta loadings
+   - R-squared comparison
+   - Annualized factor premia
+
 4. **Risk & Performance** - Performance metrics and higher moments analysis
+   - Sharpe, Treynor, Information Ratio, Jensen's Alpha
+   - Skewness, Kurtosis, Jarque-Bera test
+   - Return distribution histogram
+   - Lower Partial Moments (LPM) with configurable tau and n
+
 5. **Utility Explorer** - Utility functions (CRRA, CARA, DARA) and SDF concepts
+
 6. **Fixed Income** - Term structure and credit spread analysis
 
 ## User Preferences

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api import data, portfolio, model, risk, utility, fixedincome
+from api import data, portfolio, model, risk, utility, fixedincome, factor, theory
 
 app = FastAPI(title="Advanced Investments Interactive Lab API")
 
@@ -20,6 +20,8 @@ app.include_router(model.router, prefix="/api")
 app.include_router(risk.router, prefix="/api")
 app.include_router(utility.router, prefix="/api")
 app.include_router(fixedincome.router, prefix="/api")
+app.include_router(factor.router, prefix="/api")
+app.include_router(theory.router, prefix="/api")
 
 @app.get("/api/health")
 async def health_check():

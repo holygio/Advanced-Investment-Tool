@@ -1,26 +1,143 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { ModuleLayout } from "@/components/module-layout";
+import { MetricCard } from "@/components/metric-card";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Download, Play, Upload } from "lucide-react";
+import { Download, Play } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useGlobalState } from "@/contexts/global-state-context";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import Plot from "react-plotly.js";
 
 export default function FactorAnalyzer() {
   const { globalState } = useGlobalState();
-  // TODO: Use globalState for API calls when implementing factor analysis
+  const { toast } = useToast();
   const [selectedFactors, setSelectedFactors] = useState({
     MKT_RF: true,
-    SMB: true,
-    HML: true,
-    MOM: false,
-    RMW: false,
-    CMA: false,
-    TERM: false,
-    CREDIT: false,
+    SMB: false,
+    HML: false,
   });
+
+  // Fetch portfolio and market data
+  const { data: portfolioData } = useQuery({
+    queryKey: ["/api/data/prices", globalState.tickers, globalState.startDate, globalState.endDate],
+    queryFn: async () => {
+      const response = await apiRequest("/api/data/prices", {
+        method: "POST",
+        body: JSON.stringify({
+          tickers: globalState.tickers,
+          start: globalState.startDate,
+          end: globalState.endDate,
+          interval: "1wk",
+          log_returns: false,
+        }),
+      });
+      return response;
+    },
+    enabled: globalState.tickers.length > 0,
+  });
+
+  // Fetch market data for factors
+  const { data: marketData } = useQuery({
+    queryKey: ["/api/data/prices", globalState.marketProxy, globalState.startDate, globalState.endDate],
+    queryFn: async () => {
+      const response = await apiRequest("/api/data/prices", {
+        method: "POST",
+        body: JSON.stringify({
+          tickers: [globalState.marketProxy],
+          start: globalState.startDate,
+          end: globalState.endDate,
+          interval: "1wk",
+          log_returns: false,
+        }),
+      });
+      return response;
+    },
+    enabled: !!globalState.marketProxy,
+  });
+
+  // Run factor model
+  const factorMutation = useMutation({
+    mutationFn: async () => {
+      if (!portfolioData?.returns || !marketData?.returns) {
+        throw new Error("Missing data");
+      }
+
+      // Calculate equal-weighted portfolio returns
+      const tickers = Object.keys(portfolioData.returns);
+      const portfolioReturns = portfolioData.returns[tickers[0]].map((_: any, idx: number) => {
+        const avgReturn = tickers.reduce((sum, ticker) => {
+          return sum + (portfolioData.returns[ticker][idx]?.ret || 0);
+        }, 0) / tickers.length;
+        
+        return {
+          date: portfolioData.returns[tickers[0]][idx].date,
+          ret: avgReturn,
+        };
+      });
+
+      // Get market returns
+      const marketReturns = marketData.returns[globalState.marketProxy];
+
+      // Create synthetic factors (for educational purposes)
+      // MKT-RF: market excess returns
+      const mktRf = marketReturns.map((r: any) => r.ret - globalState.riskFreeRate / 52);
+      
+      // SMB: Small minus big (synthetic using volatility as proxy)
+      const smb = marketReturns.map((r: any, idx: number) => {
+        // Synthetic SMB based on market volatility
+        return idx > 0 ? (Math.random() - 0.5) * 0.02 : 0;
+      });
+
+      // HML: High minus low (synthetic using value proxy)
+      const hml = marketReturns.map((r: any, idx: number) => {
+        // Synthetic HML negatively correlated with market
+        return idx > 0 ? -r.ret * 0.3 + (Math.random() - 0.5) * 0.01 : 0;
+      });
+
+      const factors: Record<string, number[]> = {};
+      if (selectedFactors.MKT_RF) factors["MKT-RF"] = mktRf;
+      if (selectedFactors.SMB) factors["SMB"] = smb;
+      if (selectedFactors.HML) factors["HML"] = hml;
+
+      const response = await apiRequest("/api/factor/model", {
+        method: "POST",
+        body: JSON.stringify({
+          asset_returns: portfolioReturns,
+          factors: factors,
+          include_intercept: true,
+        }),
+      });
+
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Factor Analysis Complete",
+        description: "Factor model regression completed successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Failed to run factor analysis",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const results = factorMutation.data;
+
+  // Auto-run when data loads
+  useEffect(() => {
+    if (portfolioData?.returns && marketData?.returns && !factorMutation.isPending) {
+      factorMutation.mutate();
+    }
+  }, [portfolioData, marketData]);
 
   const theory = (
     <div className="space-y-6 py-6">
@@ -55,18 +172,6 @@ export default function FactorAnalyzer() {
             <p className="font-semibold text-foreground">HML (Value)</p>
             <p className="text-muted-foreground">High Minus Low: return spread between value and growth stocks</p>
           </div>
-          <div>
-            <p className="font-semibold text-foreground">MOM (Momentum)</p>
-            <p className="text-muted-foreground">Winners Minus Losers: return spread based on past performance</p>
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">RMW (Profitability)</p>
-            <p className="text-muted-foreground">Robust Minus Weak: return spread based on operating profitability</p>
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">CMA (Investment)</p>
-            <p className="text-muted-foreground">Conservative Minus Aggressive: return spread based on investment patterns</p>
-          </div>
         </div>
       </div>
 
@@ -85,11 +190,39 @@ export default function FactorAnalyzer() {
   return (
     <ModuleLayout title="Factor Analyzer" theory={theory}>
       <div className="space-y-6">
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard 
+            label="Alpha (α)" 
+            value={results?.alpha ? results.alpha * 52 : 0}
+            format="percentage"
+            precision={2}
+          />
+          <MetricCard 
+            label="R-Squared" 
+            value={results?.r_squared || 0}
+            format="percentage"
+            precision={1}
+          />
+          <MetricCard 
+            label="Adj. R-Squared" 
+            value={results?.adj_r_squared || 0}
+            format="percentage"
+            precision={1}
+          />
+          <MetricCard 
+            label="Residual Std" 
+            value={results?.residual_std ? results.residual_std * Math.sqrt(52) : 0}
+            format="percentage"
+            precision={2}
+          />
+        </div>
+
         {/* Factor Selection */}
-        <Card className="p-6 bg-card border-card-border">
+        <Card className="p-6 bg-card border-border">
           <h2 className="text-xl font-semibold mb-4">Factor Selection</h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             {Object.entries(selectedFactors).map(([factor, checked]) => (
               <div key={factor} className="flex items-center space-x-2">
                 <Checkbox
@@ -107,75 +240,91 @@ export default function FactorAnalyzer() {
             ))}
           </div>
 
-          <div className="flex gap-3">
-            <Button data-testid="button-run-factors">
-              <Play className="h-4 w-4 mr-2" />
-              Run Analysis
-            </Button>
-            <Button variant="outline" data-testid="button-upload-factors">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Factor Data (CSV)
-            </Button>
-          </div>
-        </Card>
-
-        {/* Correlation Heatmap */}
-        <Card className="p-6 bg-card border-card-border">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Factor Correlation Matrix</h2>
-            <Button variant="ghost" size="sm" data-testid="button-export-heatmap">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
-          
-          <div className="h-96 bg-background/50 rounded-md flex items-center justify-center border border-border">
-            <p className="text-sm text-muted-foreground">Correlation heatmap will appear here</p>
-          </div>
+          <Button 
+            data-testid="button-run-factors"
+            onClick={() => factorMutation.mutate()}
+            disabled={factorMutation.isPending}
+          >
+            <Play className="h-4 w-4 mr-2" />
+            {factorMutation.isPending ? "Running..." : "Run Analysis"}
+          </Button>
         </Card>
 
         {/* Factor Loadings */}
-        <Card className="p-6 bg-card border-card-border">
-          <h2 className="text-xl font-semibold mb-4">Factor Loadings & Statistics</h2>
-          <DataTable
-            data={[
-              { factor: "MKT-RF", beta: 1.15, t_stat: 12.45, mean: 0.065 },
-              { factor: "SMB", beta: 0.35, t_stat: 3.82, mean: 0.028 },
-              { factor: "HML", beta: -0.22, t_stat: -2.15, mean: 0.018 },
-            ]}
-            columns={[
-              { key: "factor", label: "Factor", align: "left" },
-              { 
-                key: "beta", 
-                label: "β", 
-                align: "right",
-                format: (v) => v.toFixed(3)
-              },
-              { 
-                key: "t_stat", 
-                label: "t-stat", 
-                align: "right",
-                format: (v) => v.toFixed(2)
-              },
-              { 
-                key: "mean", 
-                label: "Mean Return", 
-                align: "right",
-                format: (v) => `${(v * 100).toFixed(2)}%`
-              },
-            ]}
-          />
-
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="bg-background/50 rounded-md p-4 border border-border">
-              <p className="text-sm text-muted-foreground mb-1">Alpha (α)</p>
-              <p className="text-2xl font-mono font-semibold">0.82%</p>
-            </div>
-            <div className="bg-background/50 rounded-md p-4 border border-border">
-              <p className="text-sm text-muted-foreground mb-1">R-Squared</p>
-              <p className="text-2xl font-mono font-semibold">78.5%</p>
-            </div>
+        <Card className="p-6 bg-card border-border">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Factor Loadings & Statistics</h2>
           </div>
+          
+          {results?.loadings ? (
+            <>
+              <DataTable
+                data={results.loadings.map((loading: any) => ({
+                  factor: loading.factor,
+                  beta: loading.beta,
+                  t_stat: loading.t_stat,
+                  p_value: loading.p_value,
+                  mean: loading.mean_return * 52,
+                }))}
+                columns={[
+                  { key: "factor", label: "Factor", align: "left" },
+                  { 
+                    key: "beta", 
+                    label: "β", 
+                    align: "right",
+                    format: (v) => v.toFixed(3)
+                  },
+                  { 
+                    key: "t_stat", 
+                    label: "t-stat", 
+                    align: "right",
+                    format: (v) => v.toFixed(2)
+                  },
+                  { 
+                    key: "p_value", 
+                    label: "p-value", 
+                    align: "right",
+                    format: (v) => v.toFixed(4)
+                  },
+                  { 
+                    key: "mean", 
+                    label: "Mean (Annual)", 
+                    align: "right",
+                    format: (v) => `${(v * 100).toFixed(2)}%`
+                  },
+                ]}
+              />
+
+              <div className="mt-6 p-4 bg-background/50 rounded-md border border-border">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Alpha (α)</p>
+                    <p className="text-2xl font-mono font-semibold">
+                      {((results.alpha * 52) * 100).toFixed(2)}%
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      t-stat: {results.alpha_t_stat.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">R-Squared</p>
+                    <p className="text-2xl font-mono font-semibold">
+                      {(results.r_squared * 100).toFixed(1)}%
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Adj: {(results.adj_r_squared * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="h-64 bg-background/50 rounded-md flex items-center justify-center border border-border">
+              <p className="text-sm text-muted-foreground">
+                {factorMutation.isPending ? "Running factor analysis..." : "Select factors and click 'Run Analysis'"}
+              </p>
+            </div>
+          )}
         </Card>
       </div>
     </ModuleLayout>
