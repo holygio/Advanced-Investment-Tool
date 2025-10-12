@@ -3,16 +3,12 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { ModuleLayout } from "@/components/module-layout";
 import { MetricCard } from "@/components/metric-card";
 import { DataTable } from "@/components/data-table";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Download, Play } from "lucide-react";
+import { Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
 import Plot from "react-plotly.js";
 import { useToast } from "@/hooks/use-toast";
-
 import { useGlobalState } from "@/contexts/global-state-context";
 
 export default function PortfolioBuilder() {
@@ -95,6 +91,48 @@ export default function PortfolioBuilder() {
     }
   }, [priceData, loadingPrices, globalState.riskFreeRate, globalState.allowShortSelling, globalState.maxWeight]);
 
+  // Calculate correlation matrix for heatmap
+  const correlationData = priceData?.returns ? (() => {
+    const tickers = Object.keys(priceData.returns);
+    const n = tickers.length;
+    const correlations: number[][] = [];
+    
+    // Extract return values
+    const returnsData: Record<string, number[]> = {};
+    for (const ticker of tickers) {
+      returnsData[ticker] = priceData.returns[ticker].map((r: any) => r.ret);
+    }
+    
+    // Calculate correlation matrix
+    for (let i = 0; i < n; i++) {
+      correlations[i] = [];
+      for (let j = 0; j < n; j++) {
+        if (i === j) {
+          correlations[i][j] = 1;
+        } else {
+          const x = returnsData[tickers[i]];
+          const y = returnsData[tickers[j]];
+          const len = Math.min(x.length, y.length);
+          
+          let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+          for (let k = 0; k < len; k++) {
+            sumX += x[k];
+            sumY += y[k];
+            sumXY += x[k] * y[k];
+            sumX2 += x[k] * x[k];
+            sumY2 += y[k] * y[k];
+          }
+          
+          const numerator = len * sumXY - sumX * sumY;
+          const denominator = Math.sqrt((len * sumX2 - sumX * sumX) * (len * sumY2 - sumY * sumY));
+          correlations[i][j] = denominator !== 0 ? numerator / denominator : 0;
+        }
+      }
+    }
+    
+    return { matrix: correlations, tickers };
+  })() : null;
+
   const theory = (
     <div className="space-y-6 py-6">
       <div>
@@ -157,8 +195,8 @@ export default function PortfolioBuilder() {
       ["Ticker", "Weight", "Allocation"],
       ...Object.entries(weights).map(([ticker, weight]) => [
         ticker,
-        weight.toFixed(4),
-        `${(weight * 100).toFixed(2)}%`,
+        (weight as number).toFixed(4),
+        `${((weight as number) * 100).toFixed(2)}%`,
       ]),
     ]
       .map((row) => row.join(","))
@@ -175,37 +213,35 @@ export default function PortfolioBuilder() {
 
   return (
     <ModuleLayout title="Portfolio Builder" theory={theory}>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Controls Panel */}
-        <Card className="p-6 bg-card border-card-border">
-          <h2 className="text-xl font-semibold mb-6">Export Results</h2>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Portfolio is automatically optimized using weekly returns. Adjust parameters in the left sidebar to see updated results.
-              </p>
-            </div>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <MetricCard 
+          label="Expected Return" 
+          value={frontierData?.tangency?.return || 0} 
+          format="percentage" 
+        />
+        <MetricCard 
+          label="Volatility (σ)" 
+          value={frontierData?.tangency?.risk || 0} 
+          format="percentage" 
+        />
+        <MetricCard 
+          label="Sharpe Ratio" 
+          value={frontierData?.tangency?.sharpe || 0} 
+          precision={3} 
+        />
+        <MetricCard 
+          label="Risk-Free Rate" 
+          value={globalState.riskFreeRate} 
+          format="percentage" 
+        />
+      </div>
 
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              data-testid="button-export-csv"
-              onClick={handleExportCSV}
-              disabled={!frontierData?.tangency}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
-          </div>
-        </Card>
-
-        {/* Chart Area */}
-        <Card className="lg:col-span-2 p-6 bg-card border-card-border">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Efficient Frontier</h2>
-          </div>
-          
+      {/* Main Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Efficient Frontier */}
+        <Card className="p-6 bg-card border-border">
+          <h2 className="text-xl font-semibold mb-4">Efficient Frontier</h2>
           <div className="h-96">
             {frontierData ? (
               <Plot
@@ -232,14 +268,14 @@ export default function PortfolioBuilder() {
                     type: "scatter",
                     mode: "markers",
                     name: "Tangency Portfolio",
-                    marker: { size: 12, color: "#16a34a", symbol: "star" },
+                    marker: { size: 14, color: "#16a34a", symbol: "star" },
                   },
                 ]}
                 layout={{
                   autosize: true,
                   paper_bgcolor: "rgba(0,0,0,0)",
                   plot_bgcolor: "rgba(0,0,0,0)",
-                  font: { color: "#000", family: "Inter, sans-serif", size: 12 },
+                  font: { color: "#1f2937", family: "Inter, sans-serif", size: 12 },
                   xaxis: { 
                     title: "Risk (σ)", 
                     gridcolor: "#e5e7eb",
@@ -262,59 +298,137 @@ export default function PortfolioBuilder() {
             ) : (
               <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
                 <p className="text-sm text-muted-foreground">
-                  {loadingPrices ? "Loading price data..." : optimizeMutation.isPending ? "Optimizing portfolio..." : "Configure portfolio in the left sidebar to begin"}
+                  {loadingPrices ? "Loading data..." : optimizeMutation.isPending ? "Optimizing..." : "Click 'Load Data & Optimize' to begin"}
                 </p>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Portfolio Allocation Pie Chart */}
+        <Card className="p-6 bg-card border-border">
+          <h2 className="text-xl font-semibold mb-4">Optimal Allocation</h2>
+          <div className="h-96">
+            {frontierData?.tangency ? (
+              <Plot
+                data={[
+                  {
+                    type: "pie",
+                    labels: Object.keys(frontierData.tangency.weights),
+                    values: Object.values(frontierData.tangency.weights),
+                    textinfo: "label+percent",
+                    textposition: "auto",
+                    marker: {
+                      colors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"],
+                    },
+                  },
+                ]}
+                layout={{
+                  autosize: true,
+                  paper_bgcolor: "rgba(0,0,0,0)",
+                  font: { color: "#1f2937", family: "Inter, sans-serif", size: 12 },
+                  margin: { l: 20, r: 20, t: 20, b: 20 },
+                  showlegend: true,
+                  legend: { x: 1, xanchor: "right", y: 0.5 },
+                }}
+                config={{ responsive: true }}
+                style={{ width: "100%", height: "100%" }}
+              />
+            ) : (
+              <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
+                <p className="text-sm text-muted-foreground">Awaiting optimization...</p>
               </div>
             )}
           </div>
         </Card>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard 
-          label="Expected Return" 
-          value={frontierData?.tangency?.return || 0} 
-          format="percentage" 
-        />
-        <MetricCard 
-          label="Volatility (σ)" 
-          value={frontierData?.tangency?.risk || 0} 
-          format="percentage" 
-        />
-        <MetricCard 
-          label="Sharpe Ratio" 
-          value={frontierData?.tangency?.sharpe || 0} 
-          precision={3} 
-        />
-        <MetricCard 
-          label="Risk-Free Rate" 
-          value={globalState.riskFreeRate} 
-          format="percentage" 
-        />
-      </div>
-
-      {/* Weights Table */}
-      {frontierData?.tangency && (
-        <Card className="p-6 bg-card border-card-border">
-          <h2 className="text-xl font-semibold mb-4">Optimal Portfolio Weights</h2>
-          <DataTable
-            data={Object.entries(frontierData.tangency.weights).map(([ticker, weight]) => ({
-              ticker,
-              weight,
-            }))}
-            columns={[
-              { key: "ticker", label: "Ticker", align: "left" },
-              { 
-                key: "weight", 
-                label: "Weight", 
-                align: "right",
-                format: (v) => `${(v * 100).toFixed(2)}%`
-              },
-            ]}
-          />
+      {/* Correlation Heatmap and Weights Table Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Correlation Heatmap */}
+        <Card className="p-6 bg-card border-border">
+          <h2 className="text-xl font-semibold mb-4">Correlation Matrix</h2>
+          <div className="h-96">
+            {correlationData ? (
+              <Plot
+                data={[
+                  {
+                    type: "heatmap",
+                    z: correlationData.matrix,
+                    x: correlationData.tickers,
+                    y: correlationData.tickers,
+                    colorscale: [
+                      [0, "#1e40af"],
+                      [0.5, "#f3f4f6"],
+                      [1, "#dc2626"],
+                    ],
+                    zmid: 0,
+                    text: correlationData.matrix.map(row => 
+                      row.map(val => val.toFixed(2))
+                    ),
+                    texttemplate: "%{text}",
+                    textfont: { size: 10 },
+                    colorbar: { title: "Correlation" },
+                  },
+                ]}
+                layout={{
+                  autosize: true,
+                  paper_bgcolor: "rgba(0,0,0,0)",
+                  plot_bgcolor: "rgba(0,0,0,0)",
+                  font: { color: "#1f2937", family: "Inter, sans-serif", size: 11 },
+                  margin: { l: 60, r: 80, t: 20, b: 60 },
+                  xaxis: { side: "bottom" },
+                  yaxis: { autorange: "reversed" },
+                }}
+                config={{ responsive: true }}
+                style={{ width: "100%", height: "100%" }}
+              />
+            ) : (
+              <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
+                <p className="text-sm text-muted-foreground">Loading correlations...</p>
+              </div>
+            )}
+          </div>
         </Card>
-      )}
+
+        {/* Weights Table */}
+        <Card className="p-6 bg-card border-border">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Optimal Portfolio Weights</h2>
+            <Button 
+              variant="outline" 
+              size="sm"
+              data-testid="button-export-csv"
+              onClick={handleExportCSV}
+              disabled={!frontierData?.tangency}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
+          </div>
+          {frontierData?.tangency ? (
+            <DataTable
+              data={Object.entries(frontierData.tangency.weights).map(([ticker, weight]) => ({
+                ticker,
+                weight,
+              }))}
+              columns={[
+                { key: "ticker", label: "Ticker", align: "left" },
+                { 
+                  key: "weight", 
+                  label: "Weight", 
+                  align: "right",
+                  format: (v) => `${(v * 100).toFixed(2)}%`
+                },
+              ]}
+            />
+          ) : (
+            <div className="h-64 bg-background/50 rounded-md flex items-center justify-center border border-border">
+              <p className="text-sm text-muted-foreground">Awaiting optimization...</p>
+            </div>
+          )}
+        </Card>
+      </div>
     </ModuleLayout>
   );
 }
