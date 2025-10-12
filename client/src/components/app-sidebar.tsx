@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
+  Home,
   BarChart3,
   LineChart,
   Network,
@@ -20,8 +21,14 @@ import {
 
 const modules = [
   {
-    title: "Portfolio Builder",
+    title: "Home",
     url: "/",
+    icon: Home,
+    description: "Welcome & Get Started",
+  },
+  {
+    title: "Portfolio Builder",
+    url: "/portfolio",
     icon: BarChart3,
     description: "Mean-Variance Optimization & CML",
   },

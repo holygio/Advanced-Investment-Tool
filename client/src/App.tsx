@@ -9,6 +9,7 @@ import { GlobalControls } from "@/components/global-controls";
 import { GlobalStateProvider, useGlobalState } from "@/contexts/global-state-context";
 
 // Pages
+import Landing from "@/pages/landing";
 import PortfolioBuilder from "@/pages/portfolio-builder";
 import CAPMTester from "@/pages/capm-tester";
 import FactorAnalyzer from "@/pages/factor-analyzer";
@@ -35,7 +36,8 @@ function Router() {
         onMarketProxyChange={(proxy) => updateGlobalState({ marketProxy: proxy })}
       />
       <Switch>
-        <Route path="/" component={PortfolioBuilder} />
+        <Route path="/" component={Landing} />
+        <Route path="/portfolio" component={PortfolioBuilder} />
         <Route path="/capm" component={CAPMTester} />
         <Route path="/factors" component={FactorAnalyzer} />
         <Route path="/performance" component={Performance} />
