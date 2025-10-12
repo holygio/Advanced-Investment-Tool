@@ -1,0 +1,45 @@
+import { createContext, useContext, useState, ReactNode } from "react";
+
+interface GlobalState {
+  tickers: string[];
+  startDate: string;
+  endDate: string;
+  riskFreeRate: number;
+  marketProxy: string;
+}
+
+interface GlobalStateContextType {
+  globalState: GlobalState;
+  setGlobalState: (state: GlobalState) => void;
+  updateGlobalState: (updates: Partial<GlobalState>) => void;
+}
+
+const GlobalStateContext = createContext<GlobalStateContextType | undefined>(undefined);
+
+export function GlobalStateProvider({ children }: { children: ReactNode }) {
+  const [globalState, setGlobalState] = useState<GlobalState>({
+    tickers: ["AAPL", "MSFT", "META", "TSLA", "NVDA", "^GSPC"],
+    startDate: "2018-01-01",
+    endDate: new Date().toISOString().split("T")[0],
+    riskFreeRate: 0.02,
+    marketProxy: "^GSPC",
+  });
+
+  const updateGlobalState = (updates: Partial<GlobalState>) => {
+    setGlobalState(prev => ({ ...prev, ...updates }));
+  };
+
+  return (
+    <GlobalStateContext.Provider value={{ globalState, setGlobalState, updateGlobalState }}>
+      {children}
+    </GlobalStateContext.Provider>
+  );
+}
+
+export function useGlobalState() {
+  const context = useContext(GlobalStateContext);
+  if (!context) {
+    throw new Error("useGlobalState must be used within GlobalStateProvider");
+  }
+  return context;
+}

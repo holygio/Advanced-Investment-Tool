@@ -6,8 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Download, Play } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useGlobalState } from "@/contexts/global-state-context";
 
 export default function Performance() {
+  const { globalState } = useGlobalState();
+  // TODO: Use globalState for API calls when implementing performance metrics
   const [tau, setTau] = useState(0);
   const [n, setN] = useState(2);
 

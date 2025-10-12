@@ -13,15 +13,10 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import Plot from "react-plotly.js";
 import { useToast } from "@/hooks/use-toast";
 
+import { useGlobalState } from "@/contexts/global-state-context";
+
 export default function PortfolioBuilder() {
-  // Get global state from context/localStorage or use defaults
-  const [globalState] = useState({
-    tickers: ["AAPL", "MSFT", "META", "TSLA", "NVDA", "^GSPC"],
-    startDate: "2018-01-01",
-    endDate: new Date().toISOString().split("T")[0],
-    riskFreeRate: 0.02,
-    marketProxy: "^GSPC",
-  });
+  const { globalState } = useGlobalState();
   const [allowShort, setAllowShort] = useState(false);
   const [interval, setInterval] = useState<"1d" | "1wk" | "1mo">("1wk");
   const { toast } = useToast();

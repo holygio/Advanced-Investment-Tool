@@ -6,8 +6,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Download, Play, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useGlobalState } from "@/contexts/global-state-context";
 
 export default function FactorAnalyzer() {
+  const { globalState } = useGlobalState();
+  // TODO: Use globalState for API calls when implementing factor analysis
   const [selectedFactors, setSelectedFactors] = useState({
     MKT_RF: true,
     SMB: true,

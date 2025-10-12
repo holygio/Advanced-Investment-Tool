@@ -5,10 +5,13 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Download, Play } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useGlobalState } from "@/contexts/global-state-context";
 
 type UtilityType = "CRRA" | "CARA" | "DARA";
 
 export default function UtilityExplorer() {
+  const { globalState } = useGlobalState();
+  // TODO: Use globalState.riskFreeRate and other params for utility calculations
   const [utilityType, setUtilityType] = useState<UtilityType>("CRRA");
   const [gamma, setGamma] = useState(2);
 

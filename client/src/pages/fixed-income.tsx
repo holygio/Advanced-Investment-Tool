@@ -7,8 +7,11 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { useGlobalState } from "@/contexts/global-state-context";
 
 export default function FixedIncome() {
+  const { globalState } = useGlobalState();
+  // TODO: Use globalState.riskFreeRate for yield curve analysis
   const [useFRED, setUseFRED] = useState(false);
 
   const theory = (

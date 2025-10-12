@@ -4,8 +4,11 @@ import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Download, Play } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useGlobalState } from "@/contexts/global-state-context";
 
 export default function CAPMTester() {
+  const { globalState } = useGlobalState();
+  // TODO: Use globalState for API calls when implementing CAPM analysis
   const theory = (
     <div className="space-y-6 py-6">
       <div>
