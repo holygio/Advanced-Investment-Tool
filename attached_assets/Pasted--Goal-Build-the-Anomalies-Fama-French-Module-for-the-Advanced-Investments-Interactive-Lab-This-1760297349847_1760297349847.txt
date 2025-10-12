@@ -1,0 +1,601 @@
+🎯 Goal
+
+Build the Anomalies & Fama–French Module for the Advanced Investments Interactive Lab.
+This module explains and tests Fama–French (3-factor and 5-factor) models and the GRS test for pricing efficiency.
+
+It must have:
+
+A Theory section (equations + definitions + context)
+
+An Empirical section (descriptive stats, regressions, visualizations)
+
+A GRS test block for model validation
+
+All operations must work offline, using the two uploaded CSV files from the Ken French Data Library.
+
+📂 Datasets
+
+You will receive two CSV files in /data/factors/:
+
+F-F_Research_Data_Factors.csv → Fama–French 3-Factor Model
+Columns: Date, Mkt-RF, SMB, HML, RF
+
+F-F_Research_Data_5_Factors_2x3.csv → Fama–French 5-Factor Model
+Columns: Date, Mkt-RF, SMB, HML, RMW, CMA, RF
+
+Both are monthly and percentages, so divide all factor values by 100 and convert the Date column to datetime.
+
+If no user data is provided, generate synthetic portfolio excess returns (R_i - R_f) for 5–10 portfolios (e.g., random combinations of factor exposures).
+
+🧱 Module Structure
+
+Split the module into two submodules + one validation test:
+
+1️⃣ Fama–French 3-Factor Model (FF3)
+
+Formula (shown in the TheoryCard first):
+
+𝑅
+𝑖
+−
+𝑅
+𝑓
+=
+𝛼
+𝑖
++
+𝛽
+𝑖
+𝑀
+(
+𝑅
+𝑀
+−
+𝑅
+𝑓
+)
++
+𝑠
+𝑖
+𝑆
+𝑀
+𝐵
++
+ℎ
+𝑖
+𝐻
+𝑀
+𝐿
++
+𝜀
+𝑖
+R
+i
+	​
+
+−R
+f
+	​
+
+=α
+i
+	​
+
++β
+iM
+	​
+
+(R
+M
+	​
+
+−R
+f
+	​
+
+)+s
+i
+	​
+
+SMB+h
+i
+	​
+
+HML+ε
+i
+	​
+
+
+Where:
+
+𝑅
+𝑖
+−
+𝑅
+𝑓
+R
+i
+	​
+
+−R
+f
+	​
+
+: excess return
+
+𝑅
+𝑀
+−
+𝑅
+𝑓
+R
+M
+	​
+
+−R
+f
+	​
+
+: market premium
+
+SMB: “Small Minus Big” (size)
+
+HML: “High Minus Low” (value)
+
+α: mispricing (if nonzero, model fails)
+
+2️⃣ Fama–French 5-Factor Model (FF5)
+
+Formula:
+
+𝑅
+𝑖
+−
+𝑅
+𝑓
+=
+𝛼
+𝑖
++
+𝛽
+𝑖
+𝑀
+(
+𝑅
+𝑀
+−
+𝑅
+𝑓
+)
++
+𝑠
+𝑖
+𝑆
+𝑀
+𝐵
++
+ℎ
+𝑖
+𝐻
+𝑀
+𝐿
++
+𝑟
+𝑖
+𝑅
+𝑀
+𝑊
++
+𝑐
+𝑖
+𝐶
+𝑀
+𝐴
++
+𝜀
+𝑖
+R
+i
+	​
+
+−R
+f
+	​
+
+=α
+i
+	​
+
++β
+iM
+	​
+
+(R
+M
+	​
+
+−R
+f
+	​
+
+)+s
+i
+	​
+
+SMB+h
+i
+	​
+
+HML+r
+i
+	​
+
+RMW+c
+i
+	​
+
+CMA+ε
+i
+	​
+
+
+Adds:
+
+RMW: “Robust Minus Weak” (profitability)
+
+CMA: “Conservative Minus Aggressive” (investment)
+
+⚙️ Backend Implementation (ff_world.py)
+
+Use Python (FastAPI) with:
+
+pandas, numpy, statsmodels.api as sm, plotly.express
+
+Endpoints:
+
+/api/factors/ff3/analyze
+
+/api/factors/ff5/analyze
+
+/api/factors/grs/test
+
+🔍 Step-by-Step Analysis Workflow
+A. Data Preparation
+
+Read CSV → convert to decimals
+
+Keep last 10–15 years (optional subset)
+
+Align factors with synthetic or user portfolio returns
+
+Compute excess returns: 
+𝑅
+𝑖
+−
+𝑅
+𝑓
+R
+i
+	​
+
+−R
+f
+	​
+
+
+B. Descriptive Statistics
+
+Return:
+
+Means, Std, Correlation matrix (Plotly heatmap)
+
+Factor premia (line chart of cumulative sums)
+
+C. Regressions (OLS)
+
+For each portfolio (column of returns):
+
+𝑅
+𝑖
+−
+𝑅
+𝑓
+=
+𝛼
+𝑖
++
+𝛽
+𝑀
+(
+𝑀
+𝑘
+𝑡
+−
+𝑅
+𝐹
+)
++
+𝛽
+𝑆
+𝑀
+𝐵
+𝑆
+𝑀
+𝐵
++
+𝛽
+𝐻
+𝑀
+𝐿
+𝐻
+𝑀
+𝐿
+(
++
+𝛽
+𝑅
+𝑀
+𝑊
+𝑅
+𝑀
+𝑊
++
+𝛽
+𝐶
+𝑀
+𝐴
+𝐶
+𝑀
+𝐴
+)
+R
+i
+	​
+
+−R
+f
+	​
+
+=α
+i
+	​
+
++β
+M
+	​
+
+(Mkt−RF)+β
+SMB
+	​
+
+SMB+β
+HML
+	​
+
+HML(+β
+RMW
+	​
+
+RMW+β
+CMA
+	​
+
+CMA)
+
+Return:
+
+α, βs, t-stats, R² for each model
+
+Model comparison table: CAPM vs FF3 vs FF5 (average R², number of significant αs)
+
+📊 Frontend Implementation
+
+React + Tailwind, add one page per model:
+
+/frontend/app/factors/ff3/page.tsx
+
+/frontend/app/factors/ff5/page.tsx
+
+/frontend/app/factors/grs/page.tsx
+
+Each page shows:
+
+Top panel: TheoryCard (formula + definitions)
+
+Left side: Controls (model selector, date range)
+
+Main area: Charts and regression tables
+
+ExplainTip icons: definitions for each factor
+
+🧮 GRS Test Section
+
+Goal:
+Statistically test whether all α’s from the regression are jointly zero (i.e., whether the model prices assets correctly).
+
+📘 Formula:
+𝐺
+𝑅
+𝑆
+=
+𝑇
+𝑁
+(
+𝑇
+−
+𝑁
+−
+𝐾
+)
+(
+𝑁
+(
+𝐾
++
+1
+)
+)
+×
+𝛼
+^
+⊤
+Σ
+−
+1
+𝛼
+^
+1
++
+𝜇
+^
+𝑓
+⊤
+Σ
+𝑓
+−
+1
+𝜇
+^
+𝑓
+GRS=
+N
+T
+	​
+
+(N(K+1))
+(T−N−K)
+	​
+
+×
+1+
+μ
+^
+	​
+
+f
+⊤
+	​
+
+Σ
+f
+−1
+	​
+
+μ
+^
+	​
+
+f
+	​
+
+α
+^
+⊤
+Σ
+−1
+α
+^
+	​
+
+
+Where:
+
+T = number of time periods
+
+N = number of assets
+
+K = number of factors
+
+𝛼
+^
+α
+^
+ = vector of estimated intercepts
+
+Σ
+Σ = residual covariance matrix from time-series regressions
+
+𝜇
+^
+𝑓
+μ
+^
+	​
+
+f
+	​
+
+ = mean factor returns
+
+Σ
+𝑓
+Σ
+f
+	​
+
+ = covariance matrix of factor returns
+
+Under the null hypothesis (H₀: α = 0), GRS follows an F-distribution with (N, T − N − K) degrees of freedom.
+If p-value < 0.05 → reject H₀ → the model fails to explain all expected returns.
+
+📈 What to Display:
+
+α table (each asset, α and t-stat)
+
+Overall GRS F-statistic and p-value
+
+Verdict: “Model passes/does not pass pricing efficiency test”
+
+Chart: α distribution and confidence intervals
+
+Tooltip: “GRS tests if all intercepts (pricing errors) are jointly zero”
+
+📊 Example Backend Snippet
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+def grs_test(returns, factors, alphas, residuals):
+    T, N = returns.shape
+    K = factors.shape[1]
+    Sigma = np.cov(residuals, rowvar=False)
+    mean_f = np.mean(factors, axis=0)
+    cov_f = np.cov(factors, rowvar=False)
+    
+    num = (T / N) * (T - N - K) / (T - K - 1)
+    term1 = alphas.T @ np.linalg.inv(Sigma) @ alphas
+    term2 = 1 + mean_f.T @ np.linalg.inv(cov_f) @ mean_f
+    GRS = num * (term1 / term2)
+    
+    p_value = 1 - stats.f.cdf(GRS, N, T - N - K)
+    return GRS[0,0], p_value
+
+🧠 Educational Layer (Theory Mode)
+
+Above each chart, show short explanatory text:
+
+“α represents mispricing — if the model is correct, α ≈ 0.”
+
+“The GRS test checks whether all αs are jointly zero.”
+
+“Adding RMW and CMA typically reduces α variance and increases R².”
+
+💾 Offline Operation
+
+Load from the uploaded CSVs in /data/factors/
+
+No API calls
+
+If files not found → generate synthetic factors using Normal(μ, σ²) with similar means and variances.
+
+✅ Acceptance Criteria
+
+I can toggle between FF3 and FF5.
+
+Each submodule displays theory first, then data visualizations.
+
+The app computes regressions, shows α, β, t-stats, R².
+
+The GRS test computes and displays an F-statistic and p-value.
+
+Offline operation is functional and deterministic (seeded).

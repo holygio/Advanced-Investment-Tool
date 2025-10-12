@@ -1,0 +1,397 @@
+🧩 Prompt for the AI Agent – Anomalies & Fama French Module
+
+Goal:
+Build an “Anomalies & Fama French” module with two sub-modules:
+1️⃣ Three-Factor Model (1993)
+2️⃣ Five-Factor Model (2015)
+Each sub-module must first show the model formula and theoretical explanation, then run the empirical analysis.
+
+🧱 1. Datasets
+
+I will upload two CSVs from the Ken French Data Library (https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html):
+
+/data/factors/F-F_Research_Data_Factors.csv → Fama–French 3-Factor Model
+Variables: Mkt-RF, SMB, HML, RF
+
+/data/factors/F-F_Research_Data_5_Factors_2x3.csv → Fama–French 5-Factor Model
+Variables: Mkt-RF, SMB, HML, RMW, CMA, RF
+
+Each dataset is monthly, percentages that must be divided by 100.
+Convert date columns to datetime, rename columns clearly, and merge with a sample portfolio return dataset (synthetic if none uploaded).
+
+⚙️ 2. Structure
+A. Theory Block (visible in frontend first)
+
+Show the model formula and define each term.
+
+Three-Factor Model (1993):
+
+𝑅
+𝑖
+−
+𝑅
+𝑓
+=
+𝛼
+𝑖
++
+𝛽
+𝑖
+𝑀
+(
+𝑅
+𝑀
+−
+𝑅
+𝑓
+)
++
+𝑠
+𝑖
+ 
+𝑆
+𝑀
+𝐵
++
+ℎ
+𝑖
+ 
+𝐻
+𝑀
+𝐿
++
+𝜀
+𝑖
+R
+i
+	​
+
+−R
+f
+	​
+
+=α
+i
+	​
+
++β
+iM
+	​
+
+(R
+M
+	​
+
+−R
+f
+	​
+
+)+s
+i
+	​
+
+SMB+h
+i
+	​
+
+HML+ε
+i
+	​
+
+
+Explain:
+
+𝑅
+𝑖
+−
+𝑅
+𝑓
+R
+i
+	​
+
+−R
+f
+	​
+
+: excess return
+
+𝑅
+𝑀
+−
+𝑅
+𝑓
+R
+M
+	​
+
+−R
+f
+	​
+
+: market risk premium
+
+SMB: small minus big (size factor)
+
+HML: high minus low (value factor)
+
+α: pricing error
+
+Five-Factor Model (2015):
+
+𝑅
+𝑖
+−
+𝑅
+𝑓
+=
+𝛼
+𝑖
++
+𝛽
+𝑖
+𝑀
+(
+𝑅
+𝑀
+−
+𝑅
+𝑓
+)
++
+𝑠
+𝑖
+ 
+𝑆
+𝑀
+𝐵
++
+ℎ
+𝑖
+ 
+𝐻
+𝑀
+𝐿
++
+𝑟
+𝑖
+ 
+𝑅
+𝑀
+𝑊
++
+𝑐
+𝑖
+ 
+𝐶
+𝑀
+𝐴
++
+𝜀
+𝑖
+R
+i
+	​
+
+−R
+f
+	​
+
+=α
+i
+	​
+
++β
+iM
+	​
+
+(R
+M
+	​
+
+−R
+f
+	​
+
+)+s
+i
+	​
+
+SMB+h
+i
+	​
+
+HML+r
+i
+	​
+
+RMW+c
+i
+	​
+
+CMA+ε
+i
+	​
+
+
+Add:
+
+RMW: robust minus weak (profitability factor)
+
+CMA: conservative minus aggressive (investment factor)
+
+Each theory block must display formula, variable definitions, and short text from lecture slides (slides 9–23) explaining the economic rationale (size, value, momentum, profitability, investment).
+
+B. Empirical Analysis Block
+
+Data Loading & Cleaning
+
+Load CSVs and convert to decimal.
+
+Display first 5 rows.
+
+Descriptive Statistics
+
+Means, std devs, correlations matrix → heatmap.
+
+Factor premia over time (line chart).
+
+Regressions
+
+Estimate:
+
+𝑅
+𝑖
+−
+𝑅
+𝑓
+=
+𝛼
++
+𝛽
+𝑀
+(
+𝑀
+𝑘
+𝑡
+−
+𝑅
+𝐹
+)
++
+𝛽
+𝑆
+𝑀
+𝐵
+𝑆
+𝑀
+𝐵
++
+𝛽
+𝐻
+𝑀
+𝐿
+𝐻
+𝑀
+𝐿
+ 
+(
++
+𝛽
+𝑅
+𝑀
+𝑊
+𝑅
+𝑀
+𝑊
++
+𝛽
+𝐶
+𝑀
+𝐴
+𝐶
+𝑀
+𝐴
+)
+R
+i
+	​
+
+−R
+f
+	​
+
+=α+β
+M
+	​
+
+(Mkt−RF)+β
+SMB
+	​
+
+SMB+β
+HML
+	​
+
+HML(+β
+RMW
+	​
+
+RMW+β
+CMA
+	​
+
+CMA)
+
+Return α, βs, t-stats, R² for each portfolio/asset.
+
+Compare CAPM vs FF3 vs FF5 (R² and α differences).
+
+Visualization Layer
+
+Factor premia heatmap
+
+Cumulative factor returns line chart
+
+Bar chart of alphas and R² for each model
+
+Toggle switch (3-Factor / 5-Factor mode)
+
+🧠 3. Frontend/Backend Layout
+
+Frontend
+
+AnomaliesWorld.jsx → parent module
+
+Tabs: 3-Factor Model, 5-Factor Model, GRS Test (optional)
+
+Add a small TheoryCard above each tab showing the formula.
+
+Backend
+
+ff_world.py with FastAPI endpoints:
+
+/api/factors/ff3/analyze
+
+/api/factors/ff5/analyze
+Each endpoint reads CSV and runs the OLS regressions.
+
+Use pandas, numpy, statsmodels.api as sm, plotly.express.
+
+🧮 4. Bonus Feature (Theory Link)
+
+Add a button: “Show Economic Interpretation”.
+When clicked, display lecture-based text explaining why each factor exists (e.g., “Size premium = liquidity risk compensation”).
+Source text from Lecture slides 9–23 and 38.
+
+📁 5. Offline Operation
+
+No API calls required.
+
+Read from the two CSV files only.
+
+If not found, generate synthetic data with the same structure.
+
+🧩 6. (Optionally for Later)
+
+Include a GRS Test section that compares joint significance of α values across sorted portfolios (slides 30–32).
