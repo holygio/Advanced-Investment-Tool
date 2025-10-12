@@ -192,9 +192,13 @@ def run_factor_regression(
     else:  # FF5
         factor_cols = ['Mkt-RF', 'SMB', 'HML', 'RMW', 'CMA']
     
+    # Normalize portfolio dates to first of month for alignment with FF data
+    normalized_index = pd.DatetimeIndex([pd.Timestamp(d.year, d.month, 1) for d in portfolio_returns.index])
+    normalized_portfolio = pd.Series(portfolio_returns.values, index=normalized_index)
+    
     # Align data including RF
     merged = pd.DataFrame({
-        'portfolio': portfolio_returns,
+        'portfolio': normalized_portfolio,
         'RF': factor_returns['RF'],
         **{col: factor_returns[col] for col in factor_cols}
     }).dropna()
@@ -268,11 +272,34 @@ def compute_grs_test(
     K = len(factor_cols)
     N = len(portfolio_returns_dict)
     
+    # Normalize all dates to first of month for alignment
+    # Portfolio returns might have end-of-month dates, but FF data is always first of month
+    normalized_returns = {}
+    for name, series in portfolio_returns_dict.items():
+        # Create a new series with normalized dates (first of month)
+        normalized_index = pd.DatetimeIndex([pd.Timestamp(d.year, d.month, 1) for d in series.index])
+        normalized_returns[name] = pd.Series(series.values, index=normalized_index)
+    
     # Align all portfolio returns with factors (including RF)
-    all_returns = pd.DataFrame(portfolio_returns_dict)
+    all_returns = pd.DataFrame(normalized_returns)
     merged = all_returns.join(factor_returns[factor_cols + ['RF']], how='inner').dropna()
     
     T = len(merged)
+    
+    # Check if we have enough data
+    if T == 0:
+        raise HTTPException(
+            status_code=400, 
+            detail="No overlapping dates between portfolio and factor data after alignment"
+        )
+    
+    # Need at least N + K + 1 observations for GRS test
+    min_obs = N + K + 1
+    if T < min_obs:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Insufficient data for GRS test. Need at least {min_obs} observations, but have {T}"
+        )
     
     # Compute excess returns for all portfolios by subtracting time-varying RF
     portfolio_data = merged[list(portfolio_returns_dict.keys())].subtract(merged['RF'], axis=0)

@@ -113,9 +113,11 @@ This is an interactive web platform for exploring advanced investment concepts i
 - **Technical Implementation**:
   - Monthly frequency matching Fama-French data (changed from weekly)
   - Annualization: multiply monthly returns by 12, std dev by √12
-  - Excess returns: User portfolio returns minus risk-free rate / 12
+  - Excess returns: User portfolio returns minus time-varying RF from FF data
+  - Date normalization: Portfolio dates converted to first-of-month to align with FF data
   - Robust OLS regression using statsmodels with t-statistics and R²
   - GRS statistic calculation with proper F-distribution
+  - Data validation: Minimum observations required for GRS test (N + K + 1)
 
 ## User Preferences
 
