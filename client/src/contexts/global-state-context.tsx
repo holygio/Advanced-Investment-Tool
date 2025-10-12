@@ -6,6 +6,9 @@ interface GlobalState {
   endDate: string;
   riskFreeRate: number;
   marketProxy: string;
+  lookbackYears: number;
+  allowShortSelling: boolean;
+  maxWeight: number;
 }
 
 interface GlobalStateContextType {
@@ -21,8 +24,11 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     tickers: ["AAPL", "MSFT", "META", "TSLA", "NVDA", "^GSPC"],
     startDate: "2018-01-01",
     endDate: new Date().toISOString().split("T")[0],
-    riskFreeRate: 0.02,
+    riskFreeRate: 0.025,
     marketProxy: "^GSPC",
+    lookbackYears: 5,
+    allowShortSelling: false,
+    maxWeight: 0.5,
   });
 
   const updateGlobalState = (updates: Partial<GlobalState>) => {
