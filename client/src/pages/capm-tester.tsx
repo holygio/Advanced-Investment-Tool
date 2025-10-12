@@ -1,14 +1,90 @@
+import { useEffect, useRef } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { ModuleLayout } from "@/components/module-layout";
 import { MetricCard } from "@/components/metric-card";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { Download, Play } from "lucide-react";
+import { Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useGlobalState } from "@/contexts/global-state-context";
+import { apiRequest } from "@/lib/queryClient";
+import Plot from "react-plotly.js";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CAPMTester() {
   const { globalState } = useGlobalState();
-  // TODO: Use globalState for API calls when implementing CAPM analysis
+  const { toast } = useToast();
+  const interval = "1wk";
+  const lastAnalyzedParams = useRef<string | null>(null);
+
+  // Fetch price data including market proxy
+  const allTickers = [...globalState.tickers, globalState.marketProxy];
+  const { data: priceData, isLoading: loadingPrices } = useQuery({
+    queryKey: ["/api/data/prices", allTickers, globalState.startDate, globalState.endDate, interval],
+    queryFn: async () => {
+      const response = await apiRequest("/api/data/prices", {
+        method: "POST",
+        body: JSON.stringify({
+          tickers: allTickers,
+          start: globalState.startDate,
+          end: globalState.endDate,
+          interval: interval,
+          log_returns: false,
+        }),
+      });
+      return response;
+    },
+    enabled: globalState.tickers.length > 0,
+  });
+
+  // Run CAPM analysis
+  const capmMutation = useMutation({
+    mutationFn: async () => {
+      if (!priceData?.returns) {
+        throw new Error("No price data available");
+      }
+      
+      const response = await apiRequest("/api/model/capm", {
+        method: "POST",
+        body: JSON.stringify({
+          returns: priceData.returns,
+          market: globalState.marketProxy,
+        }),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "CAPM Analysis Complete",
+        description: "Regression analysis completed successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Failed to run CAPM analysis",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const capmData = capmMutation.data;
+
+  // Auto-trigger CAPM analysis when price data loads
+  useEffect(() => {
+    if (priceData?.returns && !loadingPrices && !capmMutation.isPending) {
+      const currentParams = JSON.stringify({
+        tickers: globalState.tickers,
+        market: globalState.marketProxy,
+      });
+      
+      if (lastAnalyzedParams.current !== currentParams) {
+        lastAnalyzedParams.current = currentParams;
+        capmMutation.mutate();
+      }
+    }
+  }, [priceData, loadingPrices, globalState.tickers, globalState.marketProxy]);
+
   const theory = (
     <div className="space-y-6 py-6">
       <div>

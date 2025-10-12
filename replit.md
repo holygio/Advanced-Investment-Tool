@@ -29,10 +29,18 @@ Preferred communication style: Simple, everyday language.
 - Tailwind CSS for styling with custom design tokens
 
 **Design System:**
-- Inspired by Carbon Design System principles for data-first financial applications
-- Dark mode primary with light mode support via CSS variables
+- Clean white/light theme for optimal graph visibility  
+- Inspired by professional financial dashboards
 - Custom color palette optimized for financial data visualization (trust blue, success green, danger red)
 - Typography: Inter for UI, IBM Plex Mono for numerical/tabular data
+
+**User Workflow:**
+1. User configures portfolio in left sidebar (tickers, dates, constraints)
+2. Clicks "Load Data & Optimize Portfolio" button
+3. Navigates to /portfolio route
+4. **Both Portfolio Builder AND CAPM automatically run** with configured parameters
+5. Results are displayed immediately with graphs and theory tabs
+6. Configuration is locked (read-only) after initial load
 
 **State Management:**
 - Global state managed via React Context (`GlobalStateContext`) for shared parameters:
