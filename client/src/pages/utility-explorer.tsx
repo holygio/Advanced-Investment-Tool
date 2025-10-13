@@ -48,16 +48,20 @@ export default function UtilityExplorer() {
     },
   });
 
-  // Recalculate when parameters change
+  // Debounced recalculation when parameters change
   useEffect(() => {
-    theoryMutation.mutate({
-      utility: utilityType,
-      gamma,
-      beta,
-      sigma_c: sigmaC,
-      rho,
-      wealth_max: wealthMax,
-    });
+    const timeoutId = setTimeout(() => {
+      theoryMutation.mutate({
+        utility: utilityType,
+        gamma,
+        beta,
+        sigma_c: sigmaC,
+        rho,
+        wealth_max: wealthMax,
+      });
+    }, 300); // Wait 300ms after user stops adjusting
+
+    return () => clearTimeout(timeoutId);
   }, [utilityType, gamma, beta, sigmaC, rho, wealthMax]);
 
   const theory = (
