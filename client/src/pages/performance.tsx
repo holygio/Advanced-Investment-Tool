@@ -18,8 +18,7 @@ export default function Performance() {
   const [n, setN] = useState(2);
   const [activeTab, setActiveTab] = useState("overview");
   
-  // Simulation mode state
-  const [simulationMode, setSimulationMode] = useState(false);
+  // Interactive distribution simulation state
   const [simMean, setSimMean] = useState(0.000);
   const [simVolatility, setSimVolatility] = useState(0.02);
   const [simSkewness, setSimSkewness] = useState(0.0);
@@ -100,42 +99,8 @@ export default function Performance() {
     enabled: !!portfolioData?.returns,
   });
 
-  // Calculate portfolio distribution for histogram
-  const portfolioReturns = portfolioData?.returns && Object.keys(portfolioData.returns).length > 0 ? (() => {
-    const tickers = Object.keys(portfolioData.returns);
-    const firstTickerReturns = portfolioData.returns[tickers[0]];
-    
-    if (!firstTickerReturns || !Array.isArray(firstTickerReturns) || firstTickerReturns.length === 0) {
-      return [];
-    }
-    
-    return firstTickerReturns.map((_: any, idx: number) => {
-      const avgReturn = tickers.reduce((sum, ticker) => {
-        return sum + (portfolioData.returns[ticker]?.[idx]?.ret || 0);
-      }, 0) / tickers.length;
-      return avgReturn;
-    });
-  })() : [];
-
-  // Fetch distribution metrics (real data)
+  // Fetch interactive distribution (always use simulated data)
   const { data: distributionData, isLoading: distributionLoading } = useQuery({
-    queryKey: ["/api/risk/distribution", portfolioReturns],
-    queryFn: async () => {
-      if (portfolioReturns.length < 3) return null;
-      
-      return await apiRequest("/api/risk/distribution", {
-        method: "POST",
-        body: JSON.stringify({
-          returns: portfolioReturns,
-          num_bins: 30
-        }),
-      });
-    },
-    enabled: portfolioReturns.length >= 3 && !simulationMode,
-  });
-
-  // Fetch simulated distribution
-  const { data: simulatedData, isLoading: simulatedLoading } = useQuery({
     queryKey: ["/api/risk/simulate-distribution", simMean, simVolatility, simSkewness, simKurtosis, simSampleSize],
     queryFn: async () => {
       return await apiRequest("/api/risk/simulate-distribution", {
@@ -150,12 +115,7 @@ export default function Performance() {
         }),
       });
     },
-    enabled: simulationMode,
   });
-
-  // Use simulated data when in simulation mode, otherwise use real data
-  const displayData = simulationMode ? simulatedData : distributionData;
-  const displayLoading = simulationMode ? simulatedLoading : distributionLoading;
 
 
   const theory = (
@@ -376,30 +336,16 @@ export default function Performance() {
 
         {/* Tab 1: Overview */}
         <TabsContent value="overview" className="space-y-6">
-          {/* Simulation Mode Controls */}
+          {/* Interactive Distribution Controls */}
           <Card className="p-6 bg-card border-border">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-semibold">Interactive Simulation Mode</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Generate synthetic distributions to explore how skewness and kurtosis affect normality and risk metrics
-                </p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="simulation-mode"
-                  checked={simulationMode}
-                  onCheckedChange={setSimulationMode}
-                  data-testid="switch-simulation-mode"
-                />
-                <Label htmlFor="simulation-mode" className="cursor-pointer">
-                  {simulationMode ? "Simulation" : "Real Data"}
-                </Label>
-              </div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold">Interactive Distribution Explorer</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Adjust distribution parameters to explore how mean, volatility, skewness, and kurtosis affect return distributions and normality tests
+              </p>
             </div>
 
-            {simulationMode && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Mean Slider */}
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
@@ -527,72 +473,69 @@ export default function Performance() {
                   </button>
                 </div>
               </div>
-            )}
           </Card>
 
           {/* Distribution Shape Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <MetricCard 
               label="Mean" 
-              value={displayData?.metrics?.mean || 0} 
+              value={distributionData?.metrics?.mean || 0} 
               format="percentage"
               precision={2}
               data-testid="metric-mean"
             />
             <MetricCard 
               label="Volatility (σ)" 
-              value={displayData?.metrics?.std || 0} 
+              value={distributionData?.metrics?.std || 0} 
               format="percentage"
               precision={2}
               data-testid="metric-std"
             />
             <MetricCard 
               label="Skewness" 
-              value={displayData?.metrics?.skew || 0} 
+              value={distributionData?.metrics?.skew || 0} 
               precision={3}
               data-testid="metric-skew"
             />
             <MetricCard 
               label="Kurtosis (Excess)" 
-              value={displayData?.metrics?.kurt || 0} 
+              value={distributionData?.metrics?.kurt || 0} 
               precision={3}
               data-testid="metric-kurt"
             />
             <MetricCard 
               label="JB Statistic" 
-              value={displayData?.metrics?.jb_stat || 0} 
+              value={distributionData?.metrics?.jb_stat || 0} 
               precision={2}
               data-testid="metric-jb"
             />
           </div>
 
           {/* Interpretation Card */}
-          {displayData?.metrics && (
+          {distributionData?.metrics && (
             <Card className="p-4 bg-blue-50 border-blue-200">
               <h3 className="text-sm font-semibold mb-2 text-foreground">
-                {simulationMode ? "Simulated Distribution Analysis" : "Distribution Analysis"}
+                Distribution Analysis
               </h3>
               <div className="space-y-1 text-sm text-muted-foreground">
-                {displayData.metrics.skew < -0.5 && (
-                  <p>• <strong className="text-foreground">Negative skewness ({displayData.metrics.skew.toFixed(2)})</strong> → Long left tail: occasional large losses dominate risk perception</p>
+                {distributionData.metrics.skew < -0.5 && (
+                  <p>• <strong className="text-foreground">Negative skewness ({distributionData.metrics.skew.toFixed(2)})</strong> → Long left tail: occasional large losses dominate risk perception</p>
                 )}
-                {displayData.metrics.skew > 0.5 && (
-                  <p>• <strong className="text-foreground">Positive skewness ({displayData.metrics.skew.toFixed(2)})</strong> → Long right tail: occasional large gains (lottery-like)</p>
+                {distributionData.metrics.skew > 0.5 && (
+                  <p>• <strong className="text-foreground">Positive skewness ({distributionData.metrics.skew.toFixed(2)})</strong> → Long right tail: occasional large gains (lottery-like)</p>
                 )}
-                {displayData.metrics.kurt > 1 && (
-                  <p>• <strong className="text-foreground">Excess kurtosis ({displayData.metrics.kurt.toFixed(2)})</strong> → Fat tails: extreme events more likely than normal distribution</p>
+                {distributionData.metrics.kurt > 1 && (
+                  <p>• <strong className="text-foreground">Excess kurtosis ({distributionData.metrics.kurt.toFixed(2)})</strong> → Fat tails: extreme events more likely than normal distribution</p>
                 )}
-                {displayData.metrics.jb_pvalue < 0.05 && (
-                  <p>• <strong className="text-foreground">JB test rejects normality (p={displayData.metrics.jb_pvalue.toFixed(3)})</strong> → Variance alone is insufficient; consider LPM or higher moments</p>
+                {distributionData.metrics.jb_pvalue < 0.05 && (
+                  <p>• <strong className="text-foreground">JB test rejects normality (p={distributionData.metrics.jb_pvalue.toFixed(3)})</strong> → Variance alone is insufficient; consider LPM or higher moments</p>
                 )}
-                {displayData.metrics.jb_pvalue >= 0.05 && (
-                  <p>• <strong className="text-foreground">JB test does not reject normality (p={displayData.metrics.jb_pvalue.toFixed(3)})</strong> → Returns approximately normal</p>
+                {distributionData.metrics.jb_pvalue >= 0.05 && (
+                  <p>• <strong className="text-foreground">JB test does not reject normality (p={distributionData.metrics.jb_pvalue.toFixed(3)})</strong> → Returns approximately normal</p>
                 )}
-                {simulationMode && (
-                  <p className="mt-2 pt-2 border-t border-blue-300">
-                    • <strong className="text-foreground">Interactive Mode:</strong> Adjust sliders above to see how skewness and kurtosis affect tail risk, normality tests, and distribution shape
-                  </p>
-                )}
+                <p className="mt-2 pt-2 border-t border-blue-300">
+                  • <strong className="text-foreground">Interactive Mode:</strong> Adjust sliders above to see how skewness and kurtosis affect tail risk, normality tests, and distribution shape
+                </p>
               </div>
             </Card>
           )}
@@ -600,22 +543,22 @@ export default function Performance() {
           {/* Histogram with Normal Overlay */}
           <Card className="p-6 bg-card border-border">
             <h2 className="text-xl font-semibold mb-4">
-              {simulationMode ? "Simulated Distribution with Normal Overlay" : "Return Distribution with Normal Overlay"}
+              Return Distribution with Normal Overlay
             </h2>
             <div className="h-96">
-              {displayData ? (
+              {distributionData ? (
                 <Plot
                   data={[
                     {
-                      x: displayData.histogram.map((b: any) => b.bin_center),
-                      y: displayData.histogram.map((b: any) => b.density),
+                      x: distributionData.histogram.map((b: any) => b.bin_center),
+                      y: distributionData.histogram.map((b: any) => b.density),
                       type: "bar",
-                      name: simulationMode ? "Simulated Returns" : "Actual Returns",
+                      name: "Returns",
                       marker: { color: "#3b82f6", opacity: 0.7 },
                     },
                     {
-                      x: displayData.normal_curve_x,
-                      y: displayData.normal_curve_y,
+                      x: distributionData.normal_curve_x,
+                      y: distributionData.normal_curve_y,
                       type: "scatter",
                       mode: "lines",
                       name: "Normal Distribution",
@@ -647,7 +590,7 @@ export default function Performance() {
               ) : (
                 <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
                   <p className="text-sm text-muted-foreground">
-                    {displayLoading ? "Computing distribution..." : "No distribution data"}
+                    {distributionLoading ? "Computing distribution..." : "No distribution data"}
                   </p>
                 </div>
               )}
@@ -658,20 +601,20 @@ export default function Performance() {
           <Card className="p-6 bg-card border-border">
             <h2 className="text-xl font-semibold mb-4">Q-Q Plot: Normal Quantiles vs. Sample Quantiles</h2>
             <div className="h-96">
-              {displayData ? (
+              {distributionData ? (
                 <Plot
                   data={[
                     {
-                      x: displayData.qq_theoretical,
-                      y: displayData.qq_sample,
+                      x: distributionData.qq_theoretical,
+                      y: distributionData.qq_sample,
                       type: "scatter",
                       mode: "markers",
                       name: "Sample Quantiles",
                       marker: { color: "#3b82f6", size: 6 },
                     },
                     {
-                      x: displayData.qq_theoretical,
-                      y: displayData.qq_theoretical,
+                      x: distributionData.qq_theoretical,
+                      y: distributionData.qq_theoretical,
                       type: "scatter",
                       mode: "lines",
                       name: "Normal Line",
@@ -703,7 +646,7 @@ export default function Performance() {
               ) : (
                 <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
                   <p className="text-sm text-muted-foreground">
-                    {displayLoading ? "Computing Q-Q plot..." : "No Q-Q data"}
+                    {distributionLoading ? "Computing Q-Q plot..." : "No Q-Q data"}
                   </p>
                 </div>
               )}
@@ -711,7 +654,7 @@ export default function Performance() {
             <p className="text-sm text-muted-foreground mt-4">
               <strong>Interpretation:</strong> Points along the red line indicate normality. Deviations reveal distribution shape: 
               S-curve suggests fat tails (high kurtosis); upward/downward curve indicates skewness.
-              {simulationMode && <span className="ml-1">Try adjusting kurtosis to see fat tails appear or skewness to create asymmetric curves.</span>}
+              <span className="ml-1">Try adjusting kurtosis to see fat tails appear or skewness to create asymmetric curves.</span>
             </p>
           </Card>
         </TabsContent>

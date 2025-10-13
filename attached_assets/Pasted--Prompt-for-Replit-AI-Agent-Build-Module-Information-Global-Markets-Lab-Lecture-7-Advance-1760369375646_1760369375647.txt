@@ -1,0 +1,903 @@
+🧠 Prompt for Replit AI Agent
+Build Module: “Information & Global Markets Lab”
+
+(Lecture 7 – Advanced Investments, Oct 13 2025)
+
+🎯 Objective
+
+Create a new learning module called
+/modules/information-lab/
+
+This module teaches international diversification, home bias, and information asymmetry (Grossman model) using first-principles explanations and fully interactive offline simulations.
+
+It must not fetch real data (no Yahoo Finance); all examples should use internally generated synthetic data or formulas.
+
+🔹 PART 1 – THEORY SECTION
+
+Implement this as /modules/information-lab/theory/page.tsx
+It should render collapsible TheoryCards with LaTeX equations, plain-English explanations, and “So what?” takeaways.
+
+Each card = one concept, shown in order.
+
+🪙 1) Why Global Diversification Matters
+
+Idea: Investors allocate wealth across countries to reduce portfolio volatility, because cross-country correlations are usually < 1.
+
+𝜎
+𝑝
+2
+=
+𝑤
+𝐻
+2
+𝜎
+𝐻
+2
++
+𝑤
+𝐹
+2
+𝜎
+𝐹
+2
++
+2
+𝑤
+𝐻
+𝑤
+𝐹
+𝜌
+𝐻
+𝐹
+𝜎
+𝐻
+𝜎
+𝐹
+σ
+p
+2
+	​
+
+=w
+H
+2
+	​
+
+σ
+H
+2
+	​
+
++w
+F
+2
+	​
+
+σ
+F
+2
+	​
+
++2w
+H
+	​
+
+w
+F
+	​
+
+ρ
+HF
+	​
+
+σ
+H
+	​
+
+σ
+F
+	​
+
+
+When currencies fluctuate:
+
+𝜎
+𝑝
+,
+𝐹
+𝑋
+2
+=
+𝜎
+𝑝
+2
++
+𝜎
+𝐹
+𝑋
+2
++
+2
+𝜌
+𝑅
+,
+𝐹
+𝑋
+𝜎
+𝑝
+𝜎
+𝐹
+𝑋
+σ
+p,FX
+2
+	​
+
+=σ
+p
+2
+	​
+
++σ
+FX
+2
+	​
+
++2ρ
+R,FX
+	​
+
+σ
+p
+	​
+
+σ
+FX
+	​
+
+
+So what?
+The lower the correlation between domestic and foreign returns, the higher the diversification gain. But currency risk can offset this benefit if unmanaged.
+
+🏠 2) The Home Bias Puzzle
+
+Investors hold mostly domestic assets even though global diversification would improve the Sharpe ratio.
+
+Main drivers:
+
+Information asymmetry and familiarity bias
+
+Institutional barriers and taxes
+
+Perceived currency and political risk
+
+𝑆
+𝑅
+=
+𝐸
+[
+𝑅
+𝑝
+]
+−
+𝑟
+𝑓
+𝜎
+𝑝
+SR=
+σ
+p
+	​
+
+E[R
+p
+	​
+
+]−r
+f
+	​
+
+	​
+
+
+So what?
+Home-biased portfolios feel safer but are inefficient: lower expected return for higher risk.
+
+🧩 3) Information & Grossman (1976)
+
+Markets are not perfectly efficient because information is costly.
+Each investor 
+𝑖
+i receives a private noisy signal 
+𝑠
+𝑖
+s
+i
+	​
+
+ about the true payoff 
+𝑃
+1
+P
+1
+	​
+
+:
+
+𝑠
+𝑖
+=
+𝑃
+1
++
+𝜀
+𝑖
+,
+𝜀
+𝑖
+∼
+𝑁
+(
+0
+,
+𝜎
+𝜀
+2
+)
+s
+i
+	​
+
+=P
+1
+	​
+
++ε
+i
+	​
+
+,ε
+i
+	​
+
+∼N(0,σ
+ε
+2
+	​
+
+)
+
+Investor 
+𝑖
+i (CARA utility) chooses position:
+
+𝑋
+𝑖
+=
+𝐸
+𝑖
+[
+𝑃
+1
+]
+−
+𝑃
+0
+𝑎
+𝑖
+ 
+𝑉
+𝑎
+𝑟
+(
+𝑃
+1
+∣
+𝐼
+𝑖
+)
+X
+i
+	​
+
+=
+a
+i
+	​
+
+Var(P
+1
+	​
+
+∣I
+i
+	​
+
+)
+E
+i
+	​
+
+[P
+1
+	​
+
+]−P
+0
+	​
+
+	​
+
+
+Equilibrium price:
+
+𝑃
+0
+=
+𝐸
+[
+𝑃
+1
+]
+−
+𝜆
+ 
+𝐶
+𝑜
+𝑣
+(
+𝑃
+1
+,
+𝐷
+)
+P
+0
+	​
+
+=E[P
+1
+	​
+
+]−λCov(P
+1
+	​
+
+,D)
+
+𝑎
+𝑖
+a
+i
+	​
+
+: risk aversion
+
+𝑉
+𝑎
+𝑟
+(
+𝑃
+1
+∣
+𝐼
+𝑖
+)
+Var(P
+1
+	​
+
+∣I
+i
+	​
+
+): posterior uncertainty
+
+ρ = information precision (signal correlation with truth)
+
+So what?
+More precise signals → investors take larger positions → market prices become more informative → incentives to gather info decrease (rational expectations equilibrium).
+
+🧠 4) Rational Expectations & Market Efficiency
+
+When investors optimally use available information, prices embed those beliefs.
+
+Flow:
+
+Private Signal → Portfolio Decision → Market Price → Belief Update → New Equilibrium
+
+
+If signals are costly or correlated, equilibrium prices only partially reveal fundamentals.
+
+So what?
+Efficiency is relative: markets can be informationally efficient given costs and incentives.
+
+🔄 5) Connection to Black–Litterman
+
+Black–Litterman translates the Grossman idea into portfolio optimization:
+private signals → views → posterior expected returns.
+
+𝐸
+∗
+=
+[
+(
+𝜏
+Σ
+)
+−
+1
++
+𝑃
+𝑇
+Ω
+−
+1
+𝑃
+]
+−
+1
+[
+(
+𝜏
+Σ
+)
+−
+1
+𝜋
++
+𝑃
+𝑇
+Ω
+−
+1
+𝑄
+]
+E
+∗
+=[(τΣ)
+−1
++P
+T
+Ω
+−1
+P]
+−1
+[(τΣ)
+−1
+π+P
+T
+Ω
+−1
+Q]
+
+So what?
+BL is a Bayesian rational-expectations framework: new “views” act as private signals updating market equilibrium returns.
+
+📘 6) Summary Takeaways
+Theme	Key Equation	Intuition
+Diversification	
+𝜎
+𝑝
+2
+=
+𝑤
+𝐻
+2
+𝜎
+𝐻
+2
++
+𝑤
+𝐹
+2
+𝜎
+𝐹
+2
++
+2
+𝑤
+𝐻
+𝑤
+𝐹
+𝜌
+𝐻
+𝐹
+𝜎
+𝐻
+𝜎
+𝐹
+σ
+p
+2
+	​
+
+=w
+H
+2
+	​
+
+σ
+H
+2
+	​
+
++w
+F
+2
+	​
+
+σ
+F
+2
+	​
+
++2w
+H
+	​
+
+w
+F
+	​
+
+ρ
+HF
+	​
+
+σ
+H
+	​
+
+σ
+F
+	​
+
+	Correlation drives risk reduction
+Home Bias	
+𝑆
+𝑅
+=
+(
+𝐸
+[
+𝑅
+𝑝
+]
+−
+𝑟
+𝑓
+)
+/
+𝜎
+𝑝
+SR=(E[R
+p
+	​
+
+]−r
+f
+	​
+
+)/σ
+p
+	​
+
+	Familiarity ≠ efficiency
+Grossman	(X_i = (E_i[P_1]-P_0)/(a_i Var(P_1	I_i)))
+Efficiency	Price = weighted beliefs	Prices ≈ info aggregator
+Black–Litterman	Posterior update formula	Rational expectations in practice
+🔹 PART 2 – INTERACTIVE SECTION
+
+Implement /modules/information-lab/practice/page.tsx
+Each section has sliders, live charts, and dynamic labels — all computed offline.
+
+🌍 1) Foreign Assets Simulator
+
+Goal: Show how correlation ρ and FX volatility affect diversification.
+
+Sliders:
+
+Home weight 
+𝑤
+𝐻
+w
+H
+	​
+
+: 0–1
+
+Correlation ρ: −1 → +1
+
+FX volatility σₓ: 0 → 0.3
+
+Compute:
+
+𝜎
+𝑝
+2
+=
+𝑤
+𝐻
+2
+𝜎
+𝐻
+2
++
+(
+1
+−
+𝑤
+𝐻
+)
+2
+𝜎
+𝐹
+2
++
+2
+𝑤
+𝐻
+(
+1
+−
+𝑤
+𝐻
+)
+𝜌
+𝜎
+𝐻
+𝜎
+𝐹
+σ
+p
+2
+	​
+
+=w
+H
+2
+	​
+
+σ
+H
+2
+	​
+
++(1−w
+H
+	​
+
+)
+2
+σ
+F
+2
+	​
+
++2w
+H
+	​
+
+(1−w
+H
+	​
+
+)ρσ
+H
+	​
+
+σ
+F
+	​
+
+𝜎
+𝑝
+,
+𝐹
+𝑋
+2
+=
+𝜎
+𝑝
+2
++
+𝜎
+𝐹
+𝑋
+2
++
+2
+𝜌
+𝑅
+,
+𝐹
+𝑋
+𝜎
+𝑝
+𝜎
+𝐹
+𝑋
+σ
+p,FX
+2
+	​
+
+=σ
+p
+2
+	​
+
++σ
+FX
+2
+	​
+
++2ρ
+R,FX
+	​
+
+σ
+p
+	​
+
+σ
+FX
+	​
+
+
+Output:
+
+Plot portfolio σ vs ρ.
+
+“Diversification Benefit = σ_H − σ_p” card.
+
+Tooltip: “As ρ ↓, volatility ↓ → benefit ↑.”
+
+🏠 2) Home Bias Visualizer
+
+Sliders:
+
+Home bias % (0 – 100)
+
+Expected return gap Δμ (−0.02 → +0.02)
+
+σ ratio (σ_H/σ_F = 0.5 → 2)
+
+Compute: expected return, risk, Sharpe ratio.
+Plot Sharpe ratio vs bias % and highlight global optimum.
+Show message: “A 100% home bias reduces efficiency by X%.”
+
+🧠 3) Grossman Model Simulator
+
+Goal: Visualize how private signal quality and risk aversion shape equilibrium and information aggregation.
+
+Sliders:
+
+Parameter	Range	Explanation
+ρ (signal precision)	0 → 1	correlation between signal and true value
+a (risk aversion)	0.5 → 10	CARA parameter
+C (info cost)	0 → 1	cost reduces active participation
+N (investors)	1 → 20	number of agents in market
+
+Backend computation (Python or JS):
+
+import numpy as np
+
+def grossman_model(rho, a, C, N):
+    P_true = 100
+    signals = P_true + np.random.normal(0, (1-rho)*5, N)
+    Var_post = (1-rho**2)*25
+    X = (signals - P_true) / (a*Var_post)
+    X = X * (1 - C)  # info cost dampening
+    P_eq = np.mean(signals - a*Var_post*X)
+    info_index = rho * (1 - C)
+    return X, P_eq, info_index
+
+
+Outputs:
+
+Bar chart of investor positions 
+𝑋
+𝑖
+X
+i
+	​
+
+
+Line chart of price informativeness index vs ρ
+
+Dynamic text: “At ρ = 0.8 and a = 2, price reflects ≈ 80% of private information.”
+
+Add interactive explanations:
+
+“Increasing ρ tightens beliefs → positions ↑ → price reflects more information.”
+“Higher a or C reduces participation → prices less informative.”
+
+🔄 4) Optional Black–Litterman Integration
+
+Button: “Feed Signal into Black–Litterman”
+When pressed, simulate a view Δμ = Signal × ρ and feed into the existing BL posterior:
+
+𝐸
+∗
+=
+(
+(
+𝜏
+Σ
+)
+−
+1
++
+𝑃
+𝑇
+Ω
+−
+1
+𝑃
+)
+−
+1
+(
+(
+𝜏
+Σ
+)
+−
+1
+𝜋
++
+𝑃
+𝑇
+Ω
+−
+1
+𝑄
+)
+E
+∗
+=((τΣ)
+−1
++P
+T
+Ω
+−1
+P)
+−1
+((τΣ)
+−1
+π+P
+T
+Ω
+−1
+Q)
+
+Display before/after bar chart of expected returns to show how a private signal updates views.
+
+🧩 5) Summary View
+
+Interactive mind-map:
+
+Diversification → Home Bias → Information Cost → Market Efficiency → Black-Litterman Integration
+
+
+Each node clickable → opens related theory card.
+
+✅ Acceptance Criteria
+Feature	Description
+Complete Theory	6 cards explaining all key concepts with LaTeX
+Fully Offline	No APIs or data fetching
+Sliders	Users can change ρ, a, C, N, w_H, ρ_HF, σ_FX
+Dynamic Charts	Bar and line plots update live
+Educational Tooltips	Short intuitive explanations for each change
+Integration	Optional button links to Black-Litterman posterior
+Consistency	Follows same UI/UX style as other modules (Risk, Utility, Fixed Income)
+💡 Pedagogical Outcome
+
+This module closes the entire course cycle:
+
+From risk → return → utility → information
+
+Learners see how private signals, risk aversion, and market interdependence create equilibrium prices and global diversification patterns.
+
+It turns the final lecture into a self-contained micro-market simulator and visual theory companion for the Grossman model, home bias, and global finance.
