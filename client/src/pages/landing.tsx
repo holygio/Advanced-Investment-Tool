@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, BarChart3, LineChart, BookOpen, Brain } from "lucide-react";
+import { TrendingUp, BarChart3, LineChart, BookOpen, Brain, Globe } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Landing() {
@@ -100,6 +100,47 @@ export default function Landing() {
           <p className="mt-8 text-sm text-muted-foreground italic border-t pt-6">
             This tool bridges the gap between the theoretical concepts you study and their practical implementation in portfolio management.
           </p>
+        </Card>
+
+        {/* Information & Global Markets Lab */}
+        <Card className="p-8 bg-gradient-to-br from-green-50 to-teal-50 border-2 border-green-200">
+          <div className="flex items-center gap-3 mb-4">
+            <Globe className="h-8 w-8 text-green-600" />
+            <h2 className="text-2xl font-semibold">Information & Global Markets Lab</h2>
+          </div>
+          <p className="text-muted-foreground mb-6">
+            Explore international diversification, home bias, and information asymmetry through interactive simulations:
+          </p>
+          <ul className="space-y-2 ml-6 mb-6">
+            <li className="flex items-start gap-2">
+              <span className="text-green-600 mt-1">•</span>
+              <span>Global diversification and currency risk</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-600 mt-1">•</span>
+              <span>Home bias puzzle and efficiency loss</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-600 mt-1">•</span>
+              <span>Grossman (1976) model of information aggregation</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-600 mt-1">•</span>
+              <span>Rational expectations and market efficiency</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-600 mt-1">•</span>
+              <span>Black-Litterman framework connection</span>
+            </li>
+          </ul>
+          <div className="flex gap-4">
+            <Link href="/information">
+              <Button size="lg" className="gap-2" data-testid="button-information-lab">
+                <Globe className="h-5 w-5" />
+                Explore Information Lab
+              </Button>
+            </Link>
+          </div>
         </Card>
 
         {/* Study Tools */}
