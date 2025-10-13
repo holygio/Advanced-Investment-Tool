@@ -30,6 +30,16 @@ class TheoryUtilityResponse(BaseModel):
     mean_sdf: float
     std_sdf: float
     mean_pricing_error: float
+    # State-price diagram data
+    dc_sorted: List[float]
+    sdf_utility_sorted: List[float]
+    sdf_capm_sorted: List[float]
+    # Two-asset pricing
+    safe_bond_price: float
+    risky_asset_price: float
+    safe_bond_return: float
+    risky_asset_return: float
+    risky_asset_beta: float
 
 @router.post("/theory/utility/generate", response_model=TheoryUtilityResponse)
 async def generate_theory_utility(request: TheoryUtilityRequest):
@@ -152,6 +162,27 @@ async def generate_theory_utility(request: TheoryUtilityRequest):
         std_sdf = float(np.std(SDF_utility))
         mean_pricing_error = float(np.mean(np.abs(pricing_errors)))
         
+        # Create state-price diagram data (sorted by consumption growth)
+        sort_idx = np.argsort(consumption_growth)
+        dc_sorted = consumption_growth[sort_idx]
+        sdf_utility_sorted = SDF_utility[sort_idx]
+        sdf_capm_sorted = SDF_capm[sort_idx]
+        
+        # Two-asset pricing demonstration
+        # Safe bond: pays 1 in all states
+        safe_bond_payoff = np.ones(n_months)
+        safe_bond_price = float(np.mean(SDF_utility * safe_bond_payoff))
+        safe_bond_return = (1 / safe_bond_price - 1) * 100  # annualized %
+        
+        # Risky asset: pays more when market is up (beta = 1)
+        # Simulate payoff correlated with market returns
+        risky_asset_payoff = 1 + market_returns
+        risky_asset_price = float(np.mean(SDF_utility * risky_asset_payoff))
+        risky_asset_return = (np.mean(risky_asset_payoff) / risky_asset_price - 1) * 100
+        
+        # Calculate beta (Cov(R, Rm) / Var(Rm))
+        risky_asset_beta = float(np.cov(risky_asset_payoff - 1, market_returns)[0, 1] / np.var(market_returns))
+        
         return TheoryUtilityResponse(
             wealth=wealth.tolist(),
             U=U.tolist(),
@@ -165,7 +196,15 @@ async def generate_theory_utility(request: TheoryUtilityRequest):
             pricing_errors=pricing_errors.tolist(),
             mean_sdf=mean_sdf,
             std_sdf=std_sdf,
-            mean_pricing_error=mean_pricing_error
+            mean_pricing_error=mean_pricing_error,
+            dc_sorted=dc_sorted.tolist(),
+            sdf_utility_sorted=sdf_utility_sorted.tolist(),
+            sdf_capm_sorted=sdf_capm_sorted.tolist(),
+            safe_bond_price=safe_bond_price,
+            risky_asset_price=risky_asset_price,
+            safe_bond_return=safe_bond_return,
+            risky_asset_return=risky_asset_return,
+            risky_asset_beta=risky_asset_beta
         )
     
     except Exception as e:

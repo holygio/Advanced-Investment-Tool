@@ -422,34 +422,11 @@ export default function UtilityExplorer() {
 
         {/* Tab 3: SDF Explorer */}
         <TabsContent value="sdf" className="space-y-6">
-          {theoryMutation.data && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="p-4 bg-card border-border">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-1">Mean SDF</h3>
-                <p className="text-2xl font-mono text-foreground" data-testid="text-mean-sdf">
-                  {theoryMutation.data.mean_sdf.toFixed(3)}
-                </p>
-              </Card>
-              <Card className="p-4 bg-card border-border">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-1">SDF Volatility</h3>
-                <p className="text-2xl font-mono text-foreground" data-testid="text-std-sdf">
-                  {theoryMutation.data.std_sdf.toFixed(3)}
-                </p>
-              </Card>
-              <Card className="p-4 bg-card border-border">
-                <h3 className="text-sm font-semibold text-muted-foreground mb-1">Avg Pricing Error</h3>
-                <p className="text-2xl font-mono text-foreground" data-testid="text-pricing-error">
-                  {theoryMutation.data.mean_pricing_error.toFixed(4)}
-                </p>
-              </Card>
-            </div>
-          )}
-
           <Card className="p-6 bg-card border-border">
-            <h2 className="text-xl font-semibold mb-2">SDF Time Path (240 Months)</h2>
+            <h2 className="text-xl font-semibold mb-2">State-Price Diagram</h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Higher m in bad states (Δc &lt; 0) means assets paying there are valuable hedges. 
-              Recession shading highlights states where consumption falls.
+              Each point is a "state of the world." The x-axis shows consumption growth (Δc), and the y-axis shows how much that state is "worth" today (SDF = m). 
+              Bad states (left, low Δc) have high prices → assets that pay there are valuable hedges.
             </p>
             
             <div className="h-[500px]">
@@ -461,20 +438,42 @@ export default function UtilityExplorer() {
                 <Plot
                   data={[
                     {
-                      x: Array.from({ length: 240 }, (_, i) => i),
-                      y: theoryMutation.data.SDF_utility,
+                      x: theoryMutation.data.dc_sorted,
+                      y: theoryMutation.data.sdf_utility_sorted,
                       type: "scatter",
-                      mode: "lines",
-                      name: `${utilityType} SDF`,
-                      line: { color: "#3b82f6", width: 2 },
+                      mode: "markers",
+                      name: `${utilityType} SDF States`,
+                      marker: { 
+                        size: 8, 
+                        color: theoryMutation.data.sdf_utility_sorted,
+                        colorscale: [
+                          [0, '#22c55e'],    // green for cheap states (low m)
+                          [0.5, '#fbbf24'],  // yellow for neutral
+                          [1, '#ef4444']     // red for expensive states (high m)
+                        ],
+                        showscale: true,
+                        colorbar: {
+                          title: "State Price (m)",
+                          titleside: "right"
+                        }
+                      },
                     },
                     {
-                      x: Array.from({ length: 240 }, (_, i) => i),
-                      y: theoryMutation.data.SDF_capm,
+                      x: theoryMutation.data.dc_sorted,
+                      y: theoryMutation.data.sdf_utility_sorted,
+                      type: "scatter",
+                      mode: "lines",
+                      name: `${utilityType} Curve`,
+                      line: { color: "#3b82f6", width: 3 },
+                      showlegend: false,
+                    },
+                    {
+                      x: theoryMutation.data.dc_sorted,
+                      y: theoryMutation.data.sdf_capm_sorted,
                       type: "scatter",
                       mode: "lines",
                       name: "CAPM SDF (Linear)",
-                      line: { color: "#ef4444", width: 2, dash: "dash" },
+                      line: { color: "#6366f1", width: 2, dash: "dash" },
                     },
                   ]}
                   layout={{
@@ -483,31 +482,49 @@ export default function UtilityExplorer() {
                     plot_bgcolor: "rgba(0,0,0,0)",
                     font: { color: "#1f2937", family: "Inter, sans-serif", size: 12 },
                     xaxis: { 
-                      title: "Time (months)", 
+                      title: "Consumption Growth (Δc)", 
                       gridcolor: "#e5e7eb",
                       showgrid: true,
+                      zeroline: true,
+                      zerolinecolor: "#9ca3af",
                     },
                     yaxis: { 
                       title: "Stochastic Discount Factor (m)", 
                       gridcolor: "#e5e7eb",
                       showgrid: true,
                     },
-                    margin: { l: 60, r: 20, t: 20, b: 60 },
+                    margin: { l: 60, r: 100, t: 20, b: 60 },
                     legend: { x: 0.02, y: 0.98 },
-                    shapes: theoryMutation.data.consumption_growth.map((dc: number, i: number) => 
-                      dc < 0 ? {
-                        type: 'rect' as const,
-                        xref: 'x' as const,
-                        yref: 'paper' as const,
-                        x0: i - 0.5,
-                        x1: i + 0.5,
-                        y0: 0,
-                        y1: 1,
-                        fillcolor: 'rgba(239, 68, 68, 0.1)',
-                        line: { width: 0 },
-                        layer: 'below' as const,
-                      } : null
-                    ).filter(Boolean),
+                    annotations: [
+                      {
+                        x: theoryMutation.data.dc_sorted[Math.floor(theoryMutation.data.dc_sorted.length * 0.1)],
+                        y: theoryMutation.data.sdf_utility_sorted[Math.floor(theoryMutation.data.dc_sorted.length * 0.1)],
+                        text: "EXPENSIVE STATES<br>(High m → Bad Δc)",
+                        showarrow: true,
+                        arrowhead: 2,
+                        ax: -70,
+                        ay: -50,
+                        font: { color: "#ef4444", size: 12, weight: "bold" },
+                        bgcolor: "rgba(255,255,255,0.9)",
+                        bordercolor: "#ef4444",
+                        borderwidth: 2,
+                        borderpad: 4,
+                      },
+                      {
+                        x: theoryMutation.data.dc_sorted[Math.floor(theoryMutation.data.dc_sorted.length * 0.9)],
+                        y: theoryMutation.data.sdf_utility_sorted[Math.floor(theoryMutation.data.dc_sorted.length * 0.9)],
+                        text: "CHEAP STATES<br>(Low m → Good Δc)",
+                        showarrow: true,
+                        arrowhead: 2,
+                        ax: 70,
+                        ay: 50,
+                        font: { color: "#22c55e", size: 12, weight: "bold" },
+                        bgcolor: "rgba(255,255,255,0.9)",
+                        bordercolor: "#22c55e",
+                        borderwidth: 2,
+                        borderpad: 4,
+                      },
+                    ],
                   }}
                   config={{ responsive: true, displayModeBar: false }}
                   style={{ width: "100%", height: "100%" }}
@@ -516,14 +533,108 @@ export default function UtilityExplorer() {
             </div>
 
             <div className="mt-4 bg-muted/50 p-4 rounded border border-border">
-              <h3 className="text-sm font-semibold mb-2 text-foreground">Understanding the SDF</h3>
-              <p className="text-sm text-muted-foreground">
-                The SDF translates future payoffs into present value under utility theory: m<sub>t</sub> = β·U'(c<sub>t+1</sub>)/U'(c<sub>t</sub>). 
-                When consumption falls (red shaded regions), marginal utility rises, making the SDF spike. 
-                Assets that pay well in these states command higher prices today because they hedge against bad times.
-              </p>
+              <h3 className="text-sm font-semibold mb-2 text-foreground">Understanding State Prices</h3>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  <strong className="text-foreground">What you're seeing:</strong> Each point represents a possible economic state. 
+                  The x-axis shows consumption growth (Δc), and the y-axis shows that state's "price" (m = SDF). 
+                  Colors reveal expensive states (red, high m) vs cheap states (green, low m).
+                </p>
+                
+                <p>
+                  <strong className="text-foreground">Why the curve?</strong> When consumption falls (left, bad times), marginal utility U'(c) spikes. 
+                  Since m = β·U'(c<sub>t+1</sub>)/U'(c<sub>t</sub>), bad states become expensive — investors pay more today for $1 delivered in recession.
+                </p>
+                
+                <p>
+                  <strong className="text-foreground">Curvature = Risk Aversion (γ={gamma.toFixed(1)}):</strong> Higher γ makes U'(c) more sensitive to consumption changes, 
+                  steepening the SDF curve. {utilityType === "CRRA" ? "CRRA maintains constant relative risk aversion." : utilityType === "CARA" ? "CARA keeps absolute risk aversion constant." : "DARA shows declining risk aversion as wealth grows."}
+                </p>
+                
+                <p>
+                  <strong className="text-foreground">The pricing story:</strong> Price = E[m·Payoff]. Assets paying when m is high (bad states) cost more → lower expected returns. 
+                  CAPM's linear approximation (dashed) misses this curvature, underpricing tail risk.
+                </p>
+              </div>
             </div>
           </Card>
+
+          {/* Two-Asset Pricing Panel */}
+          {theoryMutation.data && (
+            <Card className="p-6 bg-card border-border">
+              <h2 className="text-xl font-semibold mb-4">Asset Pricing Demonstration</h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                Using the SDF above, we can price two synthetic assets. The pricing equation p = E[m · X] determines current prices from future payoffs.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-5 rounded-lg border-2 border-border bg-muted/30">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <h3 className="text-lg font-semibold text-foreground">Safe Bond</h3>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Payoff Pattern:</span>
+                      <span className="font-mono text-foreground">Constant (1)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Price p:</span>
+                      <span className="font-mono text-foreground">{theoryMutation.data.safe_bond_price.toFixed(4)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Return:</span>
+                      <span className="font-mono text-foreground">{theoryMutation.data.safe_bond_return.toFixed(2)}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">E[mR]:</span>
+                      <span className={`font-mono ${Math.abs(theoryMutation.data.safe_bond_price * (1 + theoryMutation.data.safe_bond_return/100) - 1) < 0.05 ? 'text-green-600' : 'text-red-600'}`}>
+                        {(theoryMutation.data.safe_bond_price * (1 + theoryMutation.data.safe_bond_return/100)).toFixed(4)}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Safe payoff → no covariance with m → expected return near risk-free rate
+                  </p>
+                </div>
+
+                <div className="p-5 rounded-lg border-2 border-border bg-muted/30">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                    <h3 className="text-lg font-semibold text-foreground">Risky Asset</h3>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Payoff Pattern:</span>
+                      <span className="font-mono text-foreground">1 + R<sub>m</sub></span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Price p:</span>
+                      <span className="font-mono text-foreground">{theoryMutation.data.risky_asset_price.toFixed(4)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Return:</span>
+                      <span className="font-mono text-foreground">{theoryMutation.data.risky_asset_return.toFixed(2)}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Beta (β):</span>
+                      <span className="font-mono text-foreground">{theoryMutation.data.risky_asset_beta.toFixed(3)}</span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Pays when market rises → positive Cov with consumption → higher expected return (risk premium)
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-foreground">
+                  <strong>Key Insight:</strong> The SDF curvature (driven by γ = {gamma.toFixed(1)}) determines how much extra return risky assets require. 
+                  Higher risk aversion → steeper SDF → larger equity premium.
+                </p>
+              </div>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </ModuleLayout>
