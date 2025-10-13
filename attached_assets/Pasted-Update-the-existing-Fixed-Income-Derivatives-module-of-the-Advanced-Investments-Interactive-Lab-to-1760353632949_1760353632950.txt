@@ -1,0 +1,276 @@
+Update the existing Fixed Income & Derivatives module of the Advanced Investments Interactive Lab to make it usable offline, while aligning fully with the theoretical structure from Lecture 6 (Term Structure, Credit, and Risk-Neutral Pricing).
+
+The module must:
+
+Use a built-in dataset of realistic yield curve data and credit spreads.
+
+Compute and visualize term spreads, credit spreads, and bond price sensitivities.
+
+Explain and visualize TERM and CREDIT factors as part of the 5-factor SDF framework.
+
+Include a risk-neutral probability demo (simple binomial and Black–Scholes view).
+
+🧠 1. Theory Integration (TheoryCard content)
+Concept	Formula	Interpretation
+Yield Curve	
+𝑦
+𝑡
+(
+𝜏
+)
+y
+t
+	​
+
+(τ) = yield to maturity for horizon τ	Shows how interest rates evolve with maturity.
+Term Spread	
+𝑦
+𝑡
+(
+10
+𝑦
+)
+−
+𝑦
+𝑡
+(
+3
+𝑚
+)
+y
+t
+	​
+
+(10y)−y
+t
+	​
+
+(3m)	Proxy for TERM risk premium (slope of the curve).
+Credit Spread	
+𝑦
+𝑡
+𝑐
+𝑜
+𝑟
+𝑝
+−
+𝑦
+𝑡
+𝑔
+𝑜
+𝑣
+y
+t
+corp
+	​
+
+−y
+t
+gov
+	​
+
+	Compensation for default risk (CREDIT factor).
+Bond Price Sensitivity	
+Δ
+𝑃
+/
+𝑃
+≈
+−
+𝐷
+⋅
+Δ
+𝑦
++
+0.5
+⋅
+𝐶
+𝑜
+𝑛
+𝑣
+⋅
+(
+Δ
+𝑦
+)
+2
+ΔP/P≈−D⋅Δy+0.5⋅Conv⋅(Δy)
+2
+	Duration–convexity approximation of rate risk.
+Risk-Neutral Pricing	
+𝑝
+𝑄
+=
+𝑟
+−
+𝑑
+𝑢
+−
+𝑑
+p
+Q
+	​
+
+=
+u−d
+r−d
+	​
+
+	Adjusted probability that prices replicate risk-free returns.
+
+💡 “TERM and CREDIT are priced risk factors extending CAPM into fixed income. The yield curve embeds expectations of future rates plus term premia, while credit spreads capture compensation for default and liquidity risk.”
+
+⚙️ 2. Offline Dataset
+
+Create and save the following CSV files under /data/fixedincome/.
+
+🗂️ /data/fixedincome/yield_curves.csv
+
+Simulated monthly yields (3M–30Y) from Jan 2015 to Dec 2024.
+
+Date	3M	2Y	5Y	10Y	30Y
+2015-01-31	0.08	0.35	0.80	1.75	2.40
+2016-01-31	0.25	0.60	1.20	2.10	2.75
+2017-01-31	0.60	1.25	1.90	2.45	3.05
+2018-01-31	1.45	2.00	2.50	3.00	3.35
+2019-01-31	2.40	2.45	2.55	2.60	2.75
+2020-01-31	1.50	1.40	1.35	1.50	1.80
+2021-01-31	0.10	0.20	0.50	1.10	1.85
+2022-01-31	0.50	1.25	1.80	2.30	2.80
+2023-01-31	4.50	4.35	4.10	3.95	3.85
+2024-01-31	5.00	4.60	4.25	4.00	3.90
+🗂️ /data/fixedincome/credit_spreads.csv
+
+Simulated monthly credit spreads between corporate and government bonds.
+
+Date	IG_Spread	HY_Spread
+2015-01-31	1.2	4.0
+2016-01-31	1.5	5.2
+2017-01-31	1.3	4.3
+2018-01-31	1.5	4.8
+2019-01-31	1.1	3.9
+2020-01-31	2.5	7.0
+2021-01-31	1.0	3.0
+2022-01-31	1.8	4.2
+2023-01-31	1.3	3.8
+2024-01-31	1.1	3.5
+🗂️ /data/fixedincome/bonds.csv
+
+Sample of bonds for price sensitivity demonstration.
+
+Bond	Maturity (years)	Coupon	Yield	Duration	Convexity
+US10Y	10	2.50%	4.00%	8.5	62.0
+US30Y	30	3.00%	3.90%	18.2	195.0
+Corp_IG	10	3.20%	4.80%	8.0	58.0
+Corp_HY	10	5.00%	7.50%	6.8	45.0
+⚙️ 3. Backend Update (/backend/fixedincome_world.py)
+Load Data
+import pandas as pd
+import numpy as np
+
+def load_fixedincome_data():
+    yield_curves = pd.read_csv('/data/fixedincome/yield_curves.csv', parse_dates=['Date'])
+    spreads = pd.read_csv('/data/fixedincome/credit_spreads.csv', parse_dates=['Date'])
+    bonds = pd.read_csv('/data/fixedincome/bonds.csv')
+    return yield_curves, spreads, bonds
+
+Compute Term and Credit Spreads
+def compute_factors(yield_curves, spreads):
+    term_spread = yield_curves['10Y'] - yield_curves['3M']
+    credit_spread = spreads['HY_Spread'] - spreads['IG_Spread']
+    return pd.DataFrame({
+        'Date': yield_curves['Date'],
+        'Term_Spread': term_spread,
+        'Credit_Spread': credit_spread
+    })
+
+Price Sensitivity (Duration–Convexity Approximation)
+def price_impact(bonds, delta_y=-0.01):
+    bonds['ΔP/P'] = -bonds['Duration'] * delta_y + 0.5 * bonds['Convexity'] * (delta_y ** 2)
+    return bonds[['Bond', 'Yield', 'Duration', 'Convexity', 'ΔP/P']]
+
+Risk-Neutral Demo
+def risk_neutral_demo(S=100, u=1.1, d=0.9, r=0.03):
+    p_q = (1 + r - d) / (u - d)
+    call_value = (p_q * max(S*u - 100, 0) + (1 - p_q) * max(S*d - 100, 0)) / (1 + r)
+    return {'p_Q': p_q, 'Call_Price': call_value}
+
+💻 4. Frontend (Next.js + Plotly → /frontend/app/fixedincome/page.tsx)
+Tabs
+
+Yield Curves → plot yield vs maturity (for selected dates).
+
+Spreads → term and credit spread time series.
+
+Bond Sensitivity → ΔP/P chart for +/−100 bps shocks.
+
+Risk-Neutral Demo → sliders for u, d, r, and live calculation of 
+𝑝
+𝑄
+p
+Q
+	​
+
+.
+
+Example Charts
+Chart	Purpose
+Yield Curve Animation	Show changes over time; highlight inversion points.
+Term vs Credit Spread	Two-line chart comparing cyclical behavior.
+Bond Sensitivity Bar Chart	Display price changes under +/−100bps scenarios.
+Risk-Neutral Probability	Interactive plot showing p_Q changes with volatility or r.
+📚 5. TheoryCard Text (display on top)
+
+Fixed Income Pricing and Risk Premia
+
+The yield curve summarizes the term structure of interest rates.
+
+The term spread reflects the TERM risk premium — investors demand compensation for holding long-term bonds.
+
+The credit spread captures the CREDIT risk premium — the extra yield for bearing default risk.
+
+Bond prices respond to rate changes based on duration (first-order sensitivity) and convexity (second-order).
+
+Risk-neutral pricing connects derivative valuation to expected payoffs discounted by 
+𝑝
+𝑄
+p
+Q
+	​
+
+, the risk-neutral probability.
+
+Add hover ExplainTips:
+
+“A steep term spread indicates expected economic expansion.”
+
+“Credit spreads widen during downturns, narrowing in stable markets.”
+
+“Duration measures slope, convexity measures curvature of price–yield relation.”
+
+✅ 6. Acceptance Criteria
+
+✅ Works entirely offline, using the provided CSVs.
+
+✅ Plots and computes yield curves, term and credit spreads, and bond price impacts.
+
+✅ Shows TERM and CREDIT factors numerically and graphically.
+
+✅ Includes a small risk-neutral probability demo (binomial example).
+
+✅ Has educational TheoryCard with formulas and interpretation.
+
+✅ Allows exporting tables and plots (CSV/PNG).
+
+🧩 7. Final Agent Instruction
+
+Update the Fixed Income & Derivatives module to include:
+
+Offline CSV data (yield curves, spreads, bonds).
+
+Term and Credit spread computations.
+
+Duration–Convexity price sensitivity demo.
+
+Risk-Neutral probability example.
+Ensure all charts are interactive and annotated with theoretical context (TERM, CREDIT, Duration, Convexity).
