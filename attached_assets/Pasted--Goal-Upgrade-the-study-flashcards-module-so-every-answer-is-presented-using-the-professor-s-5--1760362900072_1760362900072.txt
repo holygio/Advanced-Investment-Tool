@@ -1,0 +1,224 @@
+🎯 Goal
+
+Upgrade the /study/flashcards/ module so every answer is presented using the professor’s 5-step framework:
+
+Figure out the problem and the topic
+
+Single topic or combined topic?
+
+Which variables and effects are relevant here?
+
+What does the question require me to do with these elements?
+
+Logical way forward (or why it’s false / T/F resolution)
+
+The framework should be visible on the flashcard’s back (answer side) as structured sections with concise bullets, formulas where helpful, and a final short “Result / Takeaway”.
+
+1) Data Model
+
+Update /study/flashcards/data/flashcards.json schema:
+
+[
+  {
+    "id": "capm_2017_q3",
+    "source": "Oct 2017 Advanced Investments Exam with Answers.pdf",
+    "year": 2017,
+    "topic_primary": "CAPM",
+    "topic_secondary": ["Portfolio"],
+    "difficulty": "medium",
+    "question": "State the main assumptions of CAPM and discuss implications for diversifiable risk.",
+    "hint": "Think market vs idiosyncratic risk.",
+    "answer_short": "CAPM assumes MV optimizers, homogeneous expectations, rf borrowing/lending, market efficiency; only beta risk is priced.",
+    "framework": {
+      "step1_problem_and_topic": "Identify CAPM assumptions; connect to what risk is priced (systematic vs idiosyncratic).",
+      "step2_single_or_combined": "Mostly CAPM, with a linkage to Portfolio Theory (two-fund separation).",
+      "step3_variables_and_effects": [
+        "β_i = Cov(r_i, r_M) / Var(r_M)",
+        "E[r_i] = r_f + β_i (E[r_M]-r_f)",
+        "Idiosyncratic variance → diversified away (no premium)"
+      ],
+      "step4_required_action": "List assumptions, then deduce implication: only systematic risk earns a premium.",
+      "step5_method_or_truth_test": "Logical: derive SML from assumptions; show that diversifiable risk has α≈0 in expectation under correct model.",
+      "result_takeaway": "CAPM prices only market exposure; diversifiable risk isn’t compensated."
+    }
+  }
+]
+
+
+Notes
+
+topic_primary + topic_secondary support “single vs combined” logic.
+
+framework holds 5 sections plus a result_takeaway.
+
+Keep answer_short for quick flips; framework for guided reasoning.
+
+2) Parser & Enrichment
+
+Create/extend /study/flashcards/scripts/extract_flashcards.py to:
+
+Parse all provided PDFs (you already have the list).
+
+Detect topics via keyword maps (same as earlier):
+CAPM, Portfolio, Anomalies, Factors, Risk (skew/kurt/JB/LPM), Utility/SDF, Fixed Income (duration/convexity/TERM/CREDIT).
+
+Build the framework fields using lightweight heuristics:
+
+Heuristic rules (pseudo):
+
+def infer_topics(text):
+    # return primary + secondary from keyword scores
+    ...
+
+def build_framework(q, a, primary, secondary):
+    f = {}
+    f["step1_problem_and_topic"] = summarize_problem(q, primary, secondary)
+    f["step2_single_or_combined"] = "Single topic: ..." or "Combined: CAPM + Risk" # from topics
+    f["step3_variables_and_effects"] = list(collect_formulas_or_terms(q+a, primary))
+    f["step4_required_action"] = detect_task(q)  # prove/show/compute/compare/assess/true-false
+    f["step5_method_or_truth_test"] = choose_method(primary, task)  # e.g., regression, SML derivation, LPM logic, duration formula
+    f["result_takeaway"] = short_takeaway(a)
+    return f
+
+
+Task detection (regex on question text):
+
+compute / derive / show → analytical steps
+
+explain / discuss → conceptual outline
+
+test / verify / GRS / FM → statistical test outline
+
+true/false / justify → truth test (show contradiction or counterexample)
+
+Variable/effect extraction (pattern library):
+
+CAPM: β, SML, E[r_i]-r_f, Cov/Var, α
+
+Factors: SMB/HML/RMW/CMA/MOM, λ_f, loadings
+
+Risk: μ, σ, skew, kurt, JB, LPM_n(τ)
+
+Utility/SDF: U(x), U′(x), m=βU′(c_{t+1})/U′(c_t), FSD/SSD/TSD
+
+Fixed Income: D, C, ΔP/P ≈ −DΔy + ½CΔy², term spread, credit spread
+
+If the parser is unsure, fill a neutral but helpful stub:
+
+"step3_variables_and_effects": ["Key variables not explicit in source; likely β, E[r], σ, α. Confirm during review."]
+
+
+Add a CLI:
+
+# rebuild dataset after adding new PDFs
+python /study/flashcards/scripts/extract_flashcards.py \
+  --sources "/uploads/*.pdf" \
+  --out "/study/flashcards/data/flashcards.json"
+
+3) UI/UX
+
+Update /study/flashcards/components/Flashcard.tsx:
+
+Front: question (+ badges for topics/year/difficulty).
+
+Back: tabs or accordion with 6 sections:
+
+Problem & Topic
+
+Single vs Combined
+
+Variables & Effects
+
+Required Action
+
+Method / Truth Test
+
+Result / Takeaway
+
+Use shadcn/ui Accordion or Tabs with an “Expand all” toggle.
+Add ExplainTip icons where formulas appear (hover shows quick definition).
+
+Keyboard shortcuts
+
+F → flip, N → next, P → previous, E → expand/collapse framework.
+
+Quiz Mode
+
+Keep MCQ mode; after user submits, show the framework to teach the reasoning path.
+
+4) Examples (seed two canonical cards)
+
+A) Risk (skew/kurt/JB) — True/False
+
+{
+  "id": "risk_2020_tf_jb",
+  "source": "Advanced Investments Jul 2020 Exam Answers (2).pdf",
+  "year": 2020,
+  "topic_primary": "Risk",
+  "topic_secondary": ["Statistics"],
+  "difficulty": "easy",
+  "question": "True/False: If the Jarque–Bera test does not reject, returns are normal and Sharpe is sufficient.",
+  "hint": "Think power and model risk.",
+  "answer_short": "False in general.",
+  "framework": {
+    "step1_problem_and_topic": "Assess JB result → inference about normality adequacy for risk assessment.",
+    "step2_single_or_combined": "Combined: Risk metrics + Hypothesis testing.",
+    "step3_variables_and_effects": [
+      "JB = n/6 * (Skew^2 + (Kurt-3)^2/4)",
+      "Type II error: failing to reject when non-normal",
+      "Sharpe ignores skew/kurt"
+    ],
+    "step4_required_action": "Evaluate statement, provide counter-argument based on test power and tail risk.",
+    "step5_method_or_truth_test": "Truth test: explain scenarios where tails are non-normal but JB lacks power → Sharpe insufficient.",
+    "result_takeaway": "Not rejecting JB doesn’t prove normality; consider skew/kurt & LPM for robustness."
+  }
+}
+
+
+B) Fixed Income (duration/convexity) — Compute
+
+{
+  "id": "fi_2017_duration_convexity",
+  "source": "Oct 2017 Advanced Investments Exam with Answers.pdf",
+  "year": 2017,
+  "topic_primary": "Fixed Income",
+  "topic_secondary": ["Risk"],
+  "difficulty": "medium",
+  "question": "Approximate ΔP/P for a 10Y bond (D=8.5, C=62) for Δy=+100 bps and −100 bps.",
+  "hint": "Use duration–convexity.",
+  "answer_short": "+100 bps: ≈ −8.19%; −100 bps: ≈ +8.31% (asymmetry).",
+  "framework": {
+    "step1_problem_and_topic": "Compute rate-shock impact on bond price using duration–convexity.",
+    "step2_single_or_combined": "Single: Fixed Income sensitivity.",
+    "step3_variables_and_effects": [
+      "ΔP/P ≈ −DΔy + 0.5 C (Δy)^2",
+      "Δy = ±0.01 (100 bps)",
+      "Convexity → asymmetry"
+    ],
+    "step4_required_action": "Plug numbers for +0.01 and −0.01; compare magnitudes.",
+    "step5_method_or_truth_test": "Analytical compute; highlight asymmetry due to (Δy)^2 term.",
+    "result_takeaway": "Convexity makes losses smaller than gains for symmetric shocks in |Δy|."
+  }
+}
+
+5) Acceptance Criteria
+
+✅ Schema updated with framework object and topic_secondary.
+
+✅ Parser enriches each card with topics + framework; safe fallbacks when uncertain.
+
+✅ UI renders the 5 steps (plus Result) on the back of the card with clean headings.
+
+✅ Quiz Mode reveals framework after the user answers.
+
+✅ Keyboard shortcuts supported; “Expand all” toggle present.
+
+✅ Works offline, using local JSON; rebuild script processes all uploaded PDFs.
+
+6) Bonus (optional, if time allows)
+
+Add a “copy framework” button to export the 6 sections as markdown for note-taking.
+
+Add a “link to theory” (deep-link to /theory/<module>#anchor) based on topic_primary.
+
+Add difficulty auto-grading (easy/med/hard) from cues like “prove”, “derive”, “compute”.
