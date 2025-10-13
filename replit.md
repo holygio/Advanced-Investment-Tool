@@ -103,6 +103,61 @@ Both Portfolio Builder and CAPM Model Tester modules now feature comprehensive t
 - Cross-references to other modules (Factor Analyzer, Risk Analysis)
 - Styled summary boxes highlighting practical implications
 
+### Factor Analyzer Theory Rebuild (Comprehensive Anomaly Coverage)
+
+The Factor Analyzer module now features unified comprehensive theory content covering the full lifecycle from anomaly definition to implementation:
+
+**Anomaly Definition & Criteria:**
+- Three-criteria framework: (1) Systematic Pattern, (2) Economic Rationale, (3) Tradability
+- Distinction between model misspecification and market imperfection
+
+**Core Equity Anomalies:**
+- **Size (SMB):** Small-cap premium with coverage/illiquidity explanations, robustness debates
+- **Value (HML):** Book-to-market effect with distress risk view and accounting critiques
+- **Momentum (MOM):** Winner-loser spread with crash caveats and turnover costs
+- **Profitability (RMW) & Investment (CMA):** FF5 additions with R&D considerations
+
+**Factor Construction (Long–Short):**
+- Portfolio sorts methodology: rank → form portfolios → long-short
+- Factor formulas (SMB = Small - Big, HML = High - Low, MOM = Winners - Losers, etc.)
+- Signal amplification through decile/quantile sorts
+
+**Regression Forms:**
+- FF3 time-series: r_i - r_f = α + β_M(r_M - r_f) + β_SMB·SMB + β_HML·HML + ε
+- FF5 adds RMW and CMA factors
+- Carhart 4-factor adds Momentum
+- Cross-sectional expanded SML with factor risk premiums (λ's)
+
+**SDF (Pricing Kernel) View:**
+- Linear SDF: m_t = a + b'f_t where f_t = [MKT, SMB, HML, ...]'
+- Economic requirement: factors must represent priced risks, not noise
+- Connection between regression factors and SDF components
+
+**Testing Methodology:**
+1. **Portfolio Sorts:** Signal amplification via characteristic ranking and K-portfolio formation
+2. **Fama-MacBeth Two-Pass:** Time-series betas → cross-sectional λ estimation with Newey-West SEs
+3. **GRS Joint Alpha Test:** F-statistic testing whether all alphas = 0 jointly (time-series only)
+
+**Implementation & Robustness:**
+- Sample dependence and p-hacking concerns
+- Microcaps, delistings, and liquidity filters
+- Look-ahead and survivorship bias mitigation
+- Trading frictions and short constraints
+- Multiple-testing and factor correlation
+
+**Trading Considerations:**
+- Zero-investment exposure management
+- Beta estimation error and quantile scaling
+- Regime shifts and momentum crashes
+- "So what?" on implementation vs. exploitability
+
+**Structural Design:**
+- Unified theory works for both FF3 and FF5 models
+- Color-coded sections (blue-50, green-50, purple-50, amber-50) for different concepts
+- Monospace formulas with subscripts
+- Multiple "So what?" pedagogical summaries throughout
+- Comprehensive standalone resource requiring no API calls
+
 ## External Dependencies
 
 ### Third-Party APIs
