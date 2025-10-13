@@ -66,58 +66,199 @@ export default function UtilityExplorer() {
 
   const theory = (
     <div className="space-y-6 py-6">
-      <div>
-        <h2 className="text-2xl font-semibold mb-4 text-foreground">Utility Theory & SDF Simulator</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          Explore how investor preferences (CARA, CRRA, DARA) shape risk attitudes and translate into 
-          the Stochastic Discount Factor used in asset pricing. All data is synthetically generated for 
-          pedagogical clarity.
+      {/* Card 1: Why Utility Matters for Pricing */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">1. Why Utility Matters for Pricing</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Utility encodes risk preferences; its marginal utility shapes the SDF <span className="font-mono">m</span> used in pricing:
         </p>
-      </div>
+        <div className="bg-blue-50 p-4 rounded-md border border-blue-200 space-y-2">
+          <p className="font-mono text-sm text-foreground">1 = E[m<sub>t+1</sub> R<sub>t+1</sub>]</p>
+          <p className="font-mono text-sm text-foreground">m<sub>t+1</sub> ∝ U'(C<sub>t+1</sub>)</p>
+        </div>
+        <p className="text-sm text-muted-foreground mt-4">
+          Risk aversion ⇒ U' declines with wealth; "bad states" (low C) have high m.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            All models (CAPM, multi-factor, LPM) imply a particular shape for U and thus for m.
+          </p>
+        </div>
+      </Card>
 
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Utility Functions</h3>
-        <div className="space-y-4 text-sm">
-          <div className="bg-muted/50 p-3 rounded border border-border">
-            <p className="font-semibold mb-1 text-foreground">CARA (Constant Absolute Risk Aversion)</p>
-            <p className="font-mono text-sm mb-1 text-foreground">U(x) = -e<sup>-bx</sup>/b, U'(x) = e<sup>-bx</sup></p>
-            <p className="text-muted-foreground">Constant A(x) = b. Fixed fear of loss regardless of wealth.</p>
+      {/* Card 2: Traditional Utility Classes */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">2. Traditional Utility Classes: CRRA, CARA, DARA</h3>
+        <div className="space-y-4">
+          <div className="bg-purple-50 p-4 rounded-md border border-purple-200">
+            <p className="font-semibold text-sm text-foreground mb-2">CRRA (Constant Relative Risk Aversion)</p>
+            <p className="font-mono text-sm text-foreground mb-2">U(x) = (x<sup>1-γ</sup> - 1) / (1-γ)  (log when γ=1)</p>
+            <p className="text-sm text-muted-foreground">Relative RA = γ (constant)</p>
           </div>
-          <div className="bg-muted/50 p-3 rounded border border-border">
-            <p className="font-semibold mb-1 text-foreground">CRRA (Constant Relative Risk Aversion)</p>
-            <p className="font-mono text-sm mb-1 text-foreground">U(x) = x<sup>1-γ</sup>/(1-γ), U'(x) = x<sup>-γ</sup></p>
-            <p className="text-muted-foreground">Constant R(x) = γ. Risk aversion proportional to wealth.</p>
+          <div className="bg-purple-50 p-4 rounded-md border border-purple-200">
+            <p className="font-semibold text-sm text-foreground mb-2">CARA (Constant Absolute Risk Aversion)</p>
+            <p className="font-mono text-sm text-foreground mb-2">U(x) = -e<sup>-bx</sup></p>
+            <p className="text-sm text-muted-foreground">Absolute RA = b (constant)</p>
           </div>
-          <div className="bg-muted/50 p-3 rounded border border-border">
-            <p className="font-semibold mb-1 text-foreground">DARA (Decreasing Absolute Risk Aversion)</p>
-            <p className="font-mono text-sm mb-1 text-foreground">U(x) = (a+x)<sup>1-γ</sup>/(1-γ), U'(x) = (a+x)<sup>-γ</sup></p>
-            <p className="text-muted-foreground">Both A(x), R(x) ↓ with wealth. Wealthier investors are bolder.</p>
+          <div className="bg-purple-50 p-4 rounded-md border border-purple-200">
+            <p className="font-semibold text-sm text-foreground mb-2">DARA (Decreasing Absolute Risk Aversion)</p>
+            <p className="font-mono text-sm text-foreground mb-2">U(x) = ln x  (example)</p>
+            <p className="text-sm text-muted-foreground">ARA decreases with wealth</p>
           </div>
         </div>
-      </div>
-
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Risk Aversion Measures</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
-          <p className="text-foreground">A(x) = -U''(x) / U'(x) (Absolute)</p>
-          <p className="text-foreground">R(x) = x·A(x) (Relative)</p>
-        </div>
-        <p className="text-sm text-muted-foreground mt-3">
-          Absolute RA measures fear per $1 loss. Relative RA measures fear relative to current wealth.
+        <p className="text-sm text-muted-foreground mt-4">
+          These summarize risk attitude when SDF isn't explicit.
         </p>
-      </div>
-
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Stochastic Discount Factor</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
-          <p className="text-foreground">m<sub>t</sub> = β · U'(c<sub>t+1</sub>) / U'(c<sub>t</sub>)</p>
-          <p className="text-foreground mt-2">Price: p<sub>t</sub> = E[m<sub>t+1</sub> · x<sub>t+1</sub>]</p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Curvature of U ⇒ strength of risk aversion and SDF slope.
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground mt-3">
-          The SDF transforms future payoffs into present values. Higher m in bad states means assets 
-          paying there are valuable hedges.
+      </Card>
+
+      {/* Card 3: Marginal Utility → SDF */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">3. Marginal Utility → SDF (General + CAPM)</h3>
+        <div className="space-y-3">
+          <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
+            <p className="font-mono text-sm text-foreground">m<sub>t+1</sub> = β · U'(C<sub>t+1</sub>) / U'(C<sub>t</sub>)  (utility-based)</p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
+            <p className="font-mono text-sm text-foreground">m<sub>t+1</sub> = a + b·R<sub>M,t+1</sub>,  b &lt; 0  (CAPM affine SDF)</p>
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground mt-4">
+          CAPM requires investing "in everything" so R<sub>M</sub> tracks wealth/consumption risk. 
+          Real investors may have non-market exposures (home, human capital).
         </p>
-      </div>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            CAPM is a linear approximation; richer SDFs allow non-linear state pricing.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 4: Stochastic Dominance */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">4. Stochastic Dominance (FSD → TSD)</h3>
+        <div className="space-y-3">
+          <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
+            <p className="text-sm text-foreground"><strong>FSD (non-satiation):</strong> U' &gt; 0 ⇒ m &gt; 0</p>
+          </div>
+          <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
+            <p className="text-sm text-foreground"><strong>SSD (risk aversion):</strong> U'' &lt; 0 ⇒ m decreasing</p>
+          </div>
+          <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
+            <p className="text-sm text-foreground"><strong>TSD (skewness pref.):</strong> U''' &gt; 0 ⇒ m decreasing at decreasing rate</p>
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground mt-4">
+          SD sets economically necessary sign/shape constraints on m.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            SD generalizes MV beyond normality/quadratic utility.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 5: CAPM vs SD */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">5. CAPM vs SD (Violations & Linear Limits)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          CAPM SDF <span className="font-mono">m = a + b·R<sub>M</sub></span> can satisfy risk aversion (b &lt; 0) 
+          but may violate non-satiation (negative m in extremes).
+        </p>
+        <p className="text-sm text-muted-foreground">
+          MV implies quadratic U → only locally valid; SD admits non-linear m.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            CAPM/MV are useful approximations, fragile in tails.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 6: Why/When MV Still Useful */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">6. Why/When MV Still Useful</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          MV relies on (i) normal returns or (ii) quadratic U.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          By Taylor approx (Tsiang, 1972), it works over limited ranges; fails in extremes and can be FSD-dominated.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Good baseline; upgrade when tails/skew matter.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 7: SD-Based SDFs */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">7. SD-Based SDFs (Descriptive Approach)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Estimate m non-parametrically via <span className="font-mono">E[mR] = 1</span>; enforce m &gt; 0, decreasing, etc.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Empirically shows strong aversion to large losses (~ −12%).
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Lets the data shape m; some anomalies persist.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 8: LPM & M-LPM Equilibrium */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">8. Lower Partial Moments (LPM) & M-LPM Equilibrium</h3>
+        <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-3">
+          <p className="font-mono text-sm text-foreground">LPM<sub>n</sub>(τ) = E[max(τ - R, 0)<sup>n</sup>]</p>
+          <p className="font-mono text-sm text-foreground mt-2">Semivariance: LPM<sub>2</sub>(0)</p>
+        </div>
+        <p className="text-sm text-muted-foreground mb-3">
+          Under normality, MV ≈ LPM; in general, M-LPM yields an equilibrium SDF of form:
+        </p>
+        <div className="bg-purple-50 p-4 rounded-md border border-purple-200 mb-3">
+          <p className="font-mono text-sm text-foreground">m = a + b·min(R<sub>M</sub> - r<sub>f</sub>, 0)</p>
+          <p className="text-sm text-muted-foreground mt-2">(risk-neutral above threshold)</p>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Portfolio separation holds with a risk-free asset; efficient sets differ from MV.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            LPM focuses on downside risk, preserving non-satiation and risk aversion.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 9: ESG Optional Note */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">9. ESG (Optional Theory Note)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          ESG fits if/when it affects returns; factorizable (long high ESG − short low ESG).
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Realized vs expected returns can diverge as flows move prices.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            ESG may represent a priced risk factor or simply reflect flow-driven mispricing.
+          </p>
+        </div>
+      </Card>
     </div>
   );
 

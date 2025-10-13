@@ -54,75 +54,207 @@ export default function FixedIncome() {
 
   const theory = (
     <div className="space-y-6 py-6">
-      <div>
-        <h2 className="text-2xl font-semibold mb-4 text-foreground">Fixed Income Pricing and Risk Premia</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          TERM and CREDIT are priced risk factors extending CAPM into fixed income. The yield curve embeds 
-          expectations of future rates plus term premia, while credit spreads capture compensation for default 
-          and liquidity risk.
+      {/* Card 1: Why Asset Pricing ≠ Only Stocks */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">1. Why "Asset Pricing ≠ Only Stocks"</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          CAPM/MV apply in principle to all assets, but other asset classes have distinct risk drivers; 
+          bonds & derivatives deserve dedicated treatment.
         </p>
-      </div>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            For a complete model/SDF, we must capture interest-rate and default risks, not just R<sub>M</sub>.
+          </p>
+        </div>
+      </Card>
 
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Yield Curve</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border mb-3">
-          <p className="text-foreground">y<sub>t</sub>(τ) = yield to maturity for horizon τ</p>
+      {/* Card 2: Bonds - Payoffs, Asymmetry */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">2. Bonds: Payoffs, Asymmetry, and Non-Linearity</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Fixed coupons + principal; limited upside (single-digits), downside to −100%.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Non-linear price–yield relation; coupon reinvestment matters.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Risk is not symmetric; linear β intuition is fragile for rates.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 3: Interest-Rate Risk */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">3. Interest-Rate Risk (Term Structure &gt; Single YTM)</h3>
+        <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-3">
+          <p className="font-mono text-sm text-foreground">
+            P = Σ<sub>t=1</sub><sup>T</sup> coupon<sub>t</sub>/(1+r<sub>t</sub>)<sup>t</sup> + principal/(1+r<sub>T</sub>)<sup>T</sup>
+          </p>
+        </div>
+        <p className="text-sm text-muted-foreground mb-3">
+          YTM is a single summary; reality is a vector of spot rates → term structure matters.
+        </p>
+        <p className="text-sm text-muted-foreground mb-3">
+          Sensitivity drivers: maturity (longer ⇒ more sensitive) and coupon (higher ⇒ less sensitive).
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Practical signal: term spread (10y–3m) is informative (FF 1993 link).
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Rate moves are multi-tenor; use curve intuition, not just a scalar YTM.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 4: Duration-Convexity */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">4. Duration–Convexity (Intuition Card)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Approximate price change for yield shock Δy:
+        </p>
+        <div className="bg-purple-50 p-4 rounded-md border border-purple-200 mb-3">
+          <p className="font-mono text-sm text-foreground">ΔP/P ≈ −D·Δy + (1/2)·C·(Δy)²</p>
         </div>
         <p className="text-sm text-muted-foreground">
-          Shows how interest rates evolve with maturity. A steep term spread indicates expected economic expansion.
+          Asymmetry: +100 bps vs −100 bps impacts are not equal (convexity).
         </p>
-      </div>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Use duration–convexity for scenario sense-checking; be wary of large shocks.
+          </p>
+        </div>
+      </Card>
 
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Term Spread (TERM Factor)</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border mb-3">
-          <p className="text-foreground">TERM = y<sub>t</sub>(10Y) - y<sub>t</sub>(3M)</p>
+      {/* Card 5: Default (Credit) Risk */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">5. Default (Credit) Risk</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Ratings (AAA…D) proxy PD; recovery matters; large investors often face IG constraints (BBB+); 
+          downgrades trigger flows.
+        </p>
+        <p className="text-sm text-muted-foreground mb-3">
+          Prices reflect PD × LGD and a risk premium (non-linear; varies with rating).
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Historical default rates and recession regimes explain spread cycles; risk premia are time-varying.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Credit spreads embed expected losses + risk compensation; both move with the cycle.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 6: Structured Credit (CDO Tranching) */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">6. Structured Credit (CDO Tranching)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Pool splits into equity, mezz, senior, super-senior; losses flow from bottom up.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Senior tranches can appear low-risk until correlation/regime shifts.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Tranching repackages default risk; systemic correlation is the Achilles' heel.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 7: A Unified 5-Factor SDF */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">7. A Unified 5-Factor SDF (Stocks + Bonds)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Early FF (1993) includes TERM and CREDIT alongside MKT/SMB/HML:
+        </p>
+        <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-3">
+          <p className="font-mono text-sm text-foreground">
+            m<sub>t</sub> = a + b<sub>M</sub>·R<sub>t</sub><sup>M</sup> + b<sub>SMB</sub>·SMB<sub>t</sub> + b<sub>HML</sub>·HML<sub>t</sub>
+          </p>
+          <p className="font-mono text-sm text-foreground ml-8">
+            + b<sub>TERM</sub>·TERM<sub>t</sub> + b<sub>CRED</sub>·CRED<sub>t</sub>
+          </p>
+        </div>
+        <p className="text-sm text-muted-foreground mb-3">
+          TERM = long − short gov't returns; CREDIT = corp − gov't returns.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Stocks and bonds are linked through discounting (rates) and distress (credit).
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Cross-asset SDF needs both curve and credit to price broad portfolios.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 8: Derivatives - Why SDF Pricing Is Limited */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">8. Derivatives: Why SDF Pricing Is Limited in Practice</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          In principle, same SDF; in practice, hedge ratios (deltas) change continuously → 
+          option "β" is time-varying and highly non-linear.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          SDF approaches suit longer-horizon investments, not fast-changing derivatives exposures.
+        </p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Use SDF for risk pricing intuition; value options via no-arbitrage machinery.
+          </p>
+        </div>
+      </Card>
+
+      {/* Card 9: Risk-Neutral Probabilities */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">9. Risk-Neutral Probabilities (Educational Bridge)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          In a one-step binomial:
+        </p>
+        <div className="bg-purple-50 p-4 rounded-md border border-purple-200 mb-3">
+          <p className="font-mono text-sm text-foreground">
+            E<sup>Q</sup>[R] = r<sub>f</sub>  ⇒  p<sup>Q</sup> = [(1+r<sub>f</sub>) − d] / (u − d)
+          </p>
         </div>
         <p className="text-sm text-muted-foreground">
-          Proxy for TERM risk premium (slope of the curve). Investors demand compensation for holding long-term bonds.
+          These risk-neutral p<sup>Q</sup> are not physical probabilities but are forward-looking from option prices. 
+          Shifts in p<sup>Q</sup> can reveal regime changes.
         </p>
-      </div>
-
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Credit Spread (CREDIT Factor)</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border mb-3">
-          <p className="text-foreground">CREDIT = y<sub>t</sub><sup>corp</sup> - y<sub>t</sub><sup>gov</sup></p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Options encode state prices; great for extracting market-implied scenarios.
+          </p>
         </div>
+      </Card>
+
+      {/* Card 10: Performance & Portfolio Construction */}
+      <Card className="p-6 bg-card border-border">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">10. Performance & Portfolio Construction Notes (Cross-links)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Hedge funds/market timing: exposures and premia are time-varying; evaluation metrics can swing with regimes.
+        </p>
         <p className="text-sm text-muted-foreground">
-          Compensation for default risk. Credit spreads widen during downturns, narrowing in stable markets.
+          Hierarchical portfolios: re-optimize at the total level; Treynor for well-diversified sleeves vs total σ 
+          when sleeves aren't.
         </p>
-      </div>
-
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Bond Price Sensitivity</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border mb-3">
-          <p className="text-foreground">ΔP/P ≈ -D·Δy + 0.5·Conv·(Δy)²</p>
+        <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-500">
+          <p className="text-sm font-semibold text-foreground">So what?</p>
+          <p className="text-sm text-muted-foreground">
+            Always look top-down across asset classes; cross-correlations matter.
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Duration measures slope (first-order sensitivity), convexity measures curvature of price–yield relation.
-        </p>
-      </div>
-
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Risk-Neutral Pricing</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border mb-3">
-          <p className="text-foreground">p<sup>Q</sup> = (r - d) / (u - d)</p>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Adjusted probability that prices replicate risk-free returns. Connects derivative valuation to expected payoffs.
-        </p>
-      </div>
-
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Five-Factor SDF</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
-          <p className="text-foreground">R<sub>i</sub> - R<sub>f</sub> = α + β<sub>MKT</sub>·MKT + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML</p>
-          <p className="text-foreground ml-16">+ β<sub>TERM</sub>·TERM + β<sub>CREDIT</sub>·CREDIT + ε</p>
-        </div>
-        <p className="text-sm text-muted-foreground mt-3">
-          Extending factors to bonds and stocks with TERM and CREDIT premia.
-        </p>
-      </div>
+      </Card>
     </div>
   );
 

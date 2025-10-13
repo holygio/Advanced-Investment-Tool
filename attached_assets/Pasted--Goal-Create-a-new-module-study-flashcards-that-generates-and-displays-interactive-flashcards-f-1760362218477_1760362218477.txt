@@ -1,0 +1,161 @@
+🎯 Goal
+
+Create a new module /study/flashcards/ that generates and displays interactive flashcards from past exam questions and practice Q&A documents (all PDFs provided).
+Each card should show a question, an optional hint, and a flip-to-reveal answer section with formulas and short explanations.
+
+📁 Source Files
+
+Use all uploaded PDFs:
+
+Advanced Investments Jul 2020 Exam Answers (2).pdf
+
+Oct 2017 Advanced Investments Exam with Answers.pdf
+
+Advanced Investments Practice Exam July 2016.pdf
+
+Advanced Investments Q&A.pdf
+
+Risk Measurement Q&A.pdf
+
+Advanced Investments Q&A on Return and Portfolio Management.pdf
+
+CAPM Anomalies Questions.pdf
+
+Extract question/answer pairs wherever possible, including conceptual, numerical, and applied exercises.
+
+⚙️ Directory & Pages
+/study/flashcards/
+  ├── page.tsx              # main UI
+  ├── components/
+  │   ├── Flashcard.tsx     # single card component
+  │   ├── TopicFilter.tsx   # dropdown by topic (CAPM, Risk, Anomalies, etc.)
+  │   └── QuizMode.tsx      # toggle study/quiz mode
+  └── data/
+      └── flashcards.json   # parsed Q&A dataset
+
+🧠 Core Features
+1️⃣ Flashcard Extraction Logic
+
+Automatically parse questions/answers from PDF text into JSON structure:
+
+[
+  {
+    "id": 1,
+    "topic": "CAPM",
+    "question": "Explain the difference between systematic and unsystematic risk.",
+    "hint": "Think about diversification.",
+    "answer": "Systematic risk is market-wide, cannot be diversified away. Unsystematic is firm-specific and diversifiable."
+  },
+  {
+    "id": 2,
+    "topic": "Anomalies",
+    "question": "What is the size effect anomaly?",
+    "answer": "Small-cap stocks tend to outperform large-cap stocks even after adjusting for risk, violating CAPM predictions."
+  }
+]
+
+
+Use topic tagging heuristics (keyword detection):
+
+“CAPM”, “beta”, “market premium” → CAPM
+
+“anomalies”, “momentum”, “size”, “value” → Anomalies
+
+“risk”, “variance”, “skewness” → Risk
+
+“utility”, “SDF”, “marginal utility” → Utility
+
+“portfolio”, “frontier”, “Sharpe” → Portfolio
+
+“bonds”, “duration”, “term structure” → Fixed Income
+
+2️⃣ Flashcard Interface
+
+3D flip animation (Framer Motion)
+
+Show question on front, answer on back
+
+Top bar filters by topic and difficulty
+
+“Shuffle”, “Mark as Known”, “Retry” buttons
+
+“Quiz Mode”: hides answers until clicked
+
+3️⃣ Topic Filtering & Quiz Mode
+
+Dropdown filter by topic or year (based on PDF name)
+
+Optional toggle for random order
+
+Quiz Mode: multiple-choice generation (AI-generated from same answer set)
+
+Show 1 correct + 3 distractors
+
+4️⃣ User Progress Tracking (localStorage)
+
+Save known/unknown questions
+
+Display progress bar (% mastered per topic)
+
+5️⃣ File-Based Dataset
+
+/data/flashcards.json is automatically built when you upload new PDFs
+
+Can regenerate via npm run extract:flashcards
+
+Extraction script:
+
+/scripts/extract_flashcards.py
+
+
+This script uses regex to split Q&A patterns like:
+
+“Question X: … Answer: …”
+
+“Q:” / “A:”
+
+“Explain…” / “Because…”
+It then deduplicates, tags, and formats into the JSON schema.
+
+🧩 UI Design
+
+Use Card, Button, and Badge from shadcn/ui
+
+Tailwind + Framer Motion for animations
+
+Use theme colors consistent with your other modules (white/gold accent)
+
+Add “Study Mode” and “Exam Mode” tabs:
+
+Study Mode: view one flashcard at a time with explanations.
+
+Exam Mode: multiple-choice quiz; display score at end.
+
+🧪 Example Flashcard Render
+
+Front:
+
+Question (CAPM, 2017 Exam)
+“What are the main assumptions underlying the CAPM?”
+
+Back:
+
+Investors are rational mean–variance optimizers
+
+Homogeneous expectations
+
+Risk-free borrowing/lending
+
+Market portfolio is mean–variance efficient
+
+All assets are traded
+So what? → All investors hold market + risk-free asset.
+
+✅ Acceptance Criteria
+Requirement	Description
+Flashcard parsing	Extract Q&A pairs from all provided PDFs
+Topic tagging	CAPM, Anomalies, Risk, Utility, Portfolio, Fixed Income
+UI	Flip cards + filters + quiz mode
+Local progress	Stores mastered questions
+Rebuild script	Allows regeneration from new PDFs
+Offline ready	Uses local JSON, no API calls

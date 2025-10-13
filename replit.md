@@ -80,3 +80,38 @@ The application is currently stateless, performing calculations on-demand withou
 -   **Inter font**: Primary UI typography.
 -   **IBM Plex Mono**: Monospace font.
 -   **Custom CSS variables**: Theme management.
+
+## Recent Theory Content Additions (October 2025)
+
+### Utility & SDF Explorer - Comprehensive Theory
+
+The Utility & SDF Explorer theory tab has been completely rebuilt with 9 comprehensive cards covering first-principles utility theory and SDF pricing:
+
+1. **Why Utility Matters for Pricing:** U' shapes SDF m used in 1 = E[m·R]; risk aversion → high m in bad states
+2. **Traditional Utility Classes:** CRRA, CARA, DARA formulas and curvature implications
+3. **Marginal Utility → SDF:** Utility-based m_t = β·U'(C_t+1)/U'(C_t) vs CAPM affine SDF m = a + b·R_M
+4. **Stochastic Dominance:** FSD (non-satiation), SSD (risk aversion), TSD (skewness pref) constraints on m
+5. **CAPM vs SD:** Linear limits, violations, quadratic U fragility in tails
+6. **Why/When MV Still Useful:** Normal returns or quadratic U, Taylor approximation validity
+7. **SD-Based SDFs:** Non-parametric estimation enforcing m > 0, decreasing, empirical loss aversion
+8. **LPM & M-LPM Equilibrium:** Downside risk focus, equilibrium SDF m = a + b·min(R_M - r_f, 0)
+9. **ESG Optional Note:** Factorizable if affects returns, flow-driven vs fundamental pricing
+
+**Pedagogical Design:** Color-coded highlights (blue-50/green-50/purple-50/amber-50), monospace formulas with HTML notation, every card concludes with "So what?" summary. Aligns with Lecture 5 (Sept 26, 2025).
+
+### Fixed Income & Derivatives - Comprehensive Theory
+
+The Fixed Income theory tab has been completely rebuilt with 10 comprehensive cards covering bonds, interest-rate risk, credit risk, and derivatives:
+
+1. **Why "Asset Pricing ≠ Only Stocks":** Interest-rate and default risks beyond R_M
+2. **Bonds: Payoffs, Asymmetry:** Limited upside, downside to −100%, non-linear price-yield
+3. **Interest-Rate Risk (Term Structure > YTM):** P = Σ coupon_t/(1+r_t)^t + principal/(1+r_T)^T, maturity/coupon sensitivity
+4. **Duration-Convexity:** ΔP/P ≈ −D·Δy + (1/2)·C·(Δy)², asymmetry in rate shocks
+5. **Default (Credit) Risk:** Ratings (AAA…D) proxy PD, prices reflect PD × LGD + risk premium
+6. **Structured Credit (CDO Tranching):** Equity/mezz/senior/super-senior, systemic correlation risk
+7. **Unified 5-Factor SDF:** m_t = a + b_M·R_t^M + b_SMB·SMB + b_HML·HML + b_TERM·TERM + b_CRED·CRED
+8. **Derivatives: Why SDF Pricing Limited:** Time-varying β, non-linear hedge ratios, use SDF for intuition
+9. **Risk-Neutral Probabilities:** Binomial p^Q = [(1+r_f) − d]/(u − d), regime change detection
+10. **Performance & Portfolio Construction:** Hierarchical optimization, cross-asset correlations
+
+**Pedagogical Design:** Same color-coded pattern as Utility module, formulas with proper mathematical notation, every card with "So what?" summary. Aligns with Lecture 6 (Oct 6, 2025).
