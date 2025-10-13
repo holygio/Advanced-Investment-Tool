@@ -1,0 +1,221 @@
+🎯 Goal
+
+Refactor and debug the existing Fixed Income & Derivatives module to correctly process the offline datasets from
+/data/fixedincome/ — (yield_curves.csv, credit_spreads.csv, bonds.csv) — and eliminate errors such as “-100.00%” appearing in KPI cards.
+
+The module must compute all yield, spread, and bond-sensitivity values with correct scaling, consistent units (bps vs decimals), and clear visual logic aligned with fixed-income theory.
+
+🧠 1. Context
+
+The module currently includes 4 sub-tabs:
+
+Yield Curves
+
+Spreads
+
+Bond Sensitivity
+
+Risk-Neutral Demo
+
+Offline CSVs simulate historical data from 2015–2024.
+All processing and visualization should remain offline (no API calls).
+
+⚙️ 2. Data Sources
+/data/fixedincome/yield_curves.csv
+Columns: Date, 3M, 2Y, 5Y, 10Y, 30Y
+→ Used for term structure and term spread.
+
+/data/fixedincome/credit_spreads.csv
+Columns: Date, IG_Spread, HY_Spread
+→ Used for credit risk and risk premia visualization.
+
+/data/fixedincome/bonds.csv
+Columns: Bond, Maturity (years), Coupon, Yield, Duration, Convexity
+→ Used for ΔP/P (price sensitivity) computation.
+
+🧮 3. Fixes to Implement
+✅ A. Correct ΔP/P Calculation and Scaling
+
+Issue: currently produces impossible values (e.g. −100%) due to wrong yield-shock scaling.
+Fix:
+
+import pandas as pd
+
+def compute_price_change(bonds_df, delta_y_bps=100):
+    """
+    Compute approximate % price change using duration and convexity.
+    ΔP/P ≈ -DΔy + 0.5*C*(Δy)^2
+    delta_y_bps: rate shock in basis points (bps)
+    """
+    delta_y = delta_y_bps / 10000  # convert bps → decimal
+    bonds_df['ΔP/P_%'] = (-bonds_df['Duration'] * delta_y + 
+                          0.5 * bonds_df['Convexity'] * (delta_y ** 2)) * 100
+    return bonds_df
+
+
+Compute for both +100 bps and −100 bps to show symmetric sensitivity:
+
+pos_scenario = compute_price_change(bonds.copy(), +100)
+neg_scenario = compute_price_change(bonds.copy(), -100)
+
+
+Add a small validator:
+
+bonds_df['ΔP/P_%'] = bonds_df['ΔP/P_%'].clip(-30, 30)
+
+
+→ prevents unrealistic outputs.
+
+✅ B. Fix Term and Credit Spread Computations
+
+Ensure spreads use consistent units (bps) and numeric types.
+
+yield_curves['TermSpread_bps'] = (yield_curves['10Y'] - yield_curves['3M']) * 100
+credit_spreads['CreditSpread_bps'] = (credit_spreads['HY_Spread'] - credit_spreads['IG_Spread']) * 100
+
+
+Sanity check:
+
+assert yield_curves['TermSpread_bps'].between(-200, 400).all()
+assert credit_spreads['CreditSpread_bps'].between(0, 1000).all()
+
+✅ C. Improve Yield Curve Evolution Chart
+
+X-axis → maturities (3M, 2Y, 5Y, 10Y, 30Y).
+
+Y-axis → yield (bps or %).
+
+Color → year or date snapshot.
+
+Add hover info showing “Normal / Flat / Inverted” shape tag:
+
+slope > 50 bps → Normal
+
+slope between 0 bps and −25 bps → Flat
+
+slope < −25 bps → Inverted
+
+✅ D. Add KPI Cards (Correct Values & Logic)
+KPI Card	Formula	Expected Range
+ΔP/P (10Y)	from bonds.csv (US10Y, ±100 bps shock)	−10% → +10%
+Term Spread	
+10
+𝑌
+−
+3
+𝑀
+10Y−3M	−150 → 300 bps
+Credit Spread (HY–IG)	
+𝐻
+𝑌
+−
+𝐼
+𝐺
+HY−IG	100 → 600 bps
+
+Ensure all numeric outputs are formatted as:
+
+"{:+.2f}%".format(value) if percent else "{:.2f} bps"
+
+✅ E. Enhance Risk-Neutral Demo
+
+Keep the simple binomial tree demo, but correct risk-neutral probability to use decimal yields:
+
+𝑝
+𝑄
+=
+(
+1
++
+𝑟
+)
+−
+𝑑
+𝑢
+−
+𝑑
+p
+Q
+	​
+
+=
+u−d
+(1+r)−d
+	​
+
+
+Add sliders for:
+
+up factor 
+𝑢
+u
+
+down factor 
+𝑑
+d
+
+interest rate 
+𝑟
+r
+
+Show resulting:
+
+risk-neutral probability 
+𝑝
+𝑄
+p
+Q
+	​
+
+
+expected payoff
+
+discounted value
+
+🖼️ 4. Frontend Enhancements
+
+Use Plotly for all charts (smoother interactivity).
+
+Add legend toggle and tooltips.
+
+Apply consistent color palette (blue = normal, red = inversion, green = credit).
+
+Cap axes dynamically to avoid empty plots when data has extreme values.
+
+Make KPI cards auto-update when selecting a new date range.
+
+📚 5. TheoryCard (Optional)
+
+Add or update the Theory tab text to remind users:
+
+Key Theoretical Concepts
+
+Yield curve shape indicates market expectations (normal, flat, inverted).
+
+Term spreads capture maturity-based risk premia.
+
+Credit spreads measure compensation for default risk.
+
+Bond price sensitivity is driven by duration and convexity.
+
+Under risk-neutral valuation, prices reflect discounted expected payoffs under 
+𝑄
+Q.
+
+🧩 6. Acceptance Criteria
+Requirement	Status
+No numeric overflow or −100% bug	✅ Fixed
+ΔP/P scales correctly with 100 bps moves	✅
+KPI cards show realistic values	✅
+Term and credit spreads in bps	✅
+Charts readable and consistent	✅
+Works fully offline	✅
+✅ Final Instruction for Replit AI Agent
+
+Refactor and debug the Fixed Income & Derivatives module using the above guidelines.
+Ensure correct scaling, realistic calculations, and consistent units across all tabs.
+Fix the ΔP/P calculation to handle 100 bps shocks properly (divide by 10 000).
+Verify term and credit spreads are computed in basis points, not raw percentages.
+Rebuild KPI card logic so no “−100%” or other impossible values appear.
+Keep the design fully offline and self-contained, reading from /data/fixedincome/.
+Use the updated chart and TheoryCard specifications above to finalize a professional, reliable fixed-income dashboard.

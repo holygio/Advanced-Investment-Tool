@@ -151,19 +151,19 @@ export default function FixedIncome() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <MetricCard
               title="Latest Term Spread"
-              value={`${(fiData?.latest_term_spread * 100 || 0).toFixed(2)}%`}
+              value={`${(fiData?.latest_term_spread || 0).toFixed(2)}%`}
               subtitle="10Y - 3M"
               data-testid="metric-term-spread"
             />
             <MetricCard
               title="IG Credit Spread"
-              value={`${(fiData?.latest_credit_ig * 100 || 0).toFixed(2)} bps`}
+              value={`${(fiData?.latest_credit_ig || 0).toFixed(2)} bps`}
               subtitle="Investment Grade"
               data-testid="metric-credit-ig"
             />
             <MetricCard
               title="HY Credit Spread"
-              value={`${(fiData?.latest_credit_hy * 100 || 0).toFixed(2)} bps`}
+              value={`${(fiData?.latest_credit_hy || 0).toFixed(2)} bps`}
               subtitle="High Yield"
               data-testid="metric-credit-hy"
             />
@@ -178,14 +178,36 @@ export default function FixedIncome() {
             <div className="h-96">
               {fiData?.yield_curves ? (
                 <Plot
-                  data={fiData.yield_curves.map((curve: any) => ({
-                    x: curve.points.map((p: any) => p.maturity),
-                    y: curve.points.map((p: any) => p.yield * 100),
-                    type: "scatter",
-                    mode: "lines+markers",
-                    name: curve.date,
-                    line: { width: 2 },
-                  }))}
+                  data={fiData.yield_curves.map((curve: any) => {
+                    // Calculate curve shape based on slope (30Y - 3M)
+                    const shortEnd = curve.points.find((p: any) => p.maturity === '3M')?.yield || 0;
+                    const longEnd = curve.points.find((p: any) => p.maturity === '30Y')?.yield || 0;
+                    const slope = longEnd - shortEnd;
+                    
+                    let shape = "Normal";
+                    let color = "#3b82f6"; // blue
+                    
+                    if (slope > 0.5) {
+                      shape = "Normal (Steep)";
+                      color = "#22c55e"; // green
+                    } else if (slope >= 0 && slope <= 0.5) {
+                      shape = "Flat";
+                      color = "#f59e0b"; // amber
+                    } else {
+                      shape = "Inverted";
+                      color = "#ef4444"; // red
+                    }
+                    
+                    return {
+                      x: curve.points.map((p: any) => p.maturity),
+                      y: curve.points.map((p: any) => p.yield),
+                      type: "scatter",
+                      mode: "lines+markers",
+                      name: `${curve.date} (${shape})`,
+                      line: { width: 2, color },
+                      hovertemplate: '<b>%{x}</b><br>Yield: %{y:.2f}%<br>Shape: ' + shape + '<extra></extra>',
+                    };
+                  })}
                   layout={{
                     autosize: true,
                     paper_bgcolor: "rgba(0,0,0,0)",
@@ -225,7 +247,7 @@ export default function FixedIncome() {
                   data={[
                     {
                       x: fiData.term_spreads.map((p: any) => p.date),
-                      y: fiData.term_spreads.map((p: any) => p.term_spread * 100),
+                      y: fiData.term_spreads.map((p: any) => p.term_spread),
                       type: "scatter",
                       mode: "lines",
                       name: "Term Spread",
@@ -280,7 +302,7 @@ export default function FixedIncome() {
                   data={[
                     {
                       x: fiData.term_spreads.map((p: any) => p.date),
-                      y: fiData.term_spreads.map((p: any) => p.credit_spread_ig * 100),
+                      y: fiData.term_spreads.map((p: any) => p.credit_spread_ig),
                       type: "scatter",
                       mode: "lines",
                       name: "IG Spread",
@@ -288,7 +310,7 @@ export default function FixedIncome() {
                     },
                     {
                       x: fiData.term_spreads.map((p: any) => p.date),
-                      y: fiData.term_spreads.map((p: any) => p.credit_spread_hy * 100),
+                      y: fiData.term_spreads.map((p: any) => p.credit_spread_hy),
                       type: "scatter",
                       mode: "lines",
                       name: "HY Spread",

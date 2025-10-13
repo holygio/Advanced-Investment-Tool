@@ -187,6 +187,13 @@ class RiskNeutralResponse(BaseModel):
 async def calculate_risk_neutral(request: RiskNeutralRequest):
     """Calculate risk-neutral probabilities and option price in binomial model"""
     try:
+        # Validate inputs
+        if request.u <= request.d:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Up factor (u={request.u}) must be greater than down factor (d={request.d})"
+            )
+        
         # Calculate risk-neutral probability: p_Q = (1+r - d) / (u - d)
         p_q = (1 + request.r - request.d) / (request.u - request.d)
         
