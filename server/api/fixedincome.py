@@ -105,8 +105,11 @@ async def get_fixedincome_data():
                 ))
         
         # Compute term and credit spreads over time
+        # Merge yield and credit dataframes on Date
+        merged_df = pd.merge(yield_df, credit_df, on='Date', how='inner')
+        
         term_spreads = []
-        for _, row in pd.concat([yield_df, credit_df], axis=1).iterrows():
+        for _, row in merged_df.iterrows():
             if pd.notna(row['10Y']) and pd.notna(row['3M']):
                 term_spreads.append(TermSpreadPoint(
                     date=row['Date'].strftime('%Y-%m-%d'),
