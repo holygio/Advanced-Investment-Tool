@@ -135,53 +135,128 @@ export default function PortfolioBuilder() {
 
   const theory = (
     <div className="space-y-6 py-6">
+      {/* Intuitive Motivation */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Mean-Variance Portfolio Theory</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          Portfolio theory provides a framework for constructing optimal portfolios that maximize expected
-          return for a given level of risk, or minimize risk for a given expected return.
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">Mean-Variance Portfolio Theory</h2>
+        <p className="text-muted-foreground leading-relaxed mb-2">
+          Investors choose among risky assets by trading off expected return vs risk. Risk is measured by the variance of portfolio returns; return by the expected mean.
+        </p>
+        <p className="text-muted-foreground leading-relaxed">
+          Portfolio selection is thus a two-dimensional optimization problem — how to maximize expected utility given risk aversion.
         </p>
       </div>
 
+      {/* Fundamental Assumptions (A1-A7) */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">The Efficient Frontier</h3>
-        <p className="text-sm text-muted-foreground mb-3">
-          The efficient frontier is constructed from expected returns (μ) and covariance matrix (Σ):
-        </p>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
-          <p className="text-foreground">Minimize: ω'Σω</p>
-          <p className="text-foreground">Subject to: ω'μ = R<sub>target</sub></p>
-          <p className="mt-2 text-foreground">where ω = portfolio weights</p>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Fundamental Assumptions (A1–A7)</h3>
+        <div className="space-y-3 text-sm">
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A1: Nonsatiation</p>
+            <p className="text-muted-foreground">More return is preferred to less. Utility is monotonic in wealth.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A2: Risk Aversion</p>
+            <p className="text-muted-foreground">Investors dislike risk for equal expected returns. U''(W) &lt; 0.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A3: Single Period</p>
+            <p className="text-muted-foreground">One investment horizon → decisions based on final wealth.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A4: Mean-Variance Preferences</p>
+            <p className="text-muted-foreground">Utility depends only on E[r] and Var[r] (≈ quadratic utility or normal returns).</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A5: No Market Frictions</p>
+            <p className="text-muted-foreground">No taxes, transaction costs, or liquidity issues.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A6: Homogeneous Information</p>
+            <p className="text-muted-foreground">Everyone has the same information about returns and risks.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A7: Divisible Assets</p>
+            <p className="text-muted-foreground">Assets can be bought in any fractional amount.</p>
+          </div>
+        </div>
+        <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
+          <p className="text-sm text-foreground"><strong>Why these matter:</strong> They simplify utility maximization so that risk is summarized by variance alone. If any assumption fails → the frontier bends, frictions appear, or expected utility is no longer linear in mean–variance.</p>
         </div>
       </div>
 
+      {/* Mathematical Core */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Mathematical Core</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Let r = (r₁, …, rₙ)′ with expected returns μ = E[r] and covariance Σ. Portfolio weights ω satisfy 1′ω = 1.
+        </p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
+          <p className="text-foreground">E[r<sub>p</sub>] = ω′μ</p>
+          <p className="text-foreground">Var(r<sub>p</sub>) = ω′Σω</p>
+          <p className="text-foreground mt-3">Optimization problem:</p>
+          <p className="text-foreground">min<sub>ω</sub> ω′Σω</p>
+          <p className="text-foreground">s.t. ω′μ = μ*, 1′ω = 1</p>
+        </div>
+        <p className="text-sm text-muted-foreground mt-3">
+          Solution set → efficient frontier (curved "bullet" in E[r]–σ space). Each point represents a minimum-variance portfolio for given return.
+        </p>
+      </div>
+
+      {/* Lagrangian Solution */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Lagrangian Solution</h3>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
+          <p className="text-foreground">L = ω′Σω − λ₁(ω′μ − μ*) − λ₂(ω′1 − 1)</p>
+          <p className="text-foreground mt-3">Closed-form solution:</p>
+          <p className="text-foreground">ω = A⁻¹(λ₁μ + λ₂1) where A = Σ⁻¹</p>
+          <p className="text-foreground mt-3">Frontier equation:</p>
+          <p className="text-foreground">σ²<sub>p</sub> = (Aμ*² − 2Bμ* + C) / (AC − B²)</p>
+          <p className="text-sm text-muted-foreground mt-2">with A = 1′A1, B = 1′Aμ, C = μ′Aμ</p>
+        </div>
+      </div>
+
+      {/* Risk-Free Asset & CML */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
         <h3 className="text-lg font-semibold mb-3 text-foreground">Capital Market Line (CML)</h3>
         <p className="text-sm text-muted-foreground mb-3">
-          With a risk-free asset, investors combine the tangency portfolio with the risk-free rate:
+          Allow asset f with return r<sub>f</sub> and zero variance → new feasible set becomes linear:
         </p>
         <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
-          <p className="text-foreground">E[R<sub>p</sub>] = R<sub>f</sub> + [(E[R<sub>M</sub>] - R<sub>f</sub>) / σ<sub>M</sub>] × σ<sub>p</sub></p>
+          <p className="text-foreground">E[r<sub>p</sub>] = r<sub>f</sub> + [(E[r<sub>M</sub>] − r<sub>f</sub>) / σ<sub>M</sub>] × σ<sub>p</sub></p>
+        </div>
+        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+          <p className="text-sm text-foreground mb-2"><strong>Two-Fund Separation Theorem:</strong></p>
+          <p className="text-sm text-muted-foreground">Any efficient portfolio is a combination of the risk-free asset and one risky portfolio. Same risky portfolio (M = tangency) for everyone, different amounts of leverage depending on risk aversion.</p>
         </div>
       </div>
 
+      {/* Economic Intuition */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Key Assumptions</h3>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Economic Intuition</h3>
         <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-          <li>Investors are risk-averse and maximize expected utility</li>
-          <li>Returns are normally distributed</li>
-          <li>Investors have homogeneous expectations</li>
-          <li>Markets are frictionless (no transaction costs or taxes)</li>
-          <li>Assets are infinitely divisible</li>
+          <li><strong className="text-foreground">Diversification</strong> reduces idiosyncratic risk — only systematic risk remains</li>
+          <li><strong className="text-foreground">Adding risk-free asset</strong> transforms the curved frontier into a straight line</li>
+          <li><strong className="text-foreground">Same CML, different points:</strong> All investors face the same CML but pick different points on it</li>
         </ul>
       </div>
 
-      <div>
-        <h3 className="text-lg font-semibold mb-3">Two-Fund Separation</h3>
-        <p className="text-sm text-muted-foreground">
-          Every optimal portfolio can be constructed as a combination of just two portfolios: the risk-free
-          asset and the tangency portfolio. This powerful result simplifies portfolio construction regardless
-          of individual risk preferences.
+      {/* Extensions & Limitations */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Extensions & Limitations</h3>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>• Correlations &lt; 1 create risk reduction</p>
+          <p>• If short sales disallowed → frontier is piecewise linear</p>
+          <p>• Non-normal returns → variance insufficient → higher moments matter (see Risk Analysis module)</p>
+          <p>• Estimation error in μ, Σ → unstable weights → use robust or Bayesian methods</p>
+        </div>
+      </div>
+
+      {/* So What? */}
+      <div className="p-4 bg-primary/10 rounded-lg border-2 border-primary/30">
+        <h3 className="text-lg font-semibold mb-2 text-foreground">So What?</h3>
+        <p className="text-sm text-foreground">
+          Portfolio theory defines the geometry of risk and return — it's the foundation for CAPM and every modern factor model. 
+          Understanding the efficient frontier is essential for asset allocation, performance measurement, and risk management.
         </p>
       </div>
     </div>

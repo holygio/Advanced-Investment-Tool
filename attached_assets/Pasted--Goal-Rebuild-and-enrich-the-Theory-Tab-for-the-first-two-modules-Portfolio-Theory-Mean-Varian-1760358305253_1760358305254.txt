@@ -1,0 +1,1034 @@
+🎯 Goal
+
+Rebuild and enrich the Theory Tab for the first two modules:
+
+Portfolio Theory (Mean–Variance Framework)
+
+CAPM and Market Equilibrium
+
+Each must include:
+
+All assumptions (A1–A10) and their intuition.
+
+Equations and economic interpretation.
+
+Connection to risk aversion and expected utility.
+
+Graphical descriptions (CML, SML, efficient frontier).
+
+Key tests (Fama–MacBeth, Roll critique).
+
+“So what?” summaries after every section.
+
+No API data required — static LaTeX equations and text only.
+
+🧩 1️⃣ Module 1 — Portfolio Theory (Mean–Variance)
+🔹 A. Intuitive Motivation
+
+Investors choose among risky assets by trading off expected return vs risk.
+Risk is measured by the variance of portfolio returns; return by the expected mean.
+Portfolio selection is thus a two-dimensional optimization problem – how to maximize expected utility given risk aversion.
+
+🔹 B. Fundamental Assumptions (A1–A7)
+Code	Assumption	Explanation
+A1 Nonsatiation	More return is preferred to less.	Utility is monotonic in wealth.
+A2 Risk Aversion	Investors dislike risk for equal expected returns.	
+𝑈
+′
+′
+(
+𝑊
+)
+<
+0
+U
+′′
+(W)<0.
+A3 Single Period	One investment horizon → decisions based on final wealth.	
+A4 MV Preferences	Utility depends only on 
+𝐸
+[
+𝑟
+]
+E[r] and 
+𝑉
+𝑎
+𝑟
+[
+𝑟
+]
+Var[r] (≈ quadratic utility or normal returns).	
+A5 No Market Frictions	No taxes, transaction costs, or liquidity issues.	
+A6 Homogeneous Information	Everyone has the same information about returns and risks.	
+A7 Divisible Assets	Assets can be bought in any fractional amount.	
+
+🧠 Why these matter:
+They simplify utility maximization so that risk is summarized by variance alone.
+If any assumption fails → the frontier bends, frictions appear, or expected utility is no longer linear in mean–variance.
+
+🔹 C. Mathematical Core
+
+Let 
+𝑟
+=
+(
+𝑟
+1
+,
+…
+,
+𝑟
+𝑁
+)
+′
+r=(r
+1
+	​
+
+,…,r
+N
+	​
+
+)
+′
+, expected returns 
+𝜇
+=
+𝐸
+[
+𝑟
+]
+μ=E[r], covariance 
+Σ
+Σ.
+Portfolio weights 
+𝜔
+ω satisfy 
+1
+′
+𝜔
+=
+1
+1
+′
+ω=1.
+
+𝐸
+[
+𝑟
+𝑝
+]
+	
+=
+𝜔
+′
+𝜇
+
+
+𝑉
+𝑎
+𝑟
+(
+𝑟
+𝑝
+)
+	
+=
+𝜔
+′
+Σ
+𝜔
+E[r
+p
+	​
+
+]
+Var(r
+p
+	​
+
+)
+	​
+
+=ω
+′
+μ
+=ω
+′
+Σω
+	​
+
+
+Optimization problem:
+
+min
+⁡
+𝜔
+ 
+𝜔
+′
+Σ
+𝜔
+𝑠
+.
+𝑡
+.
+ 
+𝜔
+′
+𝜇
+=
+𝜇
+∗
+,
+ 
+1
+′
+𝜔
+=
+1
+ω
+min
+	​
+
+ ω
+′
+Σωs.t. ω
+′
+μ=μ
+∗
+, 1
+′
+ω=1
+
+Solution set → efficient frontier (curved “bullet” in E[r]–σ space).
+Each point represents a minimum-variance portfolio for given return.
+
+🔹 D. Lagrangian Solution Sketch
+
+Using multipliers λ₁, λ₂:
+
+𝐿
+=
+𝜔
+′
+Σ
+𝜔
+−
+𝜆
+1
+(
+𝜔
+′
+𝜇
+−
+𝜇
+∗
+)
+−
+𝜆
+2
+(
+𝜔
+′
+1
+−
+1
+)
+L=ω
+′
+Σω−λ
+1
+	​
+
+(ω
+′
+μ−μ
+∗
+)−λ
+2
+	​
+
+(ω
+′
+1−1)
+
+Closed-form solution:
+
+𝜔
+=
+𝐴
+−
+1
+(
+𝜆
+1
+𝜇
++
+𝜆
+2
+1
+)
+ω=A
+−1
+(λ
+1
+	​
+
+μ+λ
+2
+	​
+
+1)
+
+where 
+𝐴
+=
+Σ
+−
+1
+A=Σ
+−1
+.
+From first order conditions derive frontier equation:
+
+𝜎
+𝑝
+2
+=
+𝐴
+𝜇
+∗
+2
+−
+2
+𝐵
+𝜇
+∗
++
+𝐶
+𝐴
+𝐶
+−
+𝐵
+2
+σ
+p
+2
+	​
+
+=
+AC−B
+2
+Aμ
+∗2
+−2Bμ
+∗
++C
+	​
+
+
+with
+
+𝐴
+=
+1
+′
+𝐴
+1
+A=1
+′
+A1, 
+𝐵
+=
+1
+′
+𝐴
+𝜇
+B=1
+′
+Aμ, 
+𝐶
+=
+𝜇
+′
+𝐴
+𝜇
+C=μ
+′
+Aμ.
+
+🔹 E. Introducing the Risk-Free Asset
+
+Allow asset 
+𝑓
+f with return 
+𝑟
+𝑓
+r
+f
+	​
+
+ and zero variance → new feasible set becomes linear:
+
+𝐸
+[
+𝑟
+𝑝
+]
+=
+𝑟
+𝑓
++
+𝐸
+[
+𝑟
+𝑀
+]
+−
+𝑟
+𝑓
+𝜎
+𝑀
+ 
+𝜎
+𝑝
+E[r
+p
+	​
+
+]=r
+f
+	​
+
++
+σ
+M
+	​
+
+E[r
+M
+	​
+
+]−r
+f
+	​
+
+	​
+
+σ
+p
+	​
+
+
+This is the Capital Market Line (CML).
+Every investor chooses a mix of the same risky portfolio (M = tangency portfolio) and the risk-free asset.
+
+Two-Fund Separation Theorem:
+Any efficient portfolio is a combination of the risk-free asset and one risky portfolio.
+→ Same risky portfolio for everyone, different amounts of leverage depending on risk aversion.
+
+🔹 F. Economic Intuition
+
+Diversification reduces idiosyncratic risk — only systematic risk remains.
+
+Adding a risk-free asset transforms the curved frontier into a straight line.
+
+All investors face the same CML but pick different points on it.
+
+🔹 G. Extensions & Limitations
+
+Correlations < 1 create risk reduction.
+
+If short sales disallowed → frontier is piecewise linear.
+
+Non-normal returns → variance insufficient → higher moments matter (LPM later module).
+
+Estimation error in 
+𝜇
+,
+Σ
+μ,Σ → unstable weights → use robust or Bayesian methods.
+
+🔹 H. So What?
+
+Portfolio theory defines the geometry of risk and return — it’s the base for CAPM and every modern factor model.
+
+🧩 2️⃣ Module 2 — CAPM (From Efficient Portfolios to Market Equilibrium)
+🔹 A. Conceptual Bridge
+
+When everyone faces the same CML and invests their wealth proportionally to the risky tangency portfolio,
+the aggregate portfolio of all investors = the market portfolio (M).
+That’s the step from optimal portfolio choice → general equilibrium.
+
+🔹 B. Extra Assumptions (A8–A10)
+Code	Assumption	Interpretation
+A8 Homogeneous Expectations	All investors share the same beliefs about 
+𝜇
+,
+Σ
+,
+𝑟
+𝑓
+μ,Σ,r
+f
+	​
+
+.	
+A9 Unlimited Borrow/Lend	Can borrow or lend freely at risk-free rate.	
+A10 Perfect Competition	No single investor affects prices; markets clear.	
+
+Combined with (A1–A7) → the CAPM world.
+Result: everyone holds some mix of r_f and M.
+Thus M lies on the CML and is the tangency portfolio for the entire market.
+
+🔹 C. Deriving the CAPM Equation
+
+From first order conditions of utility maximization:
+
+𝐸
+[
+𝑟
+𝑖
+]
+−
+𝑟
+𝑓
+=
+𝛽
+𝑖
+(
+𝐸
+[
+𝑟
+𝑀
+]
+−
+𝑟
+𝑓
+)
+where
+𝛽
+𝑖
+=
+𝐶
+𝑜
+𝑣
+(
+𝑟
+𝑖
+,
+𝑟
+𝑀
+)
+𝑉
+𝑎
+𝑟
+(
+𝑟
+𝑀
+)
+E[r
+i
+	​
+
+]−r
+f
+	​
+
+=β
+i
+	​
+
+(E[r
+M
+	​
+
+]−r
+f
+	​
+
+)whereβ
+i
+	​
+
+=
+Var(r
+M
+	​
+
+)
+Cov(r
+i
+	​
+
+,r
+M
+	​
+
+)
+	​
+
+
+→ Only systematic risk matters.
+
+Alternate pricing form:
+
+𝐸
+[
+𝑟
+𝑖
+]
+=
+𝑟
+𝑓
++
+𝜆
+𝑀
+𝛽
+𝑖
+,
+𝜆
+𝑀
+=
+𝐸
+[
+𝑟
+𝑀
+]
+−
+𝑟
+𝑓
+E[r
+i
+	​
+
+]=r
+f
+	​
+
++λ
+M
+	​
+
+β
+i
+	​
+
+,λ
+M
+	​
+
+=E[r
+M
+	​
+
+]−r
+f
+	​
+
+
+Geometrically: expected return vs beta = Security Market Line (SML)
+– linear with intercept r_f, slope market premium.
+
+🔹 D. CML vs SML (Clarify Visually)
+Feature	CML	SML
+Axes	σ–E[r]	β–E[r]
+Applies to	Efficient portfolios	All assets
+Equation	
+𝐸
+[
+𝑟
+𝑝
+]
+=
+𝑟
+𝑓
++
+𝐸
+[
+𝑟
+𝑀
+]
+−
+𝑟
+𝑓
+𝜎
+𝑀
+𝜎
+𝑝
+E[r
+p
+	​
+
+]=r
+f
+	​
+
++
+σ
+M
+	​
+
+E[r
+M
+	​
+
+]−r
+f
+	​
+
+	​
+
+σ
+p
+	​
+
+	
+𝐸
+[
+𝑟
+𝑖
+]
+=
+𝑟
+𝑓
++
+𝛽
+𝑖
+(
+𝐸
+[
+𝑟
+𝑀
+]
+−
+𝑟
+𝑓
+)
+E[r
+i
+	​
+
+]=r
+f
+	​
+
++β
+i
+	​
+
+(E[r
+M
+	​
+
+]−r
+f
+	​
+
+)
+🔹 E. CAPM as a Pricing Kernel (SDF View)
+
+Start from the fundamental pricing identity:
+
+1
+=
+𝐸
+[
+𝑚
+𝑅
+𝑖
+]
+1=E[mR
+i
+	​
+
+]
+
+Assume linear stochastic discount factor:
+
+𝑚
+𝑡
+=
+𝑎
++
+𝑏
+𝑅
+𝑀
+,
+𝑡
+,
+𝑏
+<
+0
+m
+t
+	​
+
+=a+bR
+M,t
+	​
+
+,b<0
+
+Plug in → recover the SML.
+Interpretation:
+Under risk aversion, m decreases when market return is high → investors value payoffs that hedge bad states.
+
+🔹 F. Testing the CAPM (Empirical Implementation)
+
+Fama–MacBeth Two-Step Regression
+1️⃣ Estimate βᵢ for each asset (time-series):
+
+𝑟
+𝑖
+,
+𝑡
+−
+𝑟
+𝑓
+,
+𝑡
+=
+𝛼
+𝑖
++
+𝛽
+𝑖
+(
+𝑟
+𝑀
+,
+𝑡
+−
+𝑟
+𝑓
+,
+𝑡
+)
++
+𝜀
+𝑖
+,
+𝑡
+r
+i,t
+	​
+
+−r
+f,t
+	​
+
+=α
+i
+	​
+
++β
+i
+	​
+
+(r
+M,t
+	​
+
+−r
+f,t
+	​
+
+)+ε
+i,t
+	​
+
+
+2️⃣ Cross-section: regress average returns on βᵢ:
+
+𝑟
+ˉ
+𝑖
+−
+𝑟
+𝑓
+=
+𝜆
+0
++
+𝜆
+𝑀
+𝛽
+𝑖
++
+𝑢
+𝑖
+r
+ˉ
+i
+	​
+
+−r
+f
+	​
+
+=λ
+0
+	​
+
++λ
+M
+	​
+
+β
+i
+	​
+
++u
+i
+	​
+
+
+Tests
+
+𝐻
+0
+:
+𝜆
+0
+=
+0
+,
+𝜆
+𝑀
+>
+0
+H
+0
+	​
+
+:λ
+0
+	​
+
+=0,λ
+M
+	​
+
+>0
+
+𝐻
+0
+:
+𝛼
+𝑖
+=
+0
+H
+0
+	​
+
+:α
+i
+	​
+
+=0 (no pricing error)
+Joint α=0 test: GRS test used in later module.
+
+Expected Signs: λ_M > 0 (premium positive).
+
+🔹 G. Empirical Challenges & Critiques
+
+Beta instability: changes over time → rolling β needed.
+
+Errors-in-variables: estimated β → attenuation bias.
+
+Roll (1977) Critique: true market portfolio is unobservable → CAPM tests joint with market proxy.
+
+Anomalies: cross-section not fully explained by β → leads to multi-factor models.
+
+🔹 H. Economic Meaning
+
+Assets earning positive covariance with market (return ↑ in booms) → less valuable → higher expected return.
+
+Assets that hedge recessions (return ↑ in bad times) → valuable → lower expected return.
+
+The risk premium is the reward for exposure to systematic (consumption or market) risk.
+
+🔹 I. Extensions
+
+Conditional CAPM: β, λ vary over time.
+
+Consumption CAPM: replace market return with consumption growth.
+
+Multi-factor FF3/FF5: add SMB, HML, RMW, CMA → later module.
+
+🔹 J. Summary Box
+Symbol	Meaning
+
+𝑟
+𝑓
+r
+f
+	​
+
+	Risk-free rate
+
+𝑟
+𝑀
+r
+M
+	​
+
+	Market return
+
+𝛽
+𝑖
+β
+i
+	​
+
+	Asset’s systematic risk
+
+𝜆
+𝑀
+λ
+M
+	​
+
+	Market risk premium
+
+𝛼
+𝑖
+α
+i
+	​
+
+	Pricing error (should ≈ 0 if CAPM holds)
+
+CAPM core:
+From utility maximization and market equilibrium → only systematic risk is priced.
+Simple but powerful: foundation for factor models and performance metrics. 
+
+Advanced Investments Lecture Se…
+
+🧭 Implementation Notes for Replit Agent
+
+Create two markdown-rich “TheoryCard” pages:
+/theory/portfolio/page.tsx and /theory/capm/page.tsx.
+
+Each section above becomes collapsible card or scrollable block with LaTeX formulas.
+
+Use consistent color palette (blue = concept, gold = assumption, green = formula).
+
+Add “Copy formula” and “More intuition” tooltips.
+
+Ensure inline LaTeX renders correctly.
+
+No external data calls or charts required.
+
+✅ Acceptance Checklist
+Requirement	Expected Output
+All A1–A10 assumptions listed and explained	✅
+Core formulas and Lagrangian visible in Portfolio tab	✅
+CML and SML both present and contrasted	✅
+SDF formulation added in CAPM tab	✅
+Fama–MacBeth procedure and Roll critique included	✅
+Each block ends with “Why it matters” summary	✅
+Entire module is offline and readable as a mini textbook	✅

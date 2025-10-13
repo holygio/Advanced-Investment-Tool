@@ -1,0 +1,754 @@
+Goal
+
+Rebuild the Theory tab for the Anomalies & Multi-Factor module to provide a complete, first-principles explanation aligned with Lecture 3 (Sept 15, 2025). The Theory tab must stand alone (offline, no data) and include: clear definitions, economic intuition, factor construction (long–short), model equations (FF3/FF5/Carhart), SDF linkage, testing methodology (portfolio sorts, Fama–MacBeth, GRS), and trading considerations (exposures, crashes, implementation frictions).
+
+Page Layout (Next.js)
+
+Create /theory/factors/page.tsx rendering collapsible TheoryCards in this order:
+
+1) What Counts as an “Anomaly”?
+
+Definition (first principles).
+A return pattern that is systematic and replicable yet unexplained by the current baseline model (e.g., CAPM), and that is economically rationalizable (risk or imperfection) rather than spurious. Show these bullets:
+
+There must be a pattern tied to a characteristic (e.g., size, value). One-off wins don’t qualify. 
+
+Advanced Investments Lecture Se…
+
+It needs an economic rationale (risk story or friction) or else risks being data-mined. 
+
+Advanced Investments Lecture Se…
+
+If it’s tradable, expected returns must reflect risk or limits to arbitrage (costs, shorting frictions, microcap illiquidity). 
+
+Advanced Investments Lecture Se…
+
+So what? “Anomaly” means model misspecification or market imperfection—not magic.
+
+2) Core Equity Anomalies (Concept + Rationale + Magnitude ranges)
+a) Size (SMB)
+
+Idea: Small firms earn higher average returns than big firms after market beta adjustment.
+
+Possible stories: lower analyst coverage, higher illiquidity, higher cash-flow risk; sample- and era-dependent. 
+
+Advanced Investments Lecture Se…
+
+Note: Evidence varies by period/market; robustness is debated. 
+
+Advanced Investments Lecture Se…
+
+b) Value (HML)
+
+Idea: High book-to-market (“value”) outperforms low B/M (“growth”) beyond CAPM beta.
+
+Risk view: distress/“bad times” sensitivity; accounting reliance critique persists. 
+
+Advanced Investments Lecture Se…
+
+c) Momentum (MOM)
+
+Idea: Past 6–12m winners beat losers over the next 6–12m (rebalanced).
+
+Caveats: costly shorts, turnover, momentum crashes in panics; may proxy illiquidity. 
+
+Advanced Investments Lecture Se…
+
+d) Profitability (RMW) & Investment (CMA) — FF (2015)
+
+Idea: More profitable firms (RMW) and conservatively investing firms (CMA) earn more; can subsume part of “value.”
+
+Open question: behavior for “new economy” or long-horizon R&D models. 
+
+Advanced Investments Lecture Se…
+
+So what? These patterns motivate multi-factor models that extend CAPM.
+
+3) From CAPM to Multi-Factor Models
+a) Factor Construction (Long–Short)
+
+Explain how to build a zero-cost factor from sorted portfolios:
+
+Rank stocks on a characteristic (size, B/M, momentum, profitability, investment).
+
+Form deciles or 2×3 sorts (small/big × value/growth).
+
+Factor return: long top bucket, short bottom bucket (e.g., SMB = Small − Big; HML = High − Low; MOM = Winners − Losers; RMW = Robust − Weak; CMA = Conservative − Aggressive). 
+
+Advanced Investments Lecture Se…
+
+Portfolio-sorts amplify signal and stabilize betas; they’re standard in anomaly testing. 
+
+Advanced Investments Lecture Se…
+
+b) Regression Forms
+
+Time-series (factor model) for asset/portfolio 
+𝑖
+i:
+
+𝑟
+𝑖
+,
+𝑡
+−
+𝑟
+𝑓
+,
+𝑡
+=
+𝛼
+𝑖
++
+𝛽
+𝑖
+,
+𝑀
+(
+𝑟
+𝑀
+,
+𝑡
+−
+𝑟
+𝑓
+,
+𝑡
+)
++
+𝛽
+𝑖
+,
+𝑆
+𝑀
+𝐵
+𝑆
+𝑀
+𝐵
+𝑡
++
+𝛽
+𝑖
+,
+𝐻
+𝑀
+𝐿
+𝐻
+𝑀
+𝐿
+𝑡
++
+𝜖
+𝑖
+,
+𝑡
+(FF3)
+r
+i,t
+	​
+
+−r
+f,t
+	​
+
+=α
+i
+	​
+
++β
+i,M
+	​
+
+(r
+M,t
+	​
+
+−r
+f,t
+	​
+
+)+β
+i,SMB
+	​
+
+SMB
+t
+	​
+
++β
+i,HML
+	​
+
+HML
+t
+	​
+
++ϵ
+i,t
+	​
+
+(FF3)
+
+FF5 adds 
+𝑅
+𝑀
+𝑊
+𝑡
+,
+𝐶
+𝑀
+𝐴
+𝑡
+RMW
+t
+	​
+
+,CMA
+t
+	​
+
+:
+
+𝑟
+𝑖
+,
+𝑡
+−
+𝑟
+𝑓
+,
+𝑡
+=
+𝛼
+𝑖
++
+𝛽
+𝑖
+,
+𝑀
+𝑀
+𝐾
+𝑇
+𝑡
++
+𝛽
+𝑖
+,
+𝑆
+𝑀
+𝐵
+𝑆
+𝑀
+𝐵
+𝑡
++
+𝛽
+𝑖
+,
+𝐻
+𝑀
+𝐿
+𝐻
+𝑀
+𝐿
+𝑡
++
+𝛽
+𝑖
+,
+𝑅
+𝑀
+𝑊
+𝑅
+𝑀
+𝑊
+𝑡
++
+𝛽
+𝑖
+,
+𝐶
+𝑀
+𝐴
+𝐶
+𝑀
+𝐴
+𝑡
++
+𝜖
+𝑖
+,
+𝑡
+.
+r
+i,t
+	​
+
+−r
+f,t
+	​
+
+=α
+i
+	​
+
++β
+i,M
+	​
+
+MKT
+t
+	​
+
++β
+i,SMB
+	​
+
+SMB
+t
+	​
+
++β
+i,HML
+	​
+
+HML
+t
+	​
+
++β
+i,RMW
+	​
+
+RMW
+t
+	​
+
++β
+i,CMA
+	​
+
+CMA
+t
+	​
+
++ϵ
+i,t
+	​
+
+.
+
+Carhart (4-factor) adds Momentum 
+𝑀
+𝑂
+𝑀
+𝑡
+MOM
+t
+	​
+
+.
+Interpretation: betas are loadings; alphas are pricing errors (should be ~0 if model holds). 
+
+Advanced Investments Lecture Se…
+
+c) Cross-Section (Expanded SML)
+𝐸
+[
+𝑟
+𝑖
+]
+−
+𝑟
+𝑓
+=
+𝜆
+𝑀
+𝛽
+𝑖
+,
+𝑀
++
+𝜆
+𝑆
+𝑀
+𝐵
+𝛽
+𝑖
+,
+𝑆
+𝑀
+𝐵
++
+𝜆
+𝐻
+𝑀
+𝐿
+𝛽
+𝑖
+,
+𝐻
+𝑀
+𝐿
++
+⋯
+E[r
+i
+	​
+
+]−r
+f
+	​
+
+=λ
+M
+	​
+
+β
+i,M
+	​
+
++λ
+SMB
+	​
+
+β
+i,SMB
+	​
+
++λ
+HML
+	​
+
+β
+i,HML
+	​
+
++⋯
+
+Each 
+𝜆
+λ is a factor risk premium (expected return on the long–short factor). 
+
+Advanced Investments Lecture Se…
+
+4) SDF (Pricing Kernel) View — Why Factors = Risks
+
+Start from 
+1
+=
+𝐸
+[
+𝑚
+𝑅
+]
+1=E[mR]. A linear SDF with K priced factors:
+
+𝑚
+𝑡
+=
+𝑎
++
+𝑏
+′
+𝑓
+𝑡
+,
+𝑓
+𝑡
+=
+[
+𝑀
+𝐾
+𝑇
+𝑡
+
+
+𝑆
+𝑀
+𝐵
+𝑡
+
+
+𝐻
+𝑀
+𝐿
+𝑡
+
+
+⋮
+]
+,
+𝑏
+′
+<
+0
+ (risk-averse)
+m
+t
+	​
+
+=a+b
+′
+f
+t
+	​
+
+,f
+t
+	​
+
+=
+	​
+
+MKT
+t
+	​
+
+SMB
+t
+	​
+
+HML
+t
+	​
+
+⋮
+	​
+
+	​
+
+,b
+′
+<0 (risk-averse)
+
+implies the multi-factor expected return relation above.
+Economic requirement: Any factor included in the model must represent a risk that commands a price, not pure mispricing noise. 
+
+Advanced Investments Lecture Se…
+
+So what? Adding a factor to the regression also means adding it to the SDF. If you can’t tell a risk story, your “factor” is likely data-mined. 
+
+Advanced Investments Lecture Se…
+
+5) Testing Anomalies & Models
+a) Portfolio Sorts (Signal Amplification)
+
+Rank by characteristic; form K portfolios; examine monotonicity in average returns and factor betas.
+
+Construct the factor as Long–Short extreme portfolios to test the premium. 
+
+Advanced Investments Lecture Se…
+
+b) Fama–MacBeth (Two-Pass)
+
+Pass 1 (time-series): estimate betas on factors.
+
+Pass 2 (cross-section): regress average returns on betas → estimate 
+𝜆
+λ’s; test intercept ~ 0.
+
+Cautions: errors-in-variables, beta instability; use portfolios and Newey–West SEs. 
+
+Advanced Investments Lecture Se…
+
+c) GRS Joint Alpha Test (Time-Series-Only)
+
+Run time-series regressions for N test portfolios on K factors; test whether all alphas = 0 jointly using the GRS F-statistic (weights residual covariance). If rejected → model fails. 
+
+Advanced Investments Lecture Se…
+
+Add a compact “How to run GRS” panel (inputs: T, N, factor mean/var, residual covariance; output: F and p-value). 
+
+Advanced Investments Lecture Se…
+
+6) Implementation & Robustness (What Can Go Wrong)
+
+Sample dependence / p-hacking: effects vary by time/market; require out-of-sample and pre-spec tests. 
+
+Advanced Investments Lecture Se…
+
+Microcaps & delistings: filter and include delisting returns; control for liquidity and fees.
+
+Look-ahead / survivorship bias: use point-in-time accounting; avoid future info.
+
+Trading frictions & short constraints: momentum and some value signals are costly to implement. 
+
+Advanced Investments Lecture Se…
+
+Multiple-testing: many documented “factors” are correlated; use clustering or PCA to avoid double-counting. 
+
+Advanced Investments Lecture Se…
+
+7) Trading Against/With Anomalies (High-Level)
+
+Pure factor long–short is zero-investment but may carry unwanted exposures to other factors; hedge or neutralize.
+
+Exposure drift & noisy betas: use deciles/quantiles and scaling to mitigate estimation error; beware regime shifts and momentum crashes. 
+
+Advanced Investments Lecture Se…
+
+So what? Even if an anomaly is “real,” implementation determines whether it’s exploitable after costs and constraints.
+
+8) “Formula of the Week” (Expanded SML)
+
+Render this card (readable LaTeX and plain English):
+
+𝐸
+[
+𝑟
+𝑖
+]
+−
+𝑟
+𝑓
+=
+𝜆
+𝑀
+𝛽
+𝑖
+,
+𝑀
++
+𝜆
+𝑆
+𝑀
+𝐵
+𝛽
+𝑖
+,
+𝑆
+𝑀
+𝐵
++
+𝜆
+𝐻
+𝑀
+𝐿
+𝛽
+𝑖
+,
+𝐻
+𝑀
+𝐿
++
+𝜆
+𝑅
+𝑀
+𝑊
+𝛽
+𝑖
+,
+𝑅
+𝑀
+𝑊
++
+𝜆
+𝐶
+𝑀
+𝐴
+𝛽
+𝑖
+,
+𝐶
+𝑀
+𝐴
++
+𝜆
+𝑀
+𝑂
+𝑀
+𝛽
+𝑖
+,
+𝑀
+𝑂
+𝑀
+E[r
+i
+	​
+
+]−r
+f
+	​
+
+=λ
+M
+	​
+
+β
+i,M
+	​
+
++λ
+SMB
+	​
+
+β
+i,SMB
+	​
+
++λ
+HML
+	​
+
+β
+i,HML
+	​
+
++λ
+RMW
+	​
+
+β
+i,RMW
+	​
+
++λ
+CMA
+	​
+
+β
+i,CMA
+	​
+
++λ
+MOM
+	​
+
+β
+i,MOM
+	​
+
+
+Interpretation: Expected excess return is a sum of priced exposures; each 
+𝜆
+λ is the premium on the corresponding long–short factor. 
+
+Advanced Investments Lecture Se…
+
+UI/Copy Guidelines
+
+Use TheoryCard components with headings, LaTeX, and “ExplainTip” popovers.
+
+After each block, include a “Why this matters” one-liner.
+
+No charts or API calls required in Theory. Link to Practice tab for running the same models on uploaded or Yahoo data.
+
+ExplainTip examples
+
+“Long–short factors are zero-cost portfolios; a positive mean implies a priced risk or an implementation friction.”
+
+“GRS tests all alphas at once; rejection means the factor set is insufficient.”
+
+“Adding a factor to regressions also adds it to the SDF—have a risk story.”
+
+Acceptance Criteria
+
+The Theory tab covers definition and criteria for anomalies, size/value/momentum/RMW/CMA with intuition, factor construction, FF3/FF5/Carhart equations, SDF link, portfolio sorts, Fama–MacBeth, GRS, and trading/implementation caveats—all aligned with Lecture 3 slides. 
+
+Advanced Investments Lecture Se…
+
+Every section ends with a short takeaway.
+
+Renders offline with LaTeX and tooltips; no data calls.

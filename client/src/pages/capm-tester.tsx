@@ -89,56 +89,169 @@ export default function CAPMTester() {
 
   const theory = (
     <div className="space-y-6 py-6">
+      {/* Conceptual Bridge */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Capital Asset Pricing Model (CAPM)</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          The CAPM describes the relationship between systematic risk and expected return for assets,
-          particularly stocks. It is widely used for pricing risky securities and generating expected returns.
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">CAPM: From Efficient Portfolios to Market Equilibrium</h2>
+        <p className="text-muted-foreground leading-relaxed mb-2">
+          When everyone faces the same CML and invests their wealth proportionally to the risky tangency portfolio, the aggregate portfolio of all investors = the market portfolio (M).
+        </p>
+        <p className="text-muted-foreground leading-relaxed">
+          That's the step from optimal portfolio choice → general equilibrium.
         </p>
       </div>
 
+      {/* Extra Assumptions (A8-A10) */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">CAPM Equation</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
-          <p className="text-foreground">E[R<sub>i</sub>] = R<sub>f</sub> + β<sub>i</sub>(E[R<sub>M</sub>] - R<sub>f</sub>)</p>
-          <p className="mt-3 text-xs text-muted-foreground">where:</p>
-          <p className="text-xs text-foreground">E[R<sub>i</sub>] = Expected return on asset i</p>
-          <p className="text-xs text-foreground">R<sub>f</sub> = Risk-free rate</p>
-          <p className="text-xs text-foreground">β<sub>i</sub> = Beta of asset i (systematic risk)</p>
-          <p className="text-xs text-foreground">E[R<sub>M</sub>] = Expected market return</p>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Additional CAPM Assumptions (A8–A10)</h3>
+        <p className="text-sm text-muted-foreground mb-3">Combined with Portfolio Theory (A1–A7), these create the CAPM world:</p>
+        <div className="space-y-3 text-sm">
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A8: Homogeneous Expectations</p>
+            <p className="text-muted-foreground">All investors share the same beliefs about μ, Σ, r<sub>f</sub>.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A9: Unlimited Borrow/Lend</p>
+            <p className="text-muted-foreground">Can borrow or lend freely at risk-free rate.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="font-semibold text-foreground mb-1">A10: Perfect Competition</p>
+            <p className="text-muted-foreground">No single investor affects prices; markets clear.</p>
+          </div>
+        </div>
+        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+          <p className="text-sm text-foreground"><strong>Result:</strong> Everyone holds some mix of r<sub>f</sub> and M. Thus M lies on the CML and is the tangency portfolio for the entire market.</p>
         </div>
       </div>
 
+      {/* Deriving CAPM Equation */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Regression Model</h3>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Deriving the CAPM Equation</h3>
         <p className="text-sm text-muted-foreground mb-3">
-          We estimate CAPM parameters using OLS regression on excess returns:
+          From first order conditions of utility maximization:
         </p>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
-          <p className="text-foreground">R<sub>i,t</sub> - R<sub>f,t</sub> = α<sub>i</sub> + β<sub>i</sub>(R<sub>M,t</sub> - R<sub>f,t</sub>) + ε<sub>i,t</sub></p>
-          <p className="mt-3 text-xs text-muted-foreground">
-            α (alpha) represents abnormal return after adjusting for market risk
-          </p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
+          <p className="text-foreground">E[r<sub>i</sub>] − r<sub>f</sub> = β<sub>i</sub>(E[r<sub>M</sub>] − r<sub>f</sub>)</p>
+          <p className="text-foreground mt-3">where β<sub>i</sub> = Cov(r<sub>i</sub>, r<sub>M</sub>) / Var(r<sub>M</sub>)</p>
+          <p className="text-sm text-muted-foreground mt-3">→ Only systematic risk matters.</p>
+        </div>
+        <p className="text-sm text-muted-foreground mt-3">
+          Alternate form: E[r<sub>i</sub>] = r<sub>f</sub> + λ<sub>M</sub>β<sub>i</sub>, where λ<sub>M</sub> = E[r<sub>M</sub>] − r<sub>f</sub> is the market risk premium.
+        </p>
+      </div>
+
+      {/* CML vs SML */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">CML vs SML</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b-2 border-border">
+              <tr className="text-left">
+                <th className="py-2 px-3 font-semibold text-foreground">Feature</th>
+                <th className="py-2 px-3 font-semibold text-foreground">CML</th>
+                <th className="py-2 px-3 font-semibold text-foreground">SML</th>
+              </tr>
+            </thead>
+            <tbody className="text-muted-foreground">
+              <tr className="border-b border-border">
+                <td className="py-2 px-3 font-medium text-foreground">Axes</td>
+                <td className="py-2 px-3">σ – E[r]</td>
+                <td className="py-2 px-3">β – E[r]</td>
+              </tr>
+              <tr className="border-b border-border">
+                <td className="py-2 px-3 font-medium text-foreground">Applies to</td>
+                <td className="py-2 px-3">Efficient portfolios</td>
+                <td className="py-2 px-3">All assets</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3 font-medium text-foreground">Slope</td>
+                <td className="py-2 px-3">(E[r<sub>M</sub>] − r<sub>f</sub>) / σ<sub>M</sub></td>
+                <td className="py-2 px-3">E[r<sub>M</sub>] − r<sub>f</sub></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-sm text-muted-foreground mt-3">
+          Geometrically: SML shows expected return vs beta = linear with intercept r<sub>f</sub>, slope = market premium.
+        </p>
+      </div>
+
+      {/* CAPM as SDF */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">CAPM as a Pricing Kernel (SDF View)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Start from fundamental pricing: 1 = E[mR<sub>i</sub>]
+        </p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm space-y-2 border border-border">
+          <p className="text-foreground">Assume linear SDF: m<sub>t</sub> = a + bR<sub>M,t</sub>, b &lt; 0</p>
+          <p className="text-foreground mt-2">Plug in → recover the SML</p>
+        </div>
+        <p className="text-sm text-muted-foreground mt-3">
+          <strong className="text-foreground">Interpretation:</strong> Under risk aversion, m decreases when market return is high → investors value payoffs that hedge bad states.
+        </p>
+      </div>
+
+      {/* Testing CAPM */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Testing the CAPM: Fama–MacBeth Two-Step</h3>
+        <div className="space-y-3 text-sm">
+          <div className="p-3 bg-blue-50 rounded border border-blue-200">
+            <p className="font-semibold text-foreground mb-2">Step 1: Time-Series Regression (Estimate β<sub>i</sub>)</p>
+            <p className="font-mono text-sm text-foreground">r<sub>i,t</sub> − r<sub>f,t</sub> = α<sub>i</sub> + β<sub>i</sub>(r<sub>M,t</sub> − r<sub>f,t</sub>) + ε<sub>i,t</sub></p>
+          </div>
+          <div className="p-3 bg-green-50 rounded border border-green-200">
+            <p className="font-semibold text-foreground mb-2">Step 2: Cross-Sectional Regression (Test risk premium)</p>
+            <p className="font-mono text-sm text-foreground">r̄<sub>i</sub> − r<sub>f</sub> = λ₀ + λ<sub>M</sub>β<sub>i</sub> + u<sub>i</sub></p>
+          </div>
+        </div>
+        <div className="mt-4 p-3 bg-muted/30 rounded border border-border">
+          <p className="text-sm text-foreground mb-2"><strong>Tests:</strong></p>
+          <p className="text-sm text-muted-foreground">• H₀: λ₀ = 0, λ<sub>M</sub> &gt; 0 (intercept zero, premium positive)</p>
+          <p className="text-sm text-muted-foreground">• H₀: α<sub>i</sub> = 0 (no pricing error)</p>
+          <p className="text-sm text-muted-foreground">• Joint α=0 test: GRS test (covered in Factor Analyzer module)</p>
         </div>
       </div>
 
+      {/* Empirical Challenges */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Security Market Line (SML)</h3>
-        <p className="text-sm text-muted-foreground">
-          The SML is the graphical representation of the CAPM, showing expected return as a function of beta.
-          Securities above the SML are undervalued (positive alpha), while those below are overvalued (negative alpha).
-        </p>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Empirical Challenges & Critiques</h3>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>• <strong className="text-foreground">Beta instability:</strong> β changes over time → rolling estimates needed</p>
+          <p>• <strong className="text-foreground">Errors-in-variables:</strong> Estimated β → attenuation bias</p>
+          <p>• <strong className="text-foreground">Roll (1977) Critique:</strong> True market portfolio is unobservable → CAPM tests are joint with market proxy</p>
+          <p>• <strong className="text-foreground">Anomalies:</strong> Cross-section not fully explained by β → leads to multi-factor models (see Factor Analyzer)</p>
+        </div>
       </div>
 
+      {/* Economic Meaning */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Key Assumptions</h3>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Economic Meaning</h3>
         <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-          <li>All investors hold the market portfolio</li>
-          <li>Returns follow a normal distribution</li>
-          <li>Investors can borrow/lend at the risk-free rate</li>
-          <li>No transaction costs or taxes</li>
-          <li>All information is available to all investors</li>
+          <li><strong className="text-foreground">Assets earning positive covariance with market</strong> (return ↑ in booms) → less valuable → higher expected return</li>
+          <li><strong className="text-foreground">Assets that hedge recessions</strong> (return ↑ in bad times) → valuable → lower expected return</li>
+          <li><strong className="text-foreground">Risk premium</strong> is the reward for exposure to systematic (consumption or market) risk</li>
         </ul>
+      </div>
+
+      {/* Extensions */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Extensions</h3>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>• <strong className="text-foreground">Conditional CAPM:</strong> β, λ vary over time</p>
+          <p>• <strong className="text-foreground">Consumption CAPM:</strong> Replace market return with consumption growth</p>
+          <p>• <strong className="text-foreground">Multi-factor (FF3/FF5):</strong> Add SMB, HML, RMW, CMA → see Factor Analyzer module</p>
+        </div>
+      </div>
+
+      {/* So What? */}
+      <div className="p-4 bg-primary/10 rounded-lg border-2 border-primary/30">
+        <h3 className="text-lg font-semibold mb-2 text-foreground">So What?</h3>
+        <p className="text-sm text-foreground mb-2">
+          From utility maximization and market equilibrium → only systematic risk is priced.
+        </p>
+        <p className="text-sm text-foreground">
+          Simple but powerful: CAPM is the foundation for factor models, performance metrics (Sharpe, Treynor, Jensen's alpha), 
+          and cost of capital estimation. Its limitations led to richer models, but it remains the conceptual anchor of modern finance.
+        </p>
       </div>
     </div>
   );
