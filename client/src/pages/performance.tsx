@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { useGlobalState } from "@/contexts/global-state-context";
 import { apiRequest } from "@/lib/queryClient";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,6 +17,14 @@ export default function Performance() {
   const [tau, setTau] = useState(0);
   const [n, setN] = useState(2);
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Simulation mode state
+  const [simulationMode, setSimulationMode] = useState(false);
+  const [simMean, setSimMean] = useState(0.000);
+  const [simVolatility, setSimVolatility] = useState(0.02);
+  const [simSkewness, setSimSkewness] = useState(0.0);
+  const [simKurtosis, setSimKurtosis] = useState(0.0);
+  const [simSampleSize, setSimSampleSize] = useState(1000);
 
   // Fetch portfolio data
   const { data: portfolioData, isLoading: portfolioLoading } = useQuery({
@@ -108,7 +117,7 @@ export default function Performance() {
     });
   })() : [];
 
-  // Fetch distribution metrics
+  // Fetch distribution metrics (real data)
   const { data: distributionData, isLoading: distributionLoading } = useQuery({
     queryKey: ["/api/risk/distribution", portfolioReturns],
     queryFn: async () => {
@@ -122,8 +131,31 @@ export default function Performance() {
         }),
       });
     },
-    enabled: portfolioReturns.length >= 3,
+    enabled: portfolioReturns.length >= 3 && !simulationMode,
   });
+
+  // Fetch simulated distribution
+  const { data: simulatedData, isLoading: simulatedLoading } = useQuery({
+    queryKey: ["/api/risk/simulate-distribution", simMean, simVolatility, simSkewness, simKurtosis, simSampleSize],
+    queryFn: async () => {
+      return await apiRequest("/api/risk/simulate-distribution", {
+        method: "POST",
+        body: JSON.stringify({
+          mean: simMean,
+          volatility: simVolatility,
+          skewness: simSkewness,
+          kurtosis: simKurtosis,
+          sample_size: simSampleSize,
+          num_bins: 50
+        }),
+      });
+    },
+    enabled: simulationMode,
+  });
+
+  // Use simulated data when in simulation mode, otherwise use real data
+  const displayData = simulationMode ? simulatedData : distributionData;
+  const displayLoading = simulationMode ? simulatedLoading : distributionLoading;
 
 
   const theory = (
@@ -344,61 +376,222 @@ export default function Performance() {
 
         {/* Tab 1: Overview */}
         <TabsContent value="overview" className="space-y-6">
+          {/* Simulation Mode Controls */}
+          <Card className="p-6 bg-card border-border">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold">Interactive Simulation Mode</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Generate synthetic distributions to explore how skewness and kurtosis affect normality and risk metrics
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="simulation-mode"
+                  checked={simulationMode}
+                  onCheckedChange={setSimulationMode}
+                  data-testid="switch-simulation-mode"
+                />
+                <Label htmlFor="simulation-mode" className="cursor-pointer">
+                  {simulationMode ? "Simulation" : "Real Data"}
+                </Label>
+              </div>
+            </div>
+
+            {simulationMode && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {/* Mean Slider */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="sim-mean-slider" className="text-sm font-medium">
+                      Mean (μ)
+                    </Label>
+                    <span className="text-sm font-mono tabular-nums text-foreground" data-testid="value-sim-mean">
+                      {(simMean * 100).toFixed(2)}%
+                    </span>
+                  </div>
+                  <Slider
+                    id="sim-mean-slider"
+                    min={-0.005}
+                    max={0.005}
+                    step={0.0001}
+                    value={[simMean]}
+                    onValueChange={(value) => setSimMean(value[0])}
+                    data-testid="slider-sim-mean"
+                  />
+                  <p className="text-xs text-muted-foreground">Center of distribution</p>
+                </div>
+
+                {/* Volatility Slider */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="sim-vol-slider" className="text-sm font-medium">
+                      Volatility (σ)
+                    </Label>
+                    <span className="text-sm font-mono tabular-nums text-foreground" data-testid="value-sim-vol">
+                      {(simVolatility * 100).toFixed(2)}%
+                    </span>
+                  </div>
+                  <Slider
+                    id="sim-vol-slider"
+                    min={0.005}
+                    max={0.05}
+                    step={0.001}
+                    value={[simVolatility]}
+                    onValueChange={(value) => setSimVolatility(value[0])}
+                    data-testid="slider-sim-vol"
+                  />
+                  <p className="text-xs text-muted-foreground">Controls spread</p>
+                </div>
+
+                {/* Skewness Slider */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="sim-skew-slider" className="text-sm font-medium">
+                      Skewness
+                    </Label>
+                    <span className="text-sm font-mono tabular-nums text-foreground" data-testid="value-sim-skew">
+                      {simSkewness.toFixed(2)}
+                    </span>
+                  </div>
+                  <Slider
+                    id="sim-skew-slider"
+                    min={-1.5}
+                    max={1.5}
+                    step={0.1}
+                    value={[simSkewness]}
+                    onValueChange={(value) => setSimSkewness(value[0])}
+                    data-testid="slider-sim-skew"
+                  />
+                  <p className="text-xs text-muted-foreground">Negative = left tail, positive = right tail</p>
+                </div>
+
+                {/* Kurtosis Slider */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="sim-kurt-slider" className="text-sm font-medium">
+                      Kurtosis (Excess)
+                    </Label>
+                    <span className="text-sm font-mono tabular-nums text-foreground" data-testid="value-sim-kurt">
+                      {simKurtosis.toFixed(1)}
+                    </span>
+                  </div>
+                  <Slider
+                    id="sim-kurt-slider"
+                    min={-1}
+                    max={6}
+                    step={0.1}
+                    value={[simKurtosis]}
+                    onValueChange={(value) => setSimKurtosis(value[0])}
+                    data-testid="slider-sim-kurt"
+                  />
+                  <p className="text-xs text-muted-foreground">Controls fat tails (higher = more extreme events)</p>
+                </div>
+
+                {/* Sample Size Slider */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="sim-size-slider" className="text-sm font-medium">
+                      Sample Size (n)
+                    </Label>
+                    <span className="text-sm font-mono tabular-nums text-foreground" data-testid="value-sim-size">
+                      {simSampleSize}
+                    </span>
+                  </div>
+                  <Slider
+                    id="sim-size-slider"
+                    min={100}
+                    max={5000}
+                    step={100}
+                    value={[simSampleSize]}
+                    onValueChange={(value) => setSimSampleSize(value[0])}
+                    data-testid="slider-sim-size"
+                  />
+                  <p className="text-xs text-muted-foreground">Number of simulated returns</p>
+                </div>
+
+                {/* Reset Button */}
+                <div className="flex items-end">
+                  <button
+                    onClick={() => {
+                      setSimMean(0.000);
+                      setSimVolatility(0.02);
+                      setSimSkewness(0.0);
+                      setSimKurtosis(0.0);
+                      setSimSampleSize(1000);
+                    }}
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
+                    data-testid="button-reset-simulation"
+                  >
+                    Reset to Normal
+                  </button>
+                </div>
+              </div>
+            )}
+          </Card>
+
           {/* Distribution Shape Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <MetricCard 
               label="Mean" 
-              value={distributionData?.metrics?.mean || 0} 
+              value={displayData?.metrics?.mean || 0} 
               format="percentage"
               precision={2}
               data-testid="metric-mean"
             />
             <MetricCard 
               label="Volatility (σ)" 
-              value={distributionData?.metrics?.std || 0} 
+              value={displayData?.metrics?.std || 0} 
               format="percentage"
               precision={2}
               data-testid="metric-std"
             />
             <MetricCard 
               label="Skewness" 
-              value={distributionData?.metrics?.skew || 0} 
+              value={displayData?.metrics?.skew || 0} 
               precision={3}
               data-testid="metric-skew"
             />
             <MetricCard 
               label="Kurtosis (Excess)" 
-              value={distributionData?.metrics?.kurt || 0} 
+              value={displayData?.metrics?.kurt || 0} 
               precision={3}
               data-testid="metric-kurt"
             />
             <MetricCard 
               label="JB Statistic" 
-              value={distributionData?.metrics?.jb_stat || 0} 
+              value={displayData?.metrics?.jb_stat || 0} 
               precision={2}
               data-testid="metric-jb"
             />
           </div>
 
           {/* Interpretation Card */}
-          {distributionData?.metrics && (
+          {displayData?.metrics && (
             <Card className="p-4 bg-blue-50 border-blue-200">
-              <h3 className="text-sm font-semibold mb-2 text-foreground">Distribution Analysis</h3>
+              <h3 className="text-sm font-semibold mb-2 text-foreground">
+                {simulationMode ? "Simulated Distribution Analysis" : "Distribution Analysis"}
+              </h3>
               <div className="space-y-1 text-sm text-muted-foreground">
-                {distributionData.metrics.skew < -0.5 && (
-                  <p>• <strong className="text-foreground">Negative skewness ({distributionData.metrics.skew.toFixed(2)})</strong> → Long left tail: occasional large losses dominate risk perception</p>
+                {displayData.metrics.skew < -0.5 && (
+                  <p>• <strong className="text-foreground">Negative skewness ({displayData.metrics.skew.toFixed(2)})</strong> → Long left tail: occasional large losses dominate risk perception</p>
                 )}
-                {distributionData.metrics.skew > 0.5 && (
-                  <p>• <strong className="text-foreground">Positive skewness ({distributionData.metrics.skew.toFixed(2)})</strong> → Long right tail: occasional large gains (lottery-like)</p>
+                {displayData.metrics.skew > 0.5 && (
+                  <p>• <strong className="text-foreground">Positive skewness ({displayData.metrics.skew.toFixed(2)})</strong> → Long right tail: occasional large gains (lottery-like)</p>
                 )}
-                {distributionData.metrics.kurt > 1 && (
-                  <p>• <strong className="text-foreground">Excess kurtosis ({distributionData.metrics.kurt.toFixed(2)})</strong> → Fat tails: extreme events more likely than normal distribution</p>
+                {displayData.metrics.kurt > 1 && (
+                  <p>• <strong className="text-foreground">Excess kurtosis ({displayData.metrics.kurt.toFixed(2)})</strong> → Fat tails: extreme events more likely than normal distribution</p>
                 )}
-                {distributionData.metrics.jb_pvalue < 0.05 && (
-                  <p>• <strong className="text-foreground">JB test rejects normality (p={distributionData.metrics.jb_pvalue.toFixed(3)})</strong> → Variance alone is insufficient; consider LPM or higher moments</p>
+                {displayData.metrics.jb_pvalue < 0.05 && (
+                  <p>• <strong className="text-foreground">JB test rejects normality (p={displayData.metrics.jb_pvalue.toFixed(3)})</strong> → Variance alone is insufficient; consider LPM or higher moments</p>
                 )}
-                {distributionData.metrics.jb_pvalue >= 0.05 && (
-                  <p>• <strong className="text-foreground">JB test does not reject normality (p={distributionData.metrics.jb_pvalue.toFixed(3)})</strong> → Returns approximately normal</p>
+                {displayData.metrics.jb_pvalue >= 0.05 && (
+                  <p>• <strong className="text-foreground">JB test does not reject normality (p={displayData.metrics.jb_pvalue.toFixed(3)})</strong> → Returns approximately normal</p>
+                )}
+                {simulationMode && (
+                  <p className="mt-2 pt-2 border-t border-blue-300">
+                    • <strong className="text-foreground">Interactive Mode:</strong> Adjust sliders above to see how skewness and kurtosis affect tail risk, normality tests, and distribution shape
+                  </p>
                 )}
               </div>
             </Card>
@@ -406,21 +599,23 @@ export default function Performance() {
 
           {/* Histogram with Normal Overlay */}
           <Card className="p-6 bg-card border-border">
-            <h2 className="text-xl font-semibold mb-4">Return Distribution with Normal Overlay</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {simulationMode ? "Simulated Distribution with Normal Overlay" : "Return Distribution with Normal Overlay"}
+            </h2>
             <div className="h-96">
-              {distributionData ? (
+              {displayData ? (
                 <Plot
                   data={[
                     {
-                      x: distributionData.histogram.map((b: any) => b.bin_center),
-                      y: distributionData.histogram.map((b: any) => b.density),
+                      x: displayData.histogram.map((b: any) => b.bin_center),
+                      y: displayData.histogram.map((b: any) => b.density),
                       type: "bar",
-                      name: "Actual Returns",
+                      name: simulationMode ? "Simulated Returns" : "Actual Returns",
                       marker: { color: "#3b82f6", opacity: 0.7 },
                     },
                     {
-                      x: distributionData.normal_curve_x,
-                      y: distributionData.normal_curve_y,
+                      x: displayData.normal_curve_x,
+                      y: displayData.normal_curve_y,
                       type: "scatter",
                       mode: "lines",
                       name: "Normal Distribution",
@@ -452,7 +647,7 @@ export default function Performance() {
               ) : (
                 <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
                   <p className="text-sm text-muted-foreground">
-                    {distributionLoading ? "Computing distribution..." : "No distribution data"}
+                    {displayLoading ? "Computing distribution..." : "No distribution data"}
                   </p>
                 </div>
               )}
@@ -463,20 +658,20 @@ export default function Performance() {
           <Card className="p-6 bg-card border-border">
             <h2 className="text-xl font-semibold mb-4">Q-Q Plot: Normal Quantiles vs. Sample Quantiles</h2>
             <div className="h-96">
-              {distributionData ? (
+              {displayData ? (
                 <Plot
                   data={[
                     {
-                      x: distributionData.qq_theoretical,
-                      y: distributionData.qq_sample,
+                      x: displayData.qq_theoretical,
+                      y: displayData.qq_sample,
                       type: "scatter",
                       mode: "markers",
                       name: "Sample Quantiles",
                       marker: { color: "#3b82f6", size: 6 },
                     },
                     {
-                      x: distributionData.qq_theoretical,
-                      y: distributionData.qq_theoretical,
+                      x: displayData.qq_theoretical,
+                      y: displayData.qq_theoretical,
                       type: "scatter",
                       mode: "lines",
                       name: "Normal Line",
@@ -508,7 +703,7 @@ export default function Performance() {
               ) : (
                 <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
                   <p className="text-sm text-muted-foreground">
-                    {distributionLoading ? "Computing Q-Q plot..." : "No Q-Q data"}
+                    {displayLoading ? "Computing Q-Q plot..." : "No Q-Q data"}
                   </p>
                 </div>
               )}
@@ -516,6 +711,7 @@ export default function Performance() {
             <p className="text-sm text-muted-foreground mt-4">
               <strong>Interpretation:</strong> Points along the red line indicate normality. Deviations reveal distribution shape: 
               S-curve suggests fat tails (high kurtosis); upward/downward curve indicates skewness.
+              {simulationMode && <span className="ml-1">Try adjusting kurtosis to see fat tails appear or skewness to create asymmetric curves.</span>}
             </p>
           </Card>
         </TabsContent>

@@ -446,3 +446,101 @@ async def calculate_distribution(request: DistributionRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating distribution: {str(e)}")
+
+
+class SimulateDistributionRequest(BaseModel):
+    mean: float = Field(default=0.0, ge=-0.01, le=0.01, description="Mean return")
+    volatility: float = Field(default=0.02, ge=0.001, le=0.1, description="Standard deviation")
+    skewness: float = Field(default=0.0, ge=-2.0, le=2.0, description="Skewness parameter")
+    kurtosis: float = Field(default=0.0, ge=-1.0, le=10.0, description="Excess kurtosis")
+    sample_size: int = Field(default=1000, ge=100, le=10000, description="Number of samples")
+    num_bins: int = Field(default=50, ge=10, le=100, description="Number of histogram bins")
+
+@router.post("/risk/simulate-distribution", response_model=DistributionResponse)
+async def simulate_distribution(request: SimulateDistributionRequest):
+    """Generate synthetic distribution with specified moments and return analysis"""
+    try:
+        from scipy.stats import skewnorm, t as t_dist
+        
+        mu = request.mean
+        sigma = request.volatility
+        skew_param = request.skewness
+        kurt_param = request.kurtosis
+        n = request.sample_size
+        
+        # Generate base distribution with skewness
+        if abs(skew_param) < 0.01:
+            # Normal distribution when skewness near zero
+            returns = np.random.normal(mu, sigma, n)
+        else:
+            # Use skew-normal distribution
+            # Map skewness parameter to alpha parameter for skewnorm
+            alpha = skew_param * 5  # Scale factor for skewnorm
+            returns = skewnorm.rvs(a=alpha, loc=mu, scale=sigma, size=n)
+        
+        # Adjust for kurtosis (fat tails)
+        if kurt_param > 0.5:
+            # Mix with t-distribution for fat tails
+            # Lower degrees of freedom = fatter tails
+            df = max(3, 10 - kurt_param)  # df ∈ [3, 9]
+            t_returns = t_dist.rvs(df, loc=mu, scale=sigma, size=n)
+            # Blend: more weight on t-dist for higher kurtosis
+            blend_weight = min(0.6, kurt_param / 6)
+            returns = (1 - blend_weight) * returns + blend_weight * t_returns
+        elif kurt_param < -0.5:
+            # Thin tails: truncate distribution
+            lower = mu - 2 * sigma
+            upper = mu + 2 * sigma
+            returns = np.clip(returns, lower, upper)
+        
+        # Recalculate empirical statistics
+        mean_emp = float(np.mean(returns))
+        std_emp = float(np.std(returns))
+        skew_emp = float(stats.skew(returns))
+        kurt_emp = float(stats.kurtosis(returns, fisher=True))  # Excess kurtosis
+        jb_stat, jb_pval = stats.jarque_bera(returns)
+        
+        # Histogram
+        counts, bin_edges = np.histogram(returns, bins=request.num_bins, density=False)
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+        
+        # Density for normal overlay
+        total_count = len(returns)
+        bin_width = bin_edges[1] - bin_edges[0]
+        densities = counts / (total_count * bin_width)
+        
+        histogram_bins = [
+            HistogramBin(
+                bin_center=round(float(center), 6),
+                count=int(count),
+                density=round(float(density), 6)
+            )
+            for center, count, density in zip(bin_centers, counts, densities)
+        ]
+        
+        # Normal curve overlay (using TARGET parameters, not empirical)
+        x_range = np.linspace(returns.min(), returns.max(), 200)
+        normal_y = stats.norm.pdf(x_range, mu, sigma)
+        
+        # QQ plot data
+        theoretical_quantiles = stats.norm.ppf(np.linspace(0.01, 0.99, 100))
+        sample_quantiles = np.percentile(returns, np.linspace(1, 99, 100))
+        
+        return DistributionResponse(
+            metrics=DistributionMetrics(
+                mean=round(mean_emp, 6),
+                std=round(std_emp, 6),
+                skew=round(skew_emp, 4),
+                kurt=round(kurt_emp, 4),
+                jb_stat=round(float(jb_stat), 4),
+                jb_pvalue=round(float(jb_pval), 4)
+            ),
+            histogram=[bin for bin in histogram_bins],
+            normal_curve_x=[round(float(x), 6) for x in x_range],
+            normal_curve_y=[round(float(y), 6) for y in normal_y],
+            qq_theoretical=[round(float(q), 6) for q in theoretical_quantiles],
+            qq_sample=[round(float(q), 6) for q in sample_quantiles]
+        )
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error simulating distribution: {str(e)}")
