@@ -1,0 +1,207 @@
+🎯 Goal
+
+Modify the Risk module so the user can manually adjust skewness and kurtosis (and optionally mean & volatility) using interactive sliders.
+When these parameters change:
+
+The histogram, Q–Q plot, and JB statistic update live,
+
+The distribution regenerates synthetically, showing how tail risk and asymmetry affect normality and performance metrics.
+
+This replaces strict reliance on real Yahoo data for this part, turning it into a conceptual simulation tool inside the Risk module.
+
+🧩 Functional Overview
+1️⃣ User Controls (Top Panel)
+
+Add an "Interactive Simulation Mode" toggle in the Overview tab of /practice/risk/page.tsx.
+
+When toggled ON, show sliders:
+
+Parameter	Range	Default	Tooltip
+Mean (μ)	-0.005 → 0.005	0.000	Center of distribution
+Volatility (σ)	0.01 → 0.05	0.02	Controls spread
+Skewness	-1.5 → +1.5	0.0	Negative = left tail, positive = right tail
+Kurtosis (Excess)	-1 → +6	0.0	Controls fat tails
+Sample Size (n)	100 → 5000	1000	Number of simulated returns
+
+Each slider should have a label, numeric value, and tooltip explaining its meaning (from Lecture 4).
+
+Example React (Tailwind + shadcn):
+
+<SliderGroup>
+  <Slider label="Skewness" min={-1.5} max={1.5} step={0.1} value={skew} onChange={setSkew} />
+  <Slider label="Kurtosis (Excess)" min={-1} max={6} step={0.1} value={kurt} onChange={setKurt} />
+</SliderGroup>
+
+2️⃣ Distribution Generator (Backend or Frontend)
+
+Generate synthetic returns that respect the chosen parameters.
+
+If backend = Python (FastAPI):
+
+from scipy.stats import skewnorm, t, norm
+import numpy as np
+
+def generate_returns(mu, sigma, skew, kurtosis, n):
+    # Start with normal distribution
+    x = np.random.normal(mu, sigma, n)
+    
+    # Apply skewness (using skewnorm)
+    skew_factor = 5 * skew
+    x = skewnorm.rvs(a=skew_factor, loc=mu, scale=sigma, size=n)
+    
+    # Apply kurtosis: mix with t-distribution for heavy tails
+    if kurtosis > 0:
+        df = max(2, 6 - kurtosis)  # lower df = fatter tails
+        x_t = t.rvs(df, loc=mu, scale=sigma, size=n)
+        x = 0.7*x + 0.3*x_t
+    elif kurtosis < 0:
+        # Thin tails: truncate
+        x = np.clip(x, mu - 2*sigma, mu + 2*sigma)
+    return x.tolist()
+
+
+Return the generated series plus computed metrics:
+
+Skewness (empirical)
+
+Kurtosis (empirical)
+
+JB statistic + p-value.
+
+3️⃣ Real-Time Feedback (Frontend)
+
+On every slider change:
+
+Regenerate synthetic data.
+
+Recompute metrics:
+
+𝐽
+𝐵
+=
+𝑛
+6
+(
+𝑆
+𝑘
+𝑒
+𝑤
+2
++
+(
+𝐾
+𝑢
+𝑟
+𝑡
+𝑜
+𝑠
+𝑖
+𝑠
+)
+2
+4
+)
+JB=
+6
+n
+	​
+
+(Skew
+2
++
+4
+(Kurtosis)
+2
+	​
+
+)
+
+Re-render:
+
+Histogram with normal overlay.
+
+Q–Q plot.
+
+Cards showing updated mean, volatility, skew, kurt, JB, and interpretation.
+
+Example metric display:
+
+<RiskMetric label="Skewness" value={moments.skew.toFixed(3)} />
+<RiskMetric label="Kurtosis (Excess)" value={moments.kurt.toFixed(3)} />
+<RiskMetric label="JB Statistic" value={`${moments.jb.toFixed(2)} (p=${moments.p.toFixed(3)})`} />
+
+
+Below, show:
+
+Interpretation: “As skewness decreases, the left tail becomes heavier (more downside risk).
+Positive kurtosis increases tail thickness → higher JB, more deviation from normality.”
+
+4️⃣ Chart Updates
+
+Histogram (Plotly / Chart.js):
+
+Use simulated x values.
+
+Overlay normal PDF with same μ, σ.
+
+Color code:
+
+Blue = simulated data,
+
+Red line = reference normal.
+
+Q–Q Plot:
+
+Compute sample vs normal quantiles in real-time.
+
+Show red dashed normal line, blue points for sample.
+
+5️⃣ Learning Mode (Optional)
+
+Add “📘 Learning Mode” button → opens side panel with:
+
+Key definitions (Skew, Kurtosis, JB),
+
+Example interpretations (from Lecture 4),
+
+Short “Try This” prompts:
+
+“Set kurtosis = 5. What happens to the histogram tails?”
+
+“Set skew = –1. What happens to left tail risk?”
+
+This reinforces your theory–practice link directly inside the UI.
+
+⚙️ Directory Additions
+/practice/risk/
+  ├── components/
+  │   ├── DistributionSimulator.tsx  # sliders + state
+  │   ├── RiskCharts.tsx             # histogram + QQ plot
+  │   └── StatsSummary.tsx           # cards + JB output
+  ├── api/
+  │   └── simulate_distribution.py   # backend generator
+
+✅ Acceptance Criteria
+Requirement	Description
+Interactive	Sliders control μ, σ, skewness, kurtosis
+Real-time	Charts and JB stats update live
+Pedagogical	Text explains visual impact of parameters
+Offline	Works without internet (uses local generation)
+Integrated	Uses same Risk module layout + colors
+Expandable	Future option: link to Utility module (e.g. how SDF reacts to skew/kurt)
+💡 Optional Add-ons
+
+Add a “Reset to Normal” button (sets skew = 0, kurt = 0).
+
+Add a toggle “Show Empirical vs Normal Fit” to overlay both curves.
+
+Export button → save generated data as CSV for later analysis.
+
+Hook it later to your “LPM Frontier” to see how skew/kurt affect downside metrics.
+
+🎓 Educational Rationale
+
+This simulation captures exactly what Lecture 4 teaches:
+
+Real financial data rarely follow the normal assumption — skewness and kurtosis distort the efficiency and performance measures.
+By manipulating them manually, users visually see why Sharpe alone fails and why LPM or co-skewness extensions matter.

@@ -999,5 +999,254 @@
       "step5_method_or_truth_test": "All E[R] negative → go short. Short Asset 2 gives E[R]=+0.2% (best) with zero LPM risk when long (favorable short characteristics).",
       "result_takeaway": "All assets have negative E[R] → short them. Asset 2 best: short position yields +0.2% with favorable LPM profile."
     }
+  },
+  {
+    "id": "qa_risk_jb_test",
+    "source": "Risk Measurement Q&A",
+    "year": 2025,
+    "topic_primary": "Risk",
+    "topic_secondary": ["Statistics"],
+    "difficulty": "medium",
+    "question": "You have calculated skewness and kurtosis for a return distribution. How do you test if the distribution is normal using the Jarque-Bera test?",
+    "hint": "JB test combines skewness and kurtosis deviations from normality.",
+    "answer_short": "JB = (n/6)·[S² + (K-3)²/4]. Under H₀ (normality): S=0, K=3. Compare JB to χ²(2) critical value. Reject normality if JB > critical value.",
+    "framework": {
+      "step1_problem_and_topic": "Test return distribution normality using Jarque-Bera statistic with skewness and kurtosis.",
+      "step2_single_or_combined": "Single: Statistical testing (normality via moments).",
+      "step3_variables_and_effects": [
+        "H₀: Returns ~ Normal(μ, σ²) → S=0, K=3",
+        "Jarque-Bera: JB = (n/6)·[S² + (K-3)²/4]",
+        "S = sample skewness, K = sample kurtosis",
+        "JB ~ χ²(2) under H₀",
+        "Large JB → reject normality"
+      ],
+      "step4_required_action": "Calculate JB statistic; compare to χ²(2) critical value at chosen significance level.",
+      "step5_method_or_truth_test": "Method: Compute JB = (n/6)·[S² + (K-3)²/4]. If JB > χ²(2) critical (e.g., 5.99 at 5% level) → reject normality. Both skewness and excess kurtosis contribute to rejection.",
+      "result_takeaway": "Jarque-Bera test combines skewness and kurtosis deviations from normal values (0, 3) to test normality. Large JB → non-normal distribution."
+    }
+  },
+  {
+    "id": "qa_portfolio_geometric_arithmetic",
+    "source": "Return and Portfolio Management Q&A",
+    "year": 2025,
+    "topic_primary": "Portfolio",
+    "topic_secondary": [],
+    "difficulty": "easy",
+    "question": "When should you use geometric average returns vs arithmetic average returns for portfolio analysis?",
+    "hint": "Think about single-period expectations vs multi-period compounding.",
+    "answer_short": "Arithmetic for single-period forward expectations (portfolio optimization, CAPM). Geometric for historical multi-period realized returns (wealth growth over time).",
+    "framework": {
+      "step1_problem_and_topic": "Determine appropriate return averaging method for different portfolio contexts.",
+      "step2_single_or_combined": "Single: Return measurement (averaging methods).",
+      "step3_variables_and_effects": [
+        "Arithmetic: (R₁ + R₂ + ... + R_n)/n → single-period expectation",
+        "Geometric: [(1+R₁)(1+R₂)...(1+R_n)]^(1/n) - 1 → compounded growth",
+        "Forward-looking optimization → arithmetic",
+        "Historical wealth growth → geometric",
+        "Arithmetic > geometric (Jensen's inequality)"
+      ],
+      "step4_required_action": "Match averaging method to use case (expectations vs realized growth).",
+      "step5_method_or_truth_test": "Application: Portfolio optimization/CAPM needs single-period E[R] → arithmetic. Measuring past wealth accumulation over n periods → geometric captures compounding.",
+      "result_takeaway": "Arithmetic for one-period forward expectations (optimization). Geometric for multi-period historical compounding (wealth growth)."
+    }
+  },
+  {
+    "id": "qa_anomalies_momentum_value",
+    "source": "CAPM Anomalies Questions",
+    "year": 2025,
+    "topic_primary": "Anomalies",
+    "topic_secondary": ["Factors"],
+    "difficulty": "medium",
+    "question": "Explain how momentum and value anomalies can coexist and why they might provide diversification benefits in a multi-factor portfolio.",
+    "hint": "Consider time horizons and what each anomaly captures.",
+    "answer_short": "Momentum (short-term continuation) and value (long-term mean-reversion) operate on different horizons. Often negatively correlated → diversification benefits when combined.",
+    "framework": {
+      "step1_problem_and_topic": "Explain coexistence and diversification of momentum (short-term) and value (long-term) anomalies.",
+      "step2_single_or_combined": "Combined: Anomalies (momentum + value) + Portfolio (diversification).",
+      "step3_variables_and_effects": [
+        "Momentum: 3-12 month winners continue (short-term)",
+        "Value: high B/M outperforms (long-term mean-reversion)",
+        "Different time horizons → different drivers",
+        "Often ρ(MOM, HML) < 0 → negative correlation",
+        "Combined portfolio: lower volatility"
+      ],
+      "step4_required_action": "Explain why both anomalies exist; identify diversification source.",
+      "step5_method_or_truth_test": "Economic: Momentum = underreaction (short-term), Value = overreaction correction (long-term). Different behavioral drivers → can coexist. Negative correlation → combining reduces σ_p.",
+      "result_takeaway": "Momentum and value capture different time-horizon phenomena (continuation vs mean-reversion). Negative correlation provides diversification in multi-factor portfolios."
+    }
+  },
+  {
+    "id": "qa_capm_size_premium",
+    "source": "CAPM Anomalies Questions",
+    "year": 2025,
+    "topic_primary": "Anomalies",
+    "topic_secondary": ["CAPM"],
+    "difficulty": "easy",
+    "question": "The size premium (small stocks outperforming large stocks) was strong historically but has weakened recently. Why might this anomaly have diminished?",
+    "hint": "Think about what happens when anomalies become well-known.",
+    "answer_short": "Anomaly discovery → exploitation by investors → premium arbitraged away. Small cap became crowded trade; increased liquidity; data mining concerns.",
+    "framework": {
+      "step1_problem_and_topic": "Explain size premium diminishment after discovery.",
+      "step2_single_or_combined": "Combined: Anomalies (size effect) + Market efficiency (arbitrage).",
+      "step3_variables_and_effects": [
+        "Historical size premium: small > large (pre-1980s strong)",
+        "Post-discovery: investors exploit anomaly",
+        "Arbitrage: buy small, sell large → narrows premium",
+        "Data mining concerns (in-sample overfitting)",
+        "Increased small cap liquidity and competition"
+      ],
+      "step4_required_action": "Explain mechanism of anomaly diminishment via discovery and exploitation.",
+      "step5_method_or_truth_test": "Economic logic: Anomaly published → investors buy small caps → demand ↑ → prices ↑ → premium ↓. Self-defeating prophecy via arbitrage + potential data mining overfitting.",
+      "result_takeaway": "Size premium weakened post-discovery due to investor exploitation (arbitrage), data mining concerns, and improved small-cap market liquidity."
+    }
+  },
+  {
+    "id": "qa_utility_cara_crra_comparison",
+    "source": "Advanced Investments Q&A",
+    "year": 2025,
+    "topic_primary": "Utility",
+    "topic_secondary": [],
+    "difficulty": "hard",
+    "question": "Compare CARA and CRRA utility functions. When would you prefer CARA vs CRRA for modeling investor behavior?",
+    "hint": "Consider how risk aversion changes with wealth for each.",
+    "answer_short": "CARA: constant absolute risk aversion (-U''/U' = A). CRRA: constant relative risk aversion (-xU''/U' = γ). CRRA more realistic—absolute risk aversion decreases with wealth.",
+    "framework": {
+      "step1_problem_and_topic": "Compare CARA vs CRRA utility functions; identify appropriate use cases.",
+      "step2_single_or_combined": "Single: Utility theory (risk aversion classes).",
+      "step3_variables_and_effects": [
+        "CARA: U(W) = -e^(-AW) → -U''/U' = A (constant)",
+        "CRRA: U(W) = W^(1-γ)/(1-γ) → -WU''/U' = γ (constant)",
+        "CARA: Absolute risk aversion A constant → same risk $ tolerance at any wealth",
+        "CRRA: Relative risk aversion γ constant → absolute $ risk tolerance ↑ with wealth",
+        "CRRA more empirically realistic"
+      ],
+      "step4_required_action": "Derive risk aversion measures for each; compare wealth effects; identify realistic choice.",
+      "step5_method_or_truth_test": "CARA: -U''/U' = A (constant $ risk aversion unrealistic—rich same as poor). CRRA: -WU''/U' = γ → absolute risk aversion -U''/U' = γ/W ↓ as W↑ (realistic). Prefer CRRA for realistic wealth effects.",
+      "result_takeaway": "CARA has unrealistic constant absolute risk aversion. CRRA more realistic—absolute risk aversion decreases with wealth while relative stays constant."
+    }
+  },
+  {
+    "id": "qa_fi_duration_matching",
+    "source": "Advanced Investments Q&A",
+    "year": 2025,
+    "topic_primary": "Fixed Income",
+    "topic_secondary": ["Risk"],
+    "difficulty": "medium",
+    "question": "Explain the concept of duration matching for immunizing a bond portfolio against interest rate risk. What are its limitations?",
+    "hint": "Duration matching sets portfolio duration = liability duration, but what does it miss?",
+    "answer_short": "Duration matching: set D_portfolio = D_liability → first-order immunization against parallel yield curve shifts. Limitations: only works for small parallel shifts; ignores convexity and non-parallel shifts.",
+    "framework": {
+      "step1_problem_and_topic": "Explain duration matching immunization strategy and its limitations.",
+      "step2_single_or_combined": "Single: Fixed Income (immunization strategies).",
+      "step3_variables_and_effects": [
+        "Duration matching: D_assets = D_liabilities",
+        "ΔP/P ≈ -D·Δy → if D_A = D_L, both change equally",
+        "Immunizes against small parallel yield shifts",
+        "Limitations: (1) only first-order (ignores convexity), (2) assumes parallel shift, (3) rebalancing needed (duration drifts)"
+      ],
+      "step4_required_action": "Explain immunization mechanism; identify key limitations.",
+      "step5_method_or_truth_test": "Method: Match durations → ΔP_A ≈ ΔP_L for small Δy. Limitations: (1) Convexity mismatch causes errors for large Δy, (2) Non-parallel shifts unhedged, (3) Duration changes over time.",
+      "result_takeaway": "Duration matching immunizes against small parallel rate shifts but fails for large moves, non-parallel shifts, and requires continuous rebalancing."
+    }
+  },
+  {
+    "id": "qa_factors_fama_macbeth",
+    "source": "Advanced Investments Q&A",
+    "year": 2025,
+    "topic_primary": "Factors",
+    "topic_secondary": [],
+    "difficulty": "hard",
+    "question": "Explain the Fama-MacBeth regression procedure for testing factor models. What are its advantages over time-series regression?",
+    "hint": "Two-pass regression: first estimate betas, then cross-sectional risk premium.",
+    "answer_short": "Step 1: Time-series regressions for each asset → estimate β_i. Step 2: Each period, cross-sectional regression E[R_i] on β_i → estimate λ (risk premium). Advantage: directly tests if β explains cross-sectional return variation.",
+    "framework": {
+      "step1_problem_and_topic": "Explain Fama-MacBeth two-pass regression procedure for factor model testing.",
+      "step2_single_or_combined": "Single: Factor model testing methodology.",
+      "step3_variables_and_effects": [
+        "Pass 1: ∀i, run R_it = α_i + β_i·F_t + ε_it → estimate β_i",
+        "Pass 2: Each t, run R_it = γ_0t + λ_t·β_i + η_it → estimate λ_t",
+        "Average λ across time → λ̄ (factor risk premium)",
+        "Tests cross-sectional pricing: do β_i explain R_i differences?",
+        "Advantage over time-series: directly tests cross-sectional relationship"
+      ],
+      "step4_required_action": "Describe two-pass procedure; explain cross-sectional testing advantage.",
+      "step5_method_or_truth_test": "Procedure: (1) Estimate betas via time-series regressions. (2) For each period, regress returns on betas cross-sectionally. (3) Average cross-sectional slopes = factor premium. Tests if high β assets earn higher returns.",
+      "result_takeaway": "Fama-MacBeth uses two-pass regression: first estimate betas, then test if betas explain cross-sectional returns. Directly tests factor pricing relationship."
+    }
+  },
+  {
+    "id": "qa_risk_var_cvar",
+    "source": "Risk Measurement Q&A",
+    "year": 2025,
+    "topic_primary": "Risk",
+    "topic_secondary": [],
+    "difficulty": "medium",
+    "question": "Compare Value-at-Risk (VaR) and Conditional VaR (CVaR). Why might CVaR be preferred for risk management?",
+    "hint": "VaR is a percentile; CVaR considers tail beyond that percentile.",
+    "answer_short": "VaR: percentile loss (95% VaR = 5% worst case). CVaR: expected loss beyond VaR (average of 5% tail). CVaR preferred—captures tail severity, not just threshold.",
+    "framework": {
+      "step1_problem_and_topic": "Compare VaR (percentile) vs CVaR (tail expectation); identify CVaR advantages.",
+      "step2_single_or_combined": "Single: Risk measurement (tail risk metrics).",
+      "step3_variables_and_effects": [
+        "VaR_α: P(Loss > VaR) = α → percentile",
+        "CVaR_α (ES_α): E[Loss | Loss > VaR_α] → conditional expectation",
+        "VaR: ignores severity beyond threshold",
+        "CVaR: captures full tail distribution",
+        "CVaR coherent risk measure (subadditive); VaR is not"
+      ],
+      "step4_required_action": "Define each metric; explain why CVaR captures more tail information.",
+      "step5_method_or_truth_test": "VaR answers: 'What's the max loss in 95% of cases?' CVaR answers: 'What's the average loss in the worst 5% of cases?' CVaR captures tail severity → better for extreme risk management.",
+      "result_takeaway": "CVaR (Expected Shortfall) superior to VaR—captures tail severity beyond threshold, not just percentile. Coherent risk measure."
+    }
+  },
+  {
+    "id": "qa_portfolio_black_litterman_views",
+    "source": "Return and Portfolio Management Q&A",
+    "year": 2025,
+    "topic_primary": "Portfolio",
+    "topic_secondary": [],
+    "difficulty": "hard",
+    "question": "In Black-Litterman, how do you incorporate a 'view' that Asset A will outperform Asset B by 2%? Show the mathematical formulation.",
+    "hint": "Views are expressed as linear combinations of expected returns.",
+    "answer_short": "View: P·μ = Q + ε where P=[1,-1,0,...], Q=[2%], ε~N(0,Ω). Combines with market equilibrium (τΣπ) via Bayesian updating: μ_BL = [(τΣ)⁻¹ + P'Ω⁻¹P]⁻¹[(τΣ)⁻¹π + P'Ω⁻¹Q].",
+    "framework": {
+      "step1_problem_and_topic": "Formulate Black-Litterman view mathematically; show Bayesian combination with equilibrium.",
+      "step2_single_or_combined": "Single: Black-Litterman framework (view specification).",
+      "step3_variables_and_effects": [
+        "Equilibrium: π = λΣw_market (reverse optimization)",
+        "View: E[R_A - R_B] = 2% → P=[1,-1,0,...], Q=2%",
+        "View uncertainty: Ω (confidence matrix)",
+        "Posterior: μ_BL = [(τΣ)⁻¹ + P'Ω⁻¹P]⁻¹[(τΣ)⁻¹π + P'Ω⁻¹Q]",
+        "Higher Ω → lower view confidence → closer to equilibrium π"
+      ],
+      "step4_required_action": "Specify P, Q matrices for relative view; derive Bayesian posterior.",
+      "step5_method_or_truth_test": "View 'A beats B by 2%': P=[1,-1,0,...] (A-B), Q=2%. Bayes: Combine equilibrium π (prior) with P'Ω⁻¹Q (view) → μ_BL (posterior). Ω controls view confidence.",
+      "result_takeaway": "BL views: P·μ = Q. Bayesian update combines equilibrium (prior) with views (likelihood) to get tilted expected returns (posterior)."
+    }
+  },
+  {
+    "id": "qa_capm_zero_beta_portfolio",
+    "source": "CAPM Anomalies Questions",
+    "year": 2025,
+    "topic_primary": "CAPM",
+    "topic_secondary": [],
+    "difficulty": "medium",
+    "question": "What is the zero-beta CAPM and why was it developed? How does it differ from standard CAPM?",
+    "hint": "Standard CAPM uses r_f; zero-beta version doesn't require risk-free asset.",
+    "answer_short": "Zero-beta CAPM replaces r_f with zero-beta portfolio return E[R_Z] (uncorrelated with market). Developed for when r_f unavailable or borrowing/lending rates differ. E[R_i] = E[R_Z] + β_i(E[R_M] - E[R_Z]).",
+    "framework": {
+      "step1_problem_and_topic": "Explain zero-beta CAPM development and differences from standard CAPM.",
+      "step2_single_or_combined": "Single: CAPM variants (zero-beta version).",
+      "step3_variables_and_effects": [
+        "Standard CAPM: E[R_i] = r_f + β_i(E[R_M] - r_f)",
+        "Zero-beta CAPM: E[R_i] = E[R_Z] + β_i(E[R_M] - E[R_Z])",
+        "R_Z: return on portfolio with β=0 (uncorrelated with market)",
+        "Motivation: (1) no r_f exists, (2) borrowing rate ≠ lending rate",
+        "E[R_Z] replaces r_f as intercept"
+      ],
+      "step4_required_action": "Derive zero-beta CAPM; explain when it's needed vs standard CAPM.",
+      "step5_method_or_truth_test": "When r_f unavailable or borrowing constraints exist, use zero-beta portfolio R_Z (β=0) as baseline. SML: E[R_i] = E[R_Z] + β_i·MRP_Z where MRP_Z = E[R_M] - E[R_Z].",
+      "result_takeaway": "Zero-beta CAPM replaces r_f with zero-beta portfolio when risk-free asset unavailable or borrowing/lending rates differ. Same structure, different intercept."
+    }
   }
 ]
