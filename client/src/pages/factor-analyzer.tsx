@@ -135,116 +135,212 @@ export default function FactorAnalyzer() {
     enabled: !!priceData?.returns,
   });
 
-  const ff3Theory = (
+  const factorTheory = (
     <div className="space-y-6 py-6">
+      {/* What Counts as an Anomaly? */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Fama-French 3-Factor Model</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          The Fama-French three-factor model extends CAPM by adding size (SMB) and value (HML) factors
-          to explain cross-sectional variation in stock returns beyond market beta.
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">Anomalies & Multi-Factor Models</h2>
+        <p className="text-muted-foreground leading-relaxed mb-2">
+          An anomaly is a return pattern that is systematic and replicable yet unexplained by the baseline model (e.g., CAPM), and that is economically rationalizable rather than spurious.
         </p>
       </div>
 
-      <div className="bg-white rounded-md p-6 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-4 text-foreground">Model Equation</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm overflow-x-auto border border-border">
-          <p className="whitespace-nowrap text-foreground">
-            R<sub>i</sub> - R<sub>f</sub> = α<sub>i</sub> + β<sub>M</sub>(R<sub>M</sub> - R<sub>f</sub>) + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML + ε<sub>i</sub>
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-          <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <Network className="h-4 w-4 text-primary" />
-            Mkt-RF (Market)
-          </h4>
-          <p className="text-sm text-muted-foreground">
-            Excess return on the market portfolio - captures systematic market risk
-          </p>
-        </div>
-        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-          <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            SMB (Size)
-          </h4>
-          <p className="text-sm text-muted-foreground">
-            Small Minus Big - captures the size premium (small cap outperformance)
-          </p>
-        </div>
-        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-          <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            HML (Value)
-          </h4>
-          <p className="text-sm text-muted-foreground">
-            High Minus Low - captures the value premium (value stock outperformance)
-          </p>
-        </div>
-      </div>
-
+      {/* Definition of Anomaly */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Interpretation</h3>
-        <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-          <li><strong>α (alpha):</strong> If significant and non-zero, the model fails to price the asset</li>
-          <li><strong>β coefficients:</strong> Factor loadings indicating exposure to each risk factor</li>
-          <li><strong>R²:</strong> Proportion of return variation explained by the factors</li>
-        </ul>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">What Counts as an "Anomaly"?</h3>
+        <div className="space-y-3 text-sm">
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="text-foreground"><strong>1. Systematic Pattern:</strong> There must be a pattern tied to a characteristic (e.g., size, value). One-off wins don't qualify.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="text-foreground"><strong>2. Economic Rationale:</strong> It needs an economic rationale (risk story or friction) or else risks being data-mined.</p>
+          </div>
+          <div className="p-3 bg-muted/30 rounded border border-border">
+            <p className="text-foreground"><strong>3. Tradable:</strong> If tradable, expected returns must reflect risk or limits to arbitrage (costs, shorting frictions, microcap illiquidity).</p>
+          </div>
+        </div>
+        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+          <p className="text-sm text-foreground"><strong>So what?</strong> "Anomaly" means model misspecification or market imperfection—not magic.</p>
+        </div>
       </div>
-    </div>
-  );
 
-  const ff5Theory = (
-    <div className="space-y-6 py-6">
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Fama-French 5-Factor Model</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          The five-factor model adds profitability (RMW) and investment (CMA) factors to the original
-          three-factor model for improved explanatory power.
+      {/* Core Equity Anomalies */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Core Equity Anomalies</h3>
+        
+        {/* Size (SMB) */}
+        <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+          <h4 className="font-semibold text-foreground mb-2">Size (SMB - Small Minus Big)</h4>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">Idea:</strong> Small firms earn higher average returns than big firms after market beta adjustment.</p>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">Stories:</strong> Lower analyst coverage, higher illiquidity, higher cash-flow risk; sample- and era-dependent.</p>
+          <p className="text-sm text-muted-foreground"><strong className="text-foreground">Note:</strong> Evidence varies by period/market; robustness is debated.</p>
+        </div>
+
+        {/* Value (HML) */}
+        <div className="mb-4 p-3 bg-green-50 rounded border border-green-200">
+          <h4 className="font-semibold text-foreground mb-2">Value (HML - High Minus Low B/M)</h4>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">Idea:</strong> High book-to-market ("value") outperforms low B/M ("growth") beyond CAPM beta.</p>
+          <p className="text-sm text-muted-foreground"><strong className="text-foreground">Risk view:</strong> Distress/"bad times" sensitivity; accounting reliance critique persists.</p>
+        </div>
+
+        {/* Momentum (MOM) */}
+        <div className="mb-4 p-3 bg-purple-50 rounded border border-purple-200">
+          <h4 className="font-semibold text-foreground mb-2">Momentum (MOM - Winners Minus Losers)</h4>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">Idea:</strong> Past 6–12m winners beat losers over the next 6–12m (rebalanced).</p>
+          <p className="text-sm text-muted-foreground"><strong className="text-foreground">Caveats:</strong> Costly shorts, turnover, momentum crashes in panics; may proxy illiquidity.</p>
+        </div>
+
+        {/* Profitability & Investment (FF5) */}
+        <div className="p-3 bg-amber-50 rounded border border-amber-200">
+          <h4 className="font-semibold text-foreground mb-2">Profitability (RMW) & Investment (CMA) — FF (2015)</h4>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">RMW (Robust Minus Weak):</strong> More profitable firms earn more.</p>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">CMA (Conservative Minus Aggressive):</strong> Conservatively investing firms earn more; can subsume part of "value."</p>
+          <p className="text-sm text-muted-foreground"><strong className="text-foreground">Open question:</strong> Behavior for "new economy" or long-horizon R&D models.</p>
+        </div>
+      </div>
+
+      {/* Factor Construction */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Factor Construction (Long–Short)</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          How to build a zero-cost factor from sorted portfolios:
+        </p>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>1. <strong className="text-foreground">Rank stocks</strong> on a characteristic (size, B/M, momentum, profitability, investment)</p>
+          <p>2. <strong className="text-foreground">Form portfolios:</strong> Deciles or 2×3 sorts (small/big × value/growth)</p>
+          <p>3. <strong className="text-foreground">Factor return:</strong> Long top bucket, short bottom bucket</p>
+        </div>
+        <div className="mt-3 p-3 bg-muted/50 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">SMB = Small − Big</p>
+          <p className="text-foreground">HML = High − Low</p>
+          <p className="text-foreground">MOM = Winners − Losers</p>
+          <p className="text-foreground">RMW = Robust − Weak</p>
+          <p className="text-foreground">CMA = Conservative − Aggressive</p>
+        </div>
+        <p className="text-sm text-muted-foreground mt-3">
+          Portfolio-sorts amplify signal and stabilize betas; they're standard in anomaly testing.
         </p>
       </div>
 
-      <div className="bg-white rounded-md p-6 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-4 text-foreground">Model Equation</h3>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm overflow-x-auto border border-border">
-          <p className="whitespace-nowrap mb-2 text-foreground">
-            R<sub>i</sub> - R<sub>f</sub> = α<sub>i</sub> + β<sub>M</sub>(R<sub>M</sub> - R<sub>f</sub>) + β<sub>SMB</sub>·SMB + β<sub>HML</sub>·HML
-          </p>
-          <p className="whitespace-nowrap ml-16 text-foreground">
-            + β<sub>RMW</sub>·RMW + β<sub>CMA</sub>·CMA + ε<sub>i</sub>
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-          <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            RMW (Profitability)
-          </h4>
-          <p className="text-sm text-muted-foreground">
-            Robust Minus Weak - captures the profitability premium (profitable firms outperform)
-          </p>
-        </div>
-        <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-          <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            CMA (Investment)
-          </h4>
-          <p className="text-sm text-muted-foreground">
-            Conservative Minus Aggressive - captures investment patterns (low-investment firms outperform)
-          </p>
-        </div>
-      </div>
-
+      {/* Regression Forms */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Why Five Factors?</h3>
-        <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-          <li>Profitability and investment patterns are independent sources of average return</li>
-          <li>The five-factor model better captures variation in average returns than the three-factor model</li>
-          <li>HML becomes largely redundant when profitability and investment factors are included</li>
-        </ul>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Regression Forms</h3>
+        
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">FF3 Time-Series:</strong></p>
+          <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+            <p className="text-foreground">r<sub>i,t</sub> − r<sub>f,t</sub> = α<sub>i</sub> + β<sub>i,M</sub>(r<sub>M,t</sub> − r<sub>f,t</sub>) + β<sub>i,SMB</sub>SMB<sub>t</sub> + β<sub>i,HML</sub>HML<sub>t</sub> + ε<sub>i,t</sub></p>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">FF5 adds RMW, CMA:</strong></p>
+          <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+            <p className="text-foreground">r<sub>i,t</sub> − r<sub>f,t</sub> = α<sub>i</sub> + β<sub>i,M</sub>MKT<sub>t</sub> + β<sub>i,SMB</sub>SMB<sub>t</sub> + β<sub>i,HML</sub>HML<sub>t</sub></p>
+            <p className="text-foreground ml-16">+ β<sub>i,RMW</sub>RMW<sub>t</sub> + β<sub>i,CMA</sub>CMA<sub>t</sub> + ε<sub>i,t</sub></p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">Carhart 4-Factor adds Momentum:</strong></p>
+          <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+            <p className="text-foreground">+ β<sub>i,MOM</sub>MOM<sub>t</sub></p>
+          </div>
+        </div>
+
+        <p className="text-sm text-muted-foreground mt-3">
+          <strong className="text-foreground">Interpretation:</strong> Betas are loadings; alphas are pricing errors (should be ~0 if model holds).
+        </p>
+      </div>
+
+      {/* Cross-Section (Expanded SML) */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Cross-Section (Expanded SML)</h3>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">E[r<sub>i</sub>] − r<sub>f</sub> = λ<sub>M</sub>β<sub>i,M</sub> + λ<sub>SMB</sub>β<sub>i,SMB</sub> + λ<sub>HML</sub>β<sub>i,HML</sub> + ...</p>
+        </div>
+        <p className="text-sm text-muted-foreground mt-3">
+          Each λ is a factor risk premium (expected return on the long–short factor).
+        </p>
+      </div>
+
+      {/* SDF View */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">SDF (Pricing Kernel) View — Why Factors = Risks</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Start from 1 = E[mR]. A linear SDF with K priced factors:
+        </p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
+          <p className="text-foreground">m<sub>t</sub> = a + b′f<sub>t</sub>, where f<sub>t</sub> = [MKT<sub>t</sub>, SMB<sub>t</sub>, HML<sub>t</sub>, ...]′</p>
+          <p className="text-foreground mt-2">b′ &lt; 0 (risk-averse)</p>
+        </div>
+        <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
+          <p className="text-sm text-foreground"><strong>Economic requirement:</strong> Any factor in the model must represent a risk that commands a price, not pure mispricing noise.</p>
+        </div>
+        <div className="mt-3 p-3 bg-green-50 rounded border border-green-200">
+          <p className="text-sm text-foreground"><strong>So what?</strong> Adding a factor to the regression also means adding it to the SDF. If you can't tell a risk story, your "factor" is likely data-mined.</p>
+        </div>
+      </div>
+
+      {/* Testing Methodology */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Testing Anomalies & Models</h3>
+        
+        {/* Portfolio Sorts */}
+        <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+          <h4 className="font-semibold text-foreground mb-2">1. Portfolio Sorts (Signal Amplification)</h4>
+          <p className="text-sm text-muted-foreground">• Rank by characteristic; form K portfolios</p>
+          <p className="text-sm text-muted-foreground">• Examine monotonicity in average returns and factor betas</p>
+          <p className="text-sm text-muted-foreground">• Construct the factor as Long–Short extreme portfolios to test the premium</p>
+        </div>
+
+        {/* Fama-MacBeth */}
+        <div className="mb-4 p-3 bg-green-50 rounded border border-green-200">
+          <h4 className="font-semibold text-foreground mb-2">2. Fama–MacBeth (Two-Pass)</h4>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">Pass 1 (time-series):</strong> Estimate betas on factors</p>
+          <p className="text-sm text-muted-foreground mb-2"><strong className="text-foreground">Pass 2 (cross-section):</strong> Regress average returns on betas → estimate λ's; test intercept ~ 0</p>
+          <p className="text-sm text-muted-foreground"><strong className="text-foreground">Cautions:</strong> Errors-in-variables, beta instability; use portfolios and Newey–West SEs</p>
+        </div>
+
+        {/* GRS Test */}
+        <div className="p-3 bg-purple-50 rounded border border-purple-200">
+          <h4 className="font-semibold text-foreground mb-2">3. GRS Joint Alpha Test (Time-Series-Only)</h4>
+          <p className="text-sm text-muted-foreground mb-2">Run time-series regressions for N test portfolios on K factors; test whether all alphas = 0 jointly using the GRS F-statistic (weights residual covariance).</p>
+          <p className="text-sm text-muted-foreground"><strong className="text-foreground">If rejected →</strong> model fails to price the test assets.</p>
+        </div>
+      </div>
+
+      {/* Implementation & Robustness */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Implementation & Robustness</h3>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>• <strong className="text-foreground">Sample dependence / p-hacking:</strong> Effects vary by time/market; require out-of-sample and pre-spec tests</p>
+          <p>• <strong className="text-foreground">Microcaps & delistings:</strong> Filter and include delisting returns; control for liquidity and fees</p>
+          <p>• <strong className="text-foreground">Look-ahead / survivorship bias:</strong> Use point-in-time accounting; avoid future info</p>
+          <p>• <strong className="text-foreground">Trading frictions & short constraints:</strong> Momentum and some value signals are costly to implement</p>
+          <p>• <strong className="text-foreground">Multiple-testing:</strong> Many documented "factors" are correlated; use clustering or PCA to avoid double-counting</p>
+        </div>
+      </div>
+
+      {/* Trading Considerations */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">Trading Against/With Anomalies</h3>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>• <strong className="text-foreground">Pure factor long–short</strong> is zero-investment but may carry unwanted exposures to other factors; hedge or neutralize</p>
+          <p>• <strong className="text-foreground">Exposure drift & noisy betas:</strong> Use deciles/quantiles and scaling to mitigate estimation error; beware regime shifts and momentum crashes</p>
+        </div>
+        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+          <p className="text-sm text-foreground"><strong>So what?</strong> Even if an anomaly is "real," implementation determines whether it's exploitable after costs and constraints.</p>
+        </div>
+      </div>
+
+      {/* So What? Summary */}
+      <div className="p-4 bg-primary/10 rounded-lg border-2 border-primary/30">
+        <h3 className="text-lg font-semibold mb-2 text-foreground">So What?</h3>
+        <p className="text-sm text-foreground">
+          Multi-factor models extend CAPM by adding dimensions of systematic risk. Each factor represents a tradable risk premium that cannot be diversified away. 
+          These patterns motivate portfolio construction, performance attribution, and risk management—but only if they survive implementation frictions and out-of-sample testing.
+        </p>
       </div>
     </div>
   );
@@ -339,7 +435,7 @@ export default function FactorAnalyzer() {
   return (
     <ModuleLayout 
       title="Fama-French Factor Analysis" 
-      theory={selectedModel === "FF3" ? ff3Theory : ff5Theory}
+      theory={factorTheory}
     >
       <div className="space-y-6">
         {/* Model Selection */}
