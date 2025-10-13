@@ -39,7 +39,20 @@ app.use((req, res, next) => {
 
 (async () => {
   // Start Python FastAPI server
-  const pythonServer = spawn('python', ['-m', 'uvicorn', 'api.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload'], {
+  const isDev = app.get("env") === "development";
+  const uvicornArgs = [
+    '-m', 'uvicorn', 
+    'api.main:app', 
+    '--host', '0.0.0.0', 
+    '--port', '8000'
+  ];
+  
+  // Only use --reload in development
+  if (isDev) {
+    uvicornArgs.push('--reload');
+  }
+  
+  const pythonServer = spawn('python', uvicornArgs, {
     cwd: 'server',
     stdio: 'inherit'
   });
@@ -48,8 +61,14 @@ app.use((req, res, next) => {
     console.error('Failed to start Python API server:', err);
   });
 
+  pythonServer.on('exit', (code, signal) => {
+    if (code !== null && code !== 0) {
+      console.error(`Python API server exited with code ${code}`);
+    }
+  });
+
   // Wait a bit for Python server to start
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise(resolve => setTimeout(resolve, isDev ? 2000 : 5000));
 
   const server = await registerRoutes(app);
 
