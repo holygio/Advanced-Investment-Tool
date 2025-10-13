@@ -5,156 +5,168 @@ from typing import List, Literal
 
 router = APIRouter()
 
-# Request/Response Models
-class UtilityRequest(BaseModel):
-    utility_type: Literal["CRRA", "CARA", "DARA"]
-    gamma: float = 3.0  # Risk aversion for CRRA
-    b: float = 0.001    # Risk aversion for CARA
-    x_min: float = 0.1
-    x_max: float = 10.0
-    n_points: int = 100
-
-class UtilityCurvePoint(BaseModel):
-    x: float
-    U: float
-    U_prime: float
-    A: float  # Absolute risk aversion
-    R: float  # Relative risk aversion
-
-class UtilityResponse(BaseModel):
-    utility_type: str
-    gamma: float
-    b: float
-    curves: List[UtilityCurvePoint]
-
-class SDFRequest(BaseModel):
-    utility_type: Literal["CRRA", "CARA", "CAPM"]
+# Theory Mode Request/Response Models
+class TheoryUtilityRequest(BaseModel):
+    utility: Literal["CRRA", "CARA", "DARA"]
     gamma: float = 3.0
-    b: float = 0.001
     beta: float = 0.99
-    n_points: int = 100
+    wealth_min: float = 1.0
+    wealth_max: float = 100.0
+    sigma_c: float = 0.02
+    rho: float = -0.3
+    seed: int = 42
 
-class SDFPoint(BaseModel):
-    delta_c: float  # Consumption growth
-    m: float        # SDF value
+class TheoryUtilityResponse(BaseModel):
+    wealth: List[float]
+    U: List[float]
+    Uprime: List[float]
+    A: List[float]
+    R: List[float]
+    SDF_utility: List[float]
+    SDF_capm: List[float]
+    consumption_growth: List[float]
+    market_returns: List[float]
+    pricing_errors: List[float]
+    mean_sdf: float
+    std_sdf: float
+    mean_pricing_error: float
 
-class SDFResponse(BaseModel):
-    utility_type: str
-    sdf_points: List[SDFPoint]
-    interpretation: str
-
-@router.post("/utility/curves", response_model=UtilityResponse)
-async def calculate_utility_curves(request: UtilityRequest):
-    """Calculate utility function, marginal utility, and risk aversion measures"""
+@router.post("/theory/utility/generate", response_model=TheoryUtilityResponse)
+async def generate_theory_utility(request: TheoryUtilityRequest):
+    """
+    Generate synthetic utility and SDF data for pedagogical exploration.
+    Uses corrected formulas and simulates consumption paths.
+    """
     try:
-        x = np.linspace(request.x_min, request.x_max, request.n_points)
-        x = x[x > 0]  # Ensure positive values
+        np.random.seed(request.seed)
         
-        curves = []
-        U = np.zeros_like(x)
-        U_prime = np.zeros_like(x)
-        A = np.zeros_like(x)
-        R = np.zeros_like(x)
+        # Wealth grid for utility curves
+        wealth = np.linspace(request.wealth_min, request.wealth_max, 100)
         
-        if request.utility_type == "CRRA":
-            # CRRA: U(x) = (x^(1-γ) - 1) / (1 - γ) for γ ≠ 1, log(x) for γ = 1
+        # CARA parameter (if needed)
+        b = request.gamma / 50  # Scale for CARA
+        # DARA parameter
+        a = 10.0  # Shift parameter for DARA
+        
+        # Calculate utility functions
+        if request.utility == "CARA":
+            # CARA: U(x) = -e^(-bx) / b
+            U = -np.exp(-b * wealth) / b
+            Uprime = np.exp(-b * wealth)
+            # A(x) = b (constant)
+            A = np.full_like(wealth, b)
+            # R(x) = b*x (increasing)
+            R = b * wealth
+            
+        elif request.utility == "CRRA":
+            # CRRA: U(x) = x^(1-γ) / (1-γ)
             if abs(request.gamma - 1.0) < 1e-6:
-                U = np.log(x)
-                U_prime = 1 / x
+                U = np.log(wealth)
+                Uprime = 1 / wealth
             else:
-                U = (x**(1 - request.gamma) - 1) / (1 - request.gamma)
-                U_prime = x**(-request.gamma)
+                U = wealth**(1 - request.gamma) / (1 - request.gamma)
+                Uprime = wealth**(-request.gamma)
+            # A(x) = γ / x (decreasing)
+            A = request.gamma / wealth
+            # R(x) = γ (constant)
+            R = np.full_like(wealth, request.gamma)
             
-            A = request.gamma / x  # Absolute risk aversion: -U''/U' = γ/x
-            R = np.full_like(x, request.gamma)  # Constant relative risk aversion
-            
-        elif request.utility_type == "CARA":
-            # CARA: U(x) = -exp(-bx)
-            U = -np.exp(-request.b * x)
-            U_prime = request.b * np.exp(-request.b * x)
-            A = np.full_like(x, request.b)  # Constant absolute risk aversion
-            R = request.b * x  # Relative risk aversion increases with x
-            
-        elif request.utility_type == "DARA":
-            # DARA: Custom logarithmic form with decreasing absolute risk aversion
-            # U(x) = log(x) - 0.5*log(1 + log(x)^2)
-            log_x = np.log(x)
-            U = log_x - 0.5 * np.log(1 + log_x**2)
-            U_prime = 1 / (x * (1 + log_x**2))
-            # Absolute risk aversion decreases with x
-            A = 1 / (x * (1 + log_x))
-            # Relative risk aversion also decreases
-            R = 1 / (1 + log_x)
+        elif request.utility == "DARA":
+            # DARA: U(x) = (a+x)^(1-γ) / (1-γ)
+            if abs(request.gamma - 1.0) < 1e-6:
+                U = np.log(a + wealth)
+                Uprime = 1 / (a + wealth)
+            else:
+                U = (a + wealth)**(1 - request.gamma) / (1 - request.gamma)
+                Uprime = (a + wealth)**(-request.gamma)
+            # A(x) = γ / (a+x) (decreasing)
+            A = request.gamma / (a + wealth)
+            # R(x) = γ*x / (a+x) (increasing but bounded)
+            R = request.gamma * wealth / (a + wealth)
         
-        for i in range(len(x)):
-            curves.append(UtilityCurvePoint(
-                x=float(x[i]),
-                U=float(U[i]),
-                U_prime=float(U_prime[i]),
-                A=float(A[i]),
-                R=float(R[i])
-            ))
+        # Simulate 240 months of consumption growth
+        n_months = 240
         
-        return UtilityResponse(
-            utility_type=request.utility_type,
-            gamma=request.gamma,
-            b=request.b,
-            curves=curves
+        # Generate correlated consumption growth and market returns
+        mean_c = 0.002
+        mean_rm = 0.005
+        std_rm = 0.04
+        
+        # Create correlation matrix
+        cov_matrix = np.array([
+            [request.sigma_c**2, request.rho * request.sigma_c * std_rm],
+            [request.rho * request.sigma_c * std_rm, std_rm**2]
+        ])
+        
+        # Generate correlated random variables
+        samples = np.random.multivariate_normal(
+            [mean_c, mean_rm], 
+            cov_matrix, 
+            n_months
+        )
+        
+        consumption_growth = samples[:, 0]
+        market_returns = samples[:, 1]
+        
+        # Initialize consumption level (start at 1)
+        c = np.zeros(n_months + 1)
+        c[0] = 1.0
+        for t in range(n_months):
+            c[t + 1] = c[t] * (1 + consumption_growth[t])
+        
+        # Calculate SDF from utility theory
+        SDF_utility = np.zeros(n_months)
+        for t in range(n_months):
+            if request.utility == "CARA":
+                SDF_utility[t] = request.beta * np.exp(-b * c[t + 1]) / np.exp(-b * c[t])
+            elif request.utility == "CRRA":
+                if abs(request.gamma - 1.0) < 1e-6:
+                    SDF_utility[t] = request.beta * (c[t] / c[t + 1])
+                else:
+                    SDF_utility[t] = request.beta * (c[t + 1] / c[t])**(-request.gamma)
+            elif request.utility == "DARA":
+                if abs(request.gamma - 1.0) < 1e-6:
+                    SDF_utility[t] = request.beta * ((a + c[t]) / (a + c[t + 1]))
+                else:
+                    SDF_utility[t] = request.beta * ((a + c[t + 1]) / (a + c[t]))**(-request.gamma)
+        
+        # Normalize E[m] = 1
+        SDF_utility = SDF_utility / np.mean(SDF_utility)
+        
+        # CAPM linear SDF: m = a - b*R_m
+        # Calibrate to match E[m] = 1 and approximate variance
+        # m = a - b*R_m, E[m] = 1 => a - b*E[R_m] = 1
+        # Choose b to match some risk price
+        b_capm = request.gamma * request.rho * request.sigma_c / std_rm
+        a_capm = 1 + b_capm * mean_rm
+        
+        SDF_capm = a_capm - b_capm * market_returns
+        
+        # Calculate pricing errors: 1 - E[m*R]
+        pricing_errors = np.zeros(n_months)
+        for t in range(n_months):
+            pricing_errors[t] = 1 - SDF_utility[t] * (1 + market_returns[t])
+        
+        # Calculate statistics
+        mean_sdf = float(np.mean(SDF_utility))
+        std_sdf = float(np.std(SDF_utility))
+        mean_pricing_error = float(np.mean(np.abs(pricing_errors)))
+        
+        return TheoryUtilityResponse(
+            wealth=wealth.tolist(),
+            U=U.tolist(),
+            Uprime=Uprime.tolist(),
+            A=A.tolist(),
+            R=R.tolist(),
+            SDF_utility=SDF_utility.tolist(),
+            SDF_capm=SDF_capm.tolist(),
+            consumption_growth=consumption_growth.tolist(),
+            market_returns=market_returns.tolist(),
+            pricing_errors=pricing_errors.tolist(),
+            mean_sdf=mean_sdf,
+            std_sdf=std_sdf,
+            mean_pricing_error=mean_pricing_error
         )
     
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error calculating utility curves: {str(e)}")
-
-@router.post("/utility/sdf", response_model=SDFResponse)
-async def calculate_sdf(request: SDFRequest):
-    """Calculate Stochastic Discount Factor for different utility specifications"""
-    try:
-        # Consumption growth grid: -10% to +10%
-        delta_c = np.linspace(-0.10, 0.10, request.n_points)
-        g = 1 + delta_c  # Gross growth rate
-        
-        sdf_points = []
-        m = np.zeros_like(delta_c)
-        interpretation = ""
-        
-        if request.utility_type == "CRRA":
-            # SDF = β * (C_{t+1}/C_t)^(-γ) = β * g^(-γ)
-            m = request.beta * g**(-request.gamma)
-            interpretation = (
-                f"CRRA SDF with γ={request.gamma:.2f}: Higher consumption growth reduces SDF (states with high "
-                f"consumption are less valuable). The convex shape shows risk aversion - downside states get "
-                f"exponentially higher weights."
-            )
-            
-        elif request.utility_type == "CARA":
-            # SDF ≈ β * exp(-b * ΔC) for CARA utility
-            m = request.beta * np.exp(-request.b * delta_c * 100)  # Scale for visibility
-            interpretation = (
-                f"CARA SDF with b={request.b:.4f}: Exponentially declining with consumption growth. "
-                f"Constant absolute risk aversion means SDF slope is independent of wealth level."
-            )
-            
-        elif request.utility_type == "CAPM":
-            # Linear CAPM SDF: m = a + b*R_m (affine in market return)
-            # Approximation: m ≈ 1 - γ*delta_c
-            m = 1 - 3 * delta_c  # Using γ=3 as typical
-            interpretation = (
-                "CAPM linear SDF: Simplified affine form m = a + b*R_m. This is a first-order "
-                "approximation to CRRA. The linear relationship makes asset pricing tractable but "
-                "misses higher-order risk aversion effects."
-            )
-        
-        for i in range(len(delta_c)):
-            sdf_points.append(SDFPoint(
-                delta_c=float(delta_c[i]),
-                m=float(m[i])
-            ))
-        
-        return SDFResponse(
-            utility_type=request.utility_type,
-            sdf_points=sdf_points,
-            interpretation=interpretation
-        )
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error calculating SDF: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating utility theory data: {str(e)}")

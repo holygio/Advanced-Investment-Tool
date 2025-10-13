@@ -1,0 +1,576 @@
+🎯 1 · Objective
+
+Rebuild the current Utility Explorer into a dynamic, pedagogical simulator that shows, side-by-side, how preferences (CARA / CRRA / DARA) shape risk attitudes and how these preferences translate into the Stochastic Discount Factor (SDF) used in asset pricing.
+The goal is conceptual clarity — not empirical fitting — so everything must run fully offline with synthetic data.
+
+🧩 2 · Architecture Overview
+Layer	Responsibility
+Backend (FastAPI / Python)	Generate arrays for 
+𝑈
+(
+𝑥
+)
+U(x), 
+𝑈
+′
+(
+𝑥
+)
+U
+′
+(x), 
+𝐴
+(
+𝑥
+)
+A(x), 
+𝑅
+(
+𝑥
+)
+R(x), and SDF paths under user-selected parameters.
+Frontend (Next.js / Plotly)	Render 3 interactive dashboards with sliders + explanatory overlays.
+Data	Synthetic vectors only; no API calls.
+Pages	/theory/utility/ → tabs: Utility & Marginal, Risk Aversion, SDF Explorer.
+⚙️ 3 · Backend API
+
+Endpoint: /api/theory/utility/generate
+
+Input
+{
+  "utility": "CRRA" | "CARA" | "DARA",
+  "gamma": 3.0,
+  "beta": 0.99,
+  "wealth_min": 1,
+  "wealth_max": 100,
+  "sigma_c": 0.02,
+  "rho": -0.3,
+  "seed": 42
+}
+
+Core Formulas
+Type	Utility Function 
+𝑈
+(
+𝑥
+)
+U(x)	Marginal 
+𝑈
+′
+(
+𝑥
+)
+U
+′
+(x)	Notes
+CARA	
+−
+𝑒
+−
+𝑏
+𝑥
+/
+𝑏
+−e
+−bx
+/b	
+𝑒
+−
+𝑏
+𝑥
+e
+−bx
+	Constant A(x)=b
+CRRA	
+𝑥
+1
+−
+𝛾
+/
+(
+1
+−
+𝛾
+)
+x
+1−γ
+/(1−γ)	
+𝑥
+−
+𝛾
+x
+−γ
+	Constant R(x)=γ
+DARA	
+(
+𝑎
++
+𝑥
+)
+1
+−
+𝛾
+/
+(
+1
+−
+𝛾
+)
+(a+x)
+1−γ
+/(1−γ)	
+(
+𝑎
++
+𝑥
+)
+−
+𝛾
+(a+x)
+−γ
+	Both A(x), R(x) ↓ in x
+
+Risk Aversion:
+
+𝐴
+(
+𝑥
+)
+=
+−
+𝑈
+′
+′
+(
+𝑥
+)
+𝑈
+′
+(
+𝑥
+)
+,
+𝑅
+(
+𝑥
+)
+=
+𝑥
+𝐴
+(
+𝑥
+)
+A(x)=−
+U
+′
+(x)
+U
+′′
+(x)
+	​
+
+,R(x)=xA(x)
+
+SDF path:
+Simulate 240 months of consumption growth Δc ~ N(0.002, σ_c).
+Then
+
+𝑚
+𝑡
+=
+𝛽
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m
+t
+	​
+
+=β
+U
+′
+(c
+t
+	​
+
+)
+U
+′
+(c
+t+1
+	​
+
+)
+	​
+
+
+Normalize 
+𝐸
+[
+𝑚
+𝑡
+]
+=
+1
+E[m
+t
+	​
+
+]=1.
+Also compute CAPM linear SDF:
+
+𝑚
+𝑡
+𝐶
+𝐴
+𝑃
+𝑀
+=
+𝑎
+−
+𝑏
+𝑅
+𝑚
+,
+𝑡
+m
+t
+CAPM
+	​
+
+=a−bR
+m,t
+	​
+
+
+with 
+𝑅
+𝑚
+∼
+𝑁
+(
+0.005
+,
+0.04
+)
+R
+m
+	​
+
+∼N(0.005,0.04) and 
+𝜌
+(
+𝑅
+𝑚
+,
+Δ
+𝑐
+)
+=
+𝜌
+ρ(R
+m
+	​
+
+,Δc)=ρ.
+
+Output
+
+JSON object containing:
+
+{
+  "U": [...],
+  "Uprime": [...],
+  "A": [...],
+  "R": [...],
+  "SDF_utility": [...],
+  "SDF_capm": [...],
+  "pricing_errors": [...]
+}
+
+🎨 4 · Frontend Implementation
+🔹 Tab 1 — Utility & Marginal Utility
+
+Plot both 
+𝑈
+(
+𝑥
+)
+U(x) and 
+𝑈
+′
+(
+𝑥
+)
+U
+′
+(x) on dual axes.
+
+Sliders: γ (0–10), wealth range (0–100), utility type.
+
+Shade region where marginal utility falls fastest (“Diminishing returns to wealth”).
+
+Tooltip: display current 
+𝑥
+,
+𝑈
+,
+𝑈
+′
+,
+𝑀
+𝑈
+_
+𝑟
+𝑎
+𝑡
+𝑖
+𝑜
+=
+𝑈
+′
+/
+𝑈
+x,U,U
+′
+,MU_ratio=U
+′
+/U.
+
+Add theory caption: “Curvature of U(x) determines aversion to risk.”
+
+🔹 Tab 2 — Risk Aversion Visualizer
+
+Plot A(x) (left y-axis) and R(x) (right y-axis).
+
+Overlay all three utility types (toggle checkbox).
+
+Annotate:
+
+Flat A(x) = CARA
+
+Constant R(x) = CRRA
+
+Both declining = DARA
+
+Dynamic labels show numeric values for 
+𝐴
+(
+10
+)
+A(10), 
+𝑅
+(
+10
+)
+R(10).
+
+Add “Interpretation Card” under plot:
+
+Absolute RA measures fear per $1 loss; Relative RA measures fear relative to wealth.
+
+🔹 Tab 3 — SDF Explorer
+
+Show how risk aversion and consumption volatility affect discounting.
+
+Elements:
+
+Line 1: Utility-based SDF path.
+
+Line 2: Linear CAPM SDF (affine).
+
+Shade “Recession Region” (Δc < 0).
+
+Sliders:
+
+σ_c (consumption volatility)
+
+ρ (consumption–market correlation)
+
+γ (risk aversion)
+
+KPI cards:
+
+Mean SDF
+
+Std SDF
+
+Pricing error 
+1
+−
+𝐸
+[
+𝑚
+𝑅
+]
+1−E[mR]
+
+Add interactive “Freeze state” cursor → shows implied asset price for that state.
+
+Tooltip text:
+“Higher m ⇒ expensive state; assets paying here require lower expected return.”
+
+🧮 5 · Advanced Add-Ons (Optional if time permits)
+Feature	Purpose
+State-Price Heatmap	2-D map of 
+𝑚
+𝑡
+m
+t
+	​
+
+ vs consumption growth & R_m).
+β-pricing panel	Show 
+𝐸
+[
+𝑅
+𝑖
+]
+−
+𝑟
+𝑓
+=
+−
+𝐶
+𝑜
+𝑣
+(
+𝑅
+𝑖
+,
+𝑚
+)
+/
+𝑉
+𝑎
+𝑟
+(
+𝑚
+)
+E[R
+i
+	​
+
+]−r
+f
+	​
+
+=−Cov(R
+i
+	​
+
+,m)/Var(m) live, linking SDF to CAPM.
+Toggle for log-utility	
+𝑈
+(
+𝑥
+)
+=
+ln
+⁡
+(
+𝑥
+)
+U(x)=ln(x) as special case γ=1.
+🧭 6 · Theory Cards (Text Blocks)
+
+Utility & Marginal:
+
+Utility quantifies satisfaction from wealth. The steeper its curvature, the faster marginal utility declines — and the stronger the aversion to risk.
+
+Risk Aversion:
+
+CARA implies a fixed fear of loss, CRRA assumes risk aversion is proportional to wealth, and DARA suggests investors grow bolder as they become richer.
+
+SDF Explorer:
+
+The SDF translates future payoffs into present value.
+Under utility theory 
+𝑚
+𝑡
+=
+𝛽
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+/
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m
+t
+	​
+
+=βU
+′
+(c
+t+1
+	​
+
+)/U
+′
+(c
+t
+	​
+
+).
+Under CAPM it’s linear: 
+𝑚
+𝑡
+=
+𝑎
+−
+𝑏
+𝑅
+𝑚
+m
+t
+	​
+
+=a−bR
+m
+	​
+
+.
+Both imply assets that pay off in recessions are more valuable and earn lower expected returns.
+
+✅ 7 · Acceptance Checklist
+Criterion	Result
+Plots react smoothly to γ, σ_c, ρ	✅
+Marginal utility declines visibly	✅
+Risk aversion curves behave per theory	✅
+Utility-based and CAPM SDF both displayed	✅
+Recession region shaded correctly	✅
+Works offline (Deterministic seed)	✅
+📄 8 · Final Instruction for Replit AI Agent
+
+Implement this Utility & SDF module upgrade exactly as specified.
+
+Refactor backend to generate synthetic data via the given formulas.
+
+Redesign frontend tabs with comparative and annotated Plotly charts.
+
+Add sliders for γ, σ_c, ρ, and utility type.
+
+Integrate the CAPM β-pricing relation in the Theory tab for completeness.
+
+Ensure plots are responsive, color-coded, and intuitive for teaching risk aversion and discounting.
