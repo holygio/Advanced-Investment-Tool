@@ -16,6 +16,7 @@ import FactorAnalyzer from "@/pages/factor-analyzer";
 import Performance from "@/pages/performance";
 import UtilityExplorer from "@/pages/utility-explorer";
 import FixedIncome from "@/pages/fixed-income";
+import StudyFlashcards from "@/pages/study-flashcards";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -54,6 +55,11 @@ function Router() {
       <Route path="/fixed-income">
         <ModuleLayoutWrapper>
           <FixedIncome />
+        </ModuleLayoutWrapper>
+      </Route>
+      <Route path="/study/flashcards">
+        <ModuleLayoutWrapper>
+          <StudyFlashcards />
         </ModuleLayoutWrapper>
       </Route>
       <Route>

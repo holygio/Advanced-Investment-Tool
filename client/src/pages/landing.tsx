@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, BarChart3, LineChart, BookOpen } from "lucide-react";
+import { TrendingUp, BarChart3, LineChart, BookOpen, Brain } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Landing() {
@@ -102,10 +102,51 @@ export default function Landing() {
           </p>
         </Card>
 
+        {/* Study Tools */}
+        <Card className="p-8 bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200">
+          <div className="flex items-center gap-3 mb-4">
+            <Brain className="h-8 w-8 text-blue-600" />
+            <h2 className="text-2xl font-semibold">Study Flashcards</h2>
+          </div>
+          <p className="text-muted-foreground mb-6">
+            Master advanced investments concepts with interactive flashcards from past exams. Each card includes the professor's 5-step framework to help you understand:
+          </p>
+          <ul className="space-y-2 ml-6 mb-6">
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Problem identification and topic classification</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Single vs combined topic analysis</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Relevant variables and effects</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Required actions and methodology</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-600 mt-1">•</span>
+              <span>Key takeaways and results</span>
+            </li>
+          </ul>
+          <div className="flex gap-4">
+            <Link href="/study/flashcards">
+              <Button size="lg" className="gap-2" data-testid="button-study-flashcards">
+                <Brain className="h-5 w-5" />
+                Study Flashcards
+              </Button>
+            </Link>
+          </div>
+        </Card>
+
         {/* Quick Start Button */}
         <div className="flex justify-center pb-8">
           <Link href="/portfolio">
-            <Button size="lg" className="gap-2" data-testid="button-get-started">
+            <Button size="lg" variant="outline" className="gap-2" data-testid="button-get-started">
               <TrendingUp className="h-5 w-5" />
               Start Building Portfolios
             </Button>
