@@ -1,0 +1,880 @@
+🔧 Prompt — Enrich Theory Tab: Utility & SDF
+
+Page: /theory/utility/page.tsx
+
+Goal
+
+Rebuild the Utility & SDF Theory tab in first-principles language, fully aligned with Lecture 5 (Sept 26, 2025). Cover: CARA/CRRA/DARA, marginal utility → SDF, stochastic dominance (FSD/SSD/TSD), CAPM vs SD, why/when MV is an approximation, SD-based SDFs, and LPM → M-LPM equilibrium. No data calls; render markdown with LaTeX. 
+
+Advanced Investments Lecture Se…
+
+Layout (collapsible TheoryCards, in order)
+1) Why Utility Matters for Pricing
+
+Utility encodes risk preferences; its marginal utility shapes the SDF 
+𝑚
+m used in pricing:
+
+1
+=
+𝐸
+[
+𝑚
+𝑡
++
+1
+𝑅
+𝑡
++
+1
+]
+,
+𝑚
+𝑡
++
+1
+∝
+𝑈
+′
+(
+𝐶
+𝑡
++
+1
+)
+1=E[m
+t+1
+	​
+
+R
+t+1
+	​
+
+],m
+t+1
+	​
+
+∝U
+′
+(C
+t+1
+	​
+
+)
+
+Risk aversion ⇒ 
+𝑈
+′
+U
+′
+ declines with wealth; “bad states” (low 
+𝐶
+C) have high 
+𝑚
+m. 
+
+Advanced Investments Lecture Se…
+
+
+So what? All models (CAPM, multi-factor, LPM) imply a particular shape for 
+𝑈
+U and thus for 
+𝑚
+m. 
+
+Advanced Investments Lecture Se…
+
+2) Traditional Utility Classes: CRRA, CARA, DARA
+
+CRRA: 
+𝑈
+(
+𝑥
+)
+=
+𝑥
+1
+−
+𝛾
+−
+1
+1
+−
+𝛾
+U(x)=
+1−γ
+x
+1−γ
+−1
+	​
+
+ (log when 
+𝛾
+=
+1
+γ=1); Relative RA 
+=
+𝛾
+=γ (constant).
+
+CARA: 
+𝑈
+(
+𝑥
+)
+=
+−
+𝑒
+−
+𝑏
+𝑥
+U(x)=−e
+−bx
+; Absolute RA 
+=
+𝑏
+=b (constant).
+
+DARA: e.g., 
+𝑈
+(
+𝑥
+)
+=
+ln
+⁡
+𝑥
+U(x)=lnx; ARA decreases with wealth.
+
+These summarize risk attitude when SDF isn’t explicit. 
+
+Advanced Investments Lecture Se…
+
+
+So what? Curvature of 
+𝑈
+U ⇒ strength of risk aversion and SDF slope. 
+
+Advanced Investments Lecture Se…
+
+3) Marginal Utility → SDF (General + CAPM)
+𝑚
+𝑡
++
+1
+=
+𝛽
+𝑈
+′
+(
+𝐶
+𝑡
++
+1
+)
+𝑈
+′
+(
+𝐶
+𝑡
+)
+(utility-based)
+m
+t+1
+	​
+
+=β
+U
+′
+(C
+t
+	​
+
+)
+U
+′
+(C
+t+1
+	​
+
+)
+	​
+
+(utility-based)
+𝑚
+𝑡
++
+1
+=
+𝑎
++
+𝑏
+𝑅
+𝑀
+,
+𝑡
++
+1
+,
+ 
+𝑏
+<
+0
+(CAPM affine SDF)
+m
+t+1
+	​
+
+=a+bR
+M,t+1
+	​
+
+, b<0(CAPM affine SDF)
+
+CAPM requires investing “in everything” so 
+𝑅
+𝑀
+R
+M
+	​
+
+ tracks wealth/consumption risk. Real investors may have non-market exposures (home, human capital). 
+
+Advanced Investments Lecture Se…
+
+
+So what? CAPM is a linear approximation; richer SDFs allow non-linear state pricing. 
+
+Advanced Investments Lecture Se…
+
+4) Stochastic Dominance (FSD → TSD)
+
+FSD (non-satiation): 
+𝑈
+′
+>
+0
+⇒
+𝑚
+>
+0
+U
+′
+>0⇒m>0.
+
+SSD (risk aversion): 
+𝑈
+′
+′
+<
+0
+⇒
+𝑚
+U
+′′
+<0⇒m decreasing.
+
+TSD (skewness pref.): 
+𝑈
+′
+′
+′
+>
+0
+⇒
+𝑚
+U
+′′′
+>0⇒m decreasing at a decreasing rate.
+
+SD sets economically necessary sign/shape constraints on 
+𝑚
+m. 
+
+Advanced Investments Lecture Se…
+
+
+So what? SD generalizes MV beyond normality/quadratic utility. 
+
+Advanced Investments Lecture Se…
+
+5) CAPM vs SD (Violations & Linear Limits)
+
+CAPM SDF 
+𝑚
+=
+𝑎
++
+𝑏
+𝑅
+𝑀
+m=a+bR
+M
+	​
+
+ can satisfy risk aversion 
+𝑏
+<
+0
+b<0 but may violate non-satiation (negative 
+𝑚
+m in extremes).
+
+MV implies quadratic 
+𝑈
+U → only locally valid; SD admits non-linear 
+𝑚
+m. 
+
+Advanced Investments Lecture Se…
+
+
+So what? CAPM/MV are useful approximations, fragile in tails. 
+
+Advanced Investments Lecture Se…
+
+6) Why/When MV Still Useful
+
+MV relies on (i) normal returns or (ii) quadratic 
+𝑈
+U.
+
+By Taylor approx (Tsiang, 1972), it works over limited ranges; fails in extremes and can be FSD-dominated. 
+
+Advanced Investments Lecture Se…
+
+
+So what? Good baseline; upgrade when tails/skew matter. 
+
+Advanced Investments Lecture Se…
+
+7) SD-Based SDFs (Descriptive Approach)
+
+Estimate 
+𝑚
+m non-parametrically via 
+𝐸
+[
+𝑚
+𝑅
+]
+=
+1
+E[mR]=1; enforce 
+𝑚
+>
+0
+m>0, decreasing, etc.
+
+Empirically shows strong aversion to large losses (~ −12%). 
+
+Advanced Investments Lecture Se…
+
+
+So what? Lets the data shape 
+𝑚
+m; some anomalies persist. 
+
+Advanced Investments Lecture Se…
+
+8) Lower Partial Moments (LPM) & M-LPM Equilibrium
+
+Definition: 
+𝐿
+𝑃
+𝑀
+𝑛
+(
+𝜏
+)
+=
+𝐸
+[
+max
+⁡
+(
+𝜏
+−
+𝑅
+,
+0
+)
+𝑛
+]
+LPM
+n
+	​
+
+(τ)=E[max(τ−R,0)
+n
+].
+
+Semivariance: 
+𝐿
+𝑃
+𝑀
+2
+(
+0
+)
+LPM
+2
+	​
+
+(0).
+
+Under normality, MV ≈ LPM; in general, M-LPM yields an equilibrium SDF of form 
+𝑚
+=
+𝑎
++
+𝑏
+min
+⁡
+(
+𝑅
+𝑀
+−
+𝑟
+𝑓
+,
+0
+)
+m=a+bmin(R
+M
+	​
+
+−r
+f
+	​
+
+,0) (risk-neutral above threshold). 
+
+Advanced Investments Lecture Se…
+
+Portfolio separation holds with a risk-free asset; efficient sets differ from MV. 
+
+Advanced Investments Lecture Se…
+
+
+So what? LPM focuses on downside risk, preserving non-satiation and risk aversion. 
+
+Advanced Investments Lecture Se…
+
+9) ESG (Optional Theory Note)
+
+ESG fits if/when it affects returns; factorizable (long high ESG − short low ESG).
+
+Realized vs expected returns can diverge as flows move prices. 
+
+Advanced Investments Lecture Se…
+
+UI notes: Render LaTeX; add ExplainTips for “non-satiation,” “negative 
+𝑚
+m,” and “LPM vs MV.”
+Acceptance: All sections above present formulas + “So what?” lines, mirroring Lecture 5. 
+
+Advanced Investments Lecture Se…
+
+🔧 Prompt — Enrich Theory Tab: Fixed Income & Derivatives
+
+Page: /theory/fixedincome/page.tsx
+
+Goal
+
+Rebuild the Fixed Income & Derivatives Theory tab in first-principles language, aligned with Lecture 6 (Oct 6, 2025). Cover: bonds’ payoff asymmetry, interest-rate risk (term structure, duration–convexity intuition), default risk (ratings, recovery, risk premia, CDO tranching), 5-factor (incl. TERM, CREDIT), stocks–bonds links, derivatives’ limits for SDF pricing, and risk-neutral probabilities. No data; markdown + LaTeX. 
+
+Advanced Investments Lecture Oc…
+
+Layout (collapsible TheoryCards, in order)
+1) Why “Asset Pricing ≠ Only Stocks”
+
+CAPM/MV apply in principle to all assets, but other asset classes have distinct risk drivers; bonds & derivatives deserve dedicated treatment. 
+
+Advanced Investments Lecture Oc…
+
+
+So what? For a complete model/SDF, we must capture interest-rate and default risks, not just 
+𝑅
+𝑀
+R
+M
+	​
+
+. 
+
+Advanced Investments Lecture Oc…
+
+2) Bonds: Payoffs, Asymmetry, and Non-Linearity
+
+Fixed coupons + principal; limited upside (single-digits), downside to −100%.
+
+Non-linear price–yield relation; coupon reinvestment matters. 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Risk is not symmetric; linear β intuition is fragile for rates. 
+
+Advanced Investments Lecture Oc…
+
+3) Interest-Rate Risk (Term Structure > Single YTM)
+
+Bond price: 
+𝑃
+=
+∑
+𝑡
+=
+1
+𝑇
+coupon
+𝑡
+(
+1
++
+𝑟
+𝑡
+)
+𝑡
++
+principal
+(
+1
++
+𝑟
+𝑇
+)
+𝑇
+P=∑
+t=1
+T
+	​
+
+(1+r
+t
+	​
+
+)
+t
+coupon
+t
+	​
+
+	​
+
++
+(1+r
+T
+	​
+
+)
+T
+principal
+	​
+
+.
+
+YTM is a single summary; reality is a vector of spot rates → term structure matters.
+
+Sensitivity drivers: maturity (longer ⇒ more sensitive) and coupon (higher ⇒ less sensitive). 
+
+Advanced Investments Lecture Oc…
+
+Practical signal: term spread (10y–3m) is informative (FF 1993 link). 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Rate moves are multi-tenor; use curve intuition, not just a scalar YTM. 
+
+Advanced Investments Lecture Oc…
+
+4) Duration–Convexity (Intuition Card)
+
+Approximate price change for yield shock 
+Δ
+𝑦
+Δy:
+
+Δ
+𝑃
+𝑃
+≈
+−
+𝐷
+Δ
+𝑦
++
+1
+2
+𝐶
+(
+Δ
+𝑦
+)
+2
+P
+ΔP
+	​
+
+≈−DΔy+
+2
+1
+	​
+
+C(Δy)
+2
+
+Asymmetry: +100 bps vs −100 bps impacts are not equal (convexity). 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Use duration–convexity for scenario sense-checking; be wary of large shocks. 
+
+Advanced Investments Lecture Oc…
+
+5) Default (Credit) Risk
+
+Ratings (AAA…D) proxy PD; recovery matters; large investors often face IG constraints (BBB+); downgrades trigger flows. 
+
+Advanced Investments Lecture Oc…
+
+Prices reflect PD × LGD and a risk premium (non-linear; varies with rating).
+
+Historical default rates and recession regimes explain spread cycles; risk premia are time-varying. 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Credit spreads embed expected losses + risk compensation; both move with the cycle. 
+
+Advanced Investments Lecture Oc…
+
+6) Structured Credit (CDO Tranching)
+
+Pool splits into equity, mezz, senior, super-senior; losses flow from bottom up.
+
+Senior tranches can appear low-risk until correlation/regime shifts. 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Tranching repackages default risk; systemic correlation is the Achilles’ heel. 
+
+Advanced Investments Lecture Oc…
+
+7) A Unified 5-Factor SDF (Stocks + Bonds)
+
+Early FF (1993) includes TERM and CREDIT alongside MKT/SMB/HML:
+
+𝑚
+𝑡
+=
+𝑎
++
+𝑏
+𝑀
+𝑅
+𝑡
+𝑀
++
+𝑏
+𝑆
+𝑀
+𝐵
+𝑆
+𝑀
+𝐵
+𝑡
++
+𝑏
+𝐻
+𝑀
+𝐿
+𝐻
+𝑀
+𝐿
+𝑡
++
+𝑏
+𝑇
+𝐸
+𝑅
+𝑀
+𝑇
+𝐸
+𝑅
+𝑀
+𝑡
++
+𝑏
+𝐶
+𝑅
+𝐸
+𝐷
+𝐶
+𝑅
+𝐸
+𝐷
+𝑡
+m
+t
+	​
+
+=a+b
+M
+	​
+
+R
+t
+M
+	​
+
++b
+SMB
+	​
+
+SMB
+t
+	​
+
++b
+HML
+	​
+
+HML
+t
+	​
+
++b
+TERM
+	​
+
+TERM
+t
+	​
+
++b
+CRED
+	​
+
+CRED
+t
+	​
+
+
+TERM = long − short gov’t returns; CREDIT = corp − gov’t returns.
+
+Stocks and bonds are linked through discounting (rates) and distress (credit). 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Cross-asset SDF needs both curve and credit to price broad portfolios. 
+
+Advanced Investments Lecture Oc…
+
+8) Derivatives: Why SDF Pricing Is Limited in Practice
+
+In principle, same SDF; in practice, hedge ratios (deltas) change continuously → option “β” is time-varying and highly non-linear.
+
+SDF approaches suit longer-horizon investments, not fast-changing derivatives exposures. 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Use SDF for risk pricing intuition; value options via no-arbitrage machinery. 
+
+Advanced Investments Lecture Oc…
+
+9) Risk-Neutral Probabilities (Educational Bridge)
+
+In a one-step binomial:
+
+𝐸
+𝑄
+[
+𝑅
+]
+=
+𝑟
+𝑓
+⇒
+𝑝
+𝑄
+=
+(
+1
++
+𝑟
+𝑓
+)
+−
+𝑑
+𝑢
+−
+𝑑
+E
+Q
+	​
+
+[R]=r
+f
+	​
+
+⇒p
+Q
+	​
+
+=
+u−d
+(1+r
+f
+	​
+
+)−d
+	​
+
+
+These risk-neutral 
+𝑝
+𝑄
+p
+Q
+	​
+
+ are not physical probabilities but are forward-looking from option prices. Shifts in 
+𝑝
+𝑄
+p
+Q
+	​
+
+ can reveal regime changes. 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Options encode state prices; great for extracting market-implied scenarios. 
+
+Advanced Investments Lecture Oc…
+
+10) Performance & Portfolio Construction Notes (Cross-links)
+
+Hedge funds/market timing: exposures and premia are time-varying; evaluation metrics can swing with regimes.
+
+Hierarchical portfolios: re-optimize at the total level; Treynor for well-diversified sleeves vs total σ when sleeves aren’t. 
+
+Advanced Investments Lecture Oc…
+
+
+So what? Always look top-down across asset classes; cross-correlations matter. 
+
+Advanced Investments Lecture Oc…
+
+UI notes: Render equations; ExplainTips for “term vs YTM,” “convexity asymmetry,” “risk-neutral vs physical,” and “credit = PD × LGD + premium.”
+Acceptance: Each card includes formulas + plain English + a one-line “So what?”, aligned with Lecture 6 emphasis. 
+
+Advanced Investments Lecture Oc…

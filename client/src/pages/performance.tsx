@@ -92,11 +92,17 @@ export default function Performance() {
   });
 
   // Calculate portfolio distribution for histogram
-  const portfolioReturns = portfolioData?.returns ? (() => {
+  const portfolioReturns = portfolioData?.returns && Object.keys(portfolioData.returns).length > 0 ? (() => {
     const tickers = Object.keys(portfolioData.returns);
-    return portfolioData.returns[tickers[0]].map((_: any, idx: number) => {
+    const firstTickerReturns = portfolioData.returns[tickers[0]];
+    
+    if (!firstTickerReturns || !Array.isArray(firstTickerReturns) || firstTickerReturns.length === 0) {
+      return [];
+    }
+    
+    return firstTickerReturns.map((_: any, idx: number) => {
       const avgReturn = tickers.reduce((sum, ticker) => {
-        return sum + (portfolioData.returns[ticker][idx]?.ret || 0);
+        return sum + (portfolioData.returns[ticker]?.[idx]?.ret || 0);
       }, 0) / tickers.length;
       return avgReturn;
     });
