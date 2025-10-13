@@ -5,8 +5,13 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 from datetime import datetime
+import hashlib
+import json
 
 router = APIRouter()
+
+# Simple in-memory cache for price data
+_price_cache = {}
 
 class FetchPricesRequest(BaseModel):
     tickers: List[str]
@@ -30,51 +35,60 @@ class FetchPricesResponse(BaseModel):
 @router.post("/data/prices", response_model=FetchPricesResponse)
 async def fetch_prices(request: FetchPricesRequest):
     try:
+        # Create cache key from request parameters
+        cache_key = hashlib.md5(
+            json.dumps({
+                "tickers": sorted(request.tickers),
+                "start": request.start,
+                "end": request.end,
+                "interval": request.interval,
+                "log_returns": request.log_returns
+            }, sort_keys=True).encode()
+        ).hexdigest()
+        
+        # Check cache first - instant response for cached data!
+        if cache_key in _price_cache:
+            print(f"Cache HIT for {request.tickers}")
+            return _price_cache[cache_key]
+        
+        print(f"Cache MISS for {request.tickers} - fetching from Yahoo Finance...")
+        
         prices_data = {}
         returns_data = {}
         
-        # Download all tickers at once for efficiency
-        # Only fetch Close prices to minimize data transfer and processing time
-        tickers_str = ' '.join(request.tickers)
-        data = yf.download(
-            tickers_str,
-            start=request.start,
-            end=request.end,
-            interval=request.interval,
-            progress=False,
-            auto_adjust=True,
-            actions=False  # Don't fetch dividends/splits  
-        )
-        
-        if data.empty:
-            return FetchPricesResponse(prices={}, returns={})
-        
-        # Extract only Close prices
-        if len(request.tickers) == 1:
-            # Single ticker - data is a simple DataFrame
-            close_data = data['Close'] if 'Close' in data.columns else data
-        else:
-            # Multiple tickers - extract Close column
-            if isinstance(data.columns, pd.MultiIndex):
-                close_data = data['Close']
-            else:
-                close_data = data
-        
-        # Process each ticker
+        # Download data for each ticker individually for simplicity and robustness
         for ticker in request.tickers:
             try:
-                # Get close prices for this ticker
-                if len(request.tickers) == 1:
-                    adj_close = close_data
+                data = yf.download(
+                    ticker,
+                    start=request.start,
+                    end=request.end,
+                    interval=request.interval,
+                    progress=False,
+                    auto_adjust=True,
+                    actions=False
+                )
+                
+                if data.empty:
+                    continue
+                
+                # Get close prices
+                if 'Close' in data.columns:
+                    adj_close = data['Close'].squeeze()
                 else:
-                    if ticker not in close_data.columns:
-                        continue
-                    adj_close = close_data[ticker]
+                    # If auto_adjust=True, the adjusted close is the default
+                    adj_close = data.iloc[:, 0].squeeze() if len(data.columns) > 0 else data.squeeze()
+                
+                # Ensure it's a pandas Series
+                if not isinstance(adj_close, pd.Series):
+                    adj_close = pd.Series(adj_close)
                 
                 # Convert to price lists
                 prices = []
-                for date, price in adj_close.items():
-                    if pd.notna(price):
+                for idx in range(len(adj_close)):
+                    date = adj_close.index[idx]
+                    price = adj_close.iloc[idx]
+                    if not pd.isna(price):
                         prices.append(PriceDataPoint(
                             date=date.strftime('%Y-%m-%d'),
                             adjClose=float(price)
@@ -89,8 +103,10 @@ async def fetch_prices(request: FetchPricesRequest):
                     returns = adj_close.pct_change()
                 
                 returns_list = []
-                for date, ret in returns.items():
-                    if pd.notna(ret):
+                for idx in range(len(returns)):
+                    date = returns.index[idx]
+                    ret = returns.iloc[idx]
+                    if not pd.isna(ret):
                         returns_list.append(ReturnDataPoint(
                             date=date.strftime('%Y-%m-%d'),
                             ret=float(ret)
@@ -102,7 +118,12 @@ async def fetch_prices(request: FetchPricesRequest):
                 print(f"Error processing {ticker}: {str(e)}")
                 continue
         
-        return FetchPricesResponse(prices=prices_data, returns=returns_data)
+        # Cache the response for instant future access
+        response = FetchPricesResponse(prices=prices_data, returns=returns_data)
+        _price_cache[cache_key] = response
+        print(f"Cached response for {request.tickers}")
+        
+        return response
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching prices: {str(e)}")
