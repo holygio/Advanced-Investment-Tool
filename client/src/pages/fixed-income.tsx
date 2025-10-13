@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import Plot from "react-plotly.js";
 import { Loader2 } from "lucide-react";
@@ -47,10 +47,10 @@ export default function FixedIncome() {
     rnMutation.mutate(newParams);
   };
 
-  // Trigger initial calculation
-  useState(() => {
+  // Trigger initial calculation on mount
+  useEffect(() => {
     rnMutation.mutate(rnParams);
-  });
+  }, []);
 
   const theory = (
     <div className="space-y-6 py-6">

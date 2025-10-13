@@ -1,0 +1,492 @@
+🎯 Goal
+
+Build an interactive visual module called Utility & SDF inside the Advanced Investments Interactive Lab that allows users to see, manipulate, and compare different utility functions (CARA, CRRA, DARA) and the corresponding Stochastic Discount Factors (SDFs) — both in shape and economic meaning — without relying on any real or simulated data.
+
+The focus is purely conceptual and visual:
+
+how the utility curve 
+𝑈
+(
+𝑥
+)
+U(x) changes with risk aversion;
+
+how the marginal utility 
+𝑈
+′
+(
+𝑥
+)
+U
+′
+(x) behaves;
+
+how the SDF 
+𝑚
+=
+𝛽
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+/
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m=βU
+′
+(c
+t+1
+	​
+
+)/U
+′
+(c
+t
+	​
+
+) transforms across CARA/CRRA/DARA;
+
+and how a linear CAPM-style SDF compares to these theoretical ones.
+
+🧠 1. Conceptual Scope
+
+This module visualizes four interconnected concepts from your lecture:
+
+Concept	Mathematical Representation	Visual Focus
+Utility Function	
+𝑈
+(
+𝑥
+)
+U(x)	Shape curvature and concavity
+Marginal Utility	
+𝑈
+′
+(
+𝑥
+)
+U
+′
+(x)	Declining slope with x (risk aversion)
+Absolute & Relative Risk Aversion	
+𝐴
+(
+𝑥
+)
+=
+−
+𝑈
+′
+′
+(
+𝑥
+)
+/
+𝑈
+′
+(
+𝑥
+)
+A(x)=−U
+′′
+(x)/U
+′
+(x), 
+𝑅
+(
+𝑥
+)
+=
+−
+𝑥
+𝑈
+′
+′
+(
+𝑥
+)
+/
+𝑈
+′
+(
+𝑥
+)
+R(x)=−xU
+′′
+(x)/U
+′
+(x)	How aversion changes with wealth
+Stochastic Discount Factor (SDF)	
+𝑚
+=
+𝛽
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+/
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m=βU
+′
+(c
+t+1
+	​
+
+)/U
+′
+(c
+t
+	​
+
+)	How utility translates into pricing weights
+
+No data is needed — all curves are generated from equations and sliders.
+
+🧩 2. Backend (Python / FastAPI → /backend/utility_world.py)
+
+Generate theoretical curves dynamically using numpy arrays over a wealth or consumption grid.
+
+import numpy as np
+import pandas as pd
+
+def utility_curves(x, gamma=3, b=0.001):
+    """Compute U(x), U'(x), A(x), R(x) for CARA, CRRA, DARA"""
+    curves = {}
+    # CRRA
+    U_crra = (x**(1-gamma) - 1) / (1 - gamma) if gamma != 1 else np.log(x)
+    Uprime_crra = x**(-gamma)
+    A_crra = gamma / x
+    R_crra = gamma
+
+    # CARA
+    U_cara = -np.exp(-b*x)
+    Uprime_cara = b*np.exp(-b*x)
+    A_cara = b * np.ones_like(x)
+    R_cara = b*x
+
+    # DARA (custom logarithmic form)
+    U_dara = np.log(x) - 0.5*np.log(1 + np.log(x)**2)
+    Uprime_dara = 1/(x*(1 + (np.log(x))**2))
+    A_dara = 1/(x*np.log(x+1))
+    R_dara = np.log(x)/(1 + np.log(x)**2)
+
+    curves['CRRA'] = {'U': U_crra, 'Uprime': Uprime_crra, 'A': A_crra, 'R': R_crra}
+    curves['CARA'] = {'U': U_cara, 'Uprime': Uprime_cara, 'A': A_cara, 'R': R_cara}
+    curves['DARA'] = {'U': U_dara, 'Uprime': Uprime_dara, 'A': A_dara, 'R': R_dara}
+
+    return pd.DataFrame({'x': x}), curves
+
+def sdf_from_utility(gamma=3, b=0.001, beta=0.99, cons_growth=np.linspace(-0.05,0.05,100)):
+    """Compute SDF paths for CARA and CRRA given consumption growth grid"""
+    sdf = {}
+    g = 1 + cons_growth
+    sdf['CRRA'] = beta * g**(-gamma)
+    sdf['CARA'] = beta * np.exp(-b*(g-1))
+    sdf['CAPM'] = 1 - 3*cons_growth  # linearized SDF (affine in Rm)
+    return pd.DataFrame({'Δc': cons_growth, 'm_CRRA': sdf['CRRA'], 'm_CARA': sdf['CARA'], 'm_CAPM': sdf['CAPM']})
+
+💻 3. Frontend (Next.js + Tailwind + Plotly → /frontend/app/utility/page.tsx)
+
+Structure into three interactive panels.
+
+🟦 Panel 1 — “Utility and Marginal Utility”
+
+Layout:
+
+Left: radio buttons → CARA / CRRA / DARA
+
+Slider → Risk aversion parameter (γ for CRRA, b for CARA)
+
+Chart 1: 
+𝑈
+(
+𝑥
+)
+U(x) curve
+
+Chart 2: 
+𝑈
+′
+(
+𝑥
+)
+U
+′
+(x) curve
+
+ExplainTips:
+
+“Concavity of U(x) indicates risk aversion.”
+
+“Steeper decline in U′(x) means stronger aversion.”
+
+“CARA has constant absolute aversion; CRRA constant relative; DARA decreasing absolute aversion.”
+
+Dynamic Display:
+As γ or b changes, both plots update instantly, letting the user see curvature tighten or flatten.
+
+🟨 Panel 2 — “Risk Aversion and Dominance”
+
+Charts:
+
+Absolute Risk Aversion: 
+𝐴
+(
+𝑥
+)
+=
+−
+𝑈
+′
+′
+(
+𝑥
+)
+/
+𝑈
+′
+(
+𝑥
+)
+A(x)=−U
+′′
+(x)/U
+′
+(x)
+
+Relative Risk Aversion: 
+𝑅
+(
+𝑥
+)
+=
+−
+𝑥
+𝑈
+′
+′
+(
+𝑥
+)
+/
+𝑈
+′
+(
+𝑥
+)
+R(x)=−xU
+′′
+(x)/U
+′
+(x)
+
+ExplainTips:
+
+“CARA: flat line → constant absolute aversion.”
+
+“CRRA: R(x) = γ (constant relative aversion).”
+
+“DARA: both A(x) and R(x) decline with x → wealth reduces risk aversion.”
+
+“SSD implies decreasing U′(x), while TSD adds preference for positive skew (convex U′′′(x)).”
+
+Add a small schematic diagram of FSD, SSD, TSD hierarchy on the side (static SVG).
+
+🟥 Panel 3 — “Stochastic Discount Factor (SDF) Explorer”
+
+Core Plot:
+
+𝑚
+(
+Δ
+𝑐
+)
+m(Δc) curves for CARA, CRRA, CAPM
+(x-axis = consumption growth or market return Δc, y-axis = m)
+
+Slider: risk aversion γ (CRRA) or b (CARA)
+
+Switch: “Show CAPM SDF” toggle
+
+Visual logic:
+
+All SDF curves slope downward (risk-averse).
+
+CRRA: convex in Δc → stronger aversion to downturns.
+
+CARA: exponential slope → constant sensitivity.
+
+CAPM: linear (affine) version: 
+𝑚
+=
+𝑎
++
+𝑏
+𝑅
+𝑚
+m=a+bR
+m
+	​
+
+.
+
+ExplainTips:
+
+“SDF transforms payoffs into present values.”
+
+“Steeper negative slope → higher risk aversion.”
+
+“When SDF turns negative, model violates non-satiation.”
+
+“CAPM assumes linear SDF; CRRA and CARA yield non-linear ones.”
+
+Annotations:
+
+Highlight “recession region” (Δc < 0) with shaded area where SDF rises above 1 — assets paying here are valuable hedges.
+
+📚 4. TheoryCard Content
+
+Utility, Risk Aversion, and the Stochastic Discount Factor
+
+The shape of 
+𝑈
+(
+𝑥
+)
+U(x) defines investor preferences: concavity → risk aversion.
+
+𝑈
+′
+(
+𝑥
+)
+U
+′
+(x) decreases with wealth → diminishing marginal utility.
+
+Risk aversion can be:
+
+CARA: constant absolute
+
+CRRA: constant relative
+
+DARA: decreasing absolute
+
+The SDF connects utility to asset pricing:
+
+𝑚
+𝑡
++
+1
+=
+𝛽
+𝑈
+′
+(
+𝑐
+𝑡
++
+1
+)
+𝑈
+′
+(
+𝑐
+𝑡
+)
+m
+t+1
+	​
+
+=β
+U
+′
+(c
+t
+	​
+
+)
+U
+′
+(c
+t+1
+	​
+
+)
+	​
+
+.
+
+CAPM’s linear SDF 
+𝑚
+=
+𝑎
++
+𝑏
+𝑅
+𝑀
+m=a+bR
+M
+	​
+
+ is a special, simplified case of CRRA.
+
+Stochastic dominance (FSD → SSD → TSD) links back to SDF curvature — positive slope violations indicate irrational preferences.
+
+Include collapsible “Math View” tab showing all formulas in LaTeX-rendered form.
+
+⚙️ 5. Interactivity Logic
+Control	Effect
+γ Slider	Updates curvature for CRRA and SDF slope
+b Slider	Updates CARA curvature
+Checkbox “Show CAPM SDF”	Toggles linear reference line
+Dropdown “Utility Type”	Switches all active curves
+Toggle “Show Risk Aversion Functions”	Adds/removes A(x), R(x) plots
+Export	CSV and PNG of current chart
+✅ 6. Acceptance Criteria
+
+✅ No data loading required — all curves computed analytically.
+
+✅ Users can switch between CARA, CRRA, DARA and see changes in U(x), U′(x), A(x), R(x), and SDF.
+
+✅ The SDF panel shows both utility-based (nonlinear) and CAPM (linear) SDFs.
+
+✅ Each plot has contextual “ExplainTip” popups linked to theory.
+
+✅ Includes TheoryCard with formulas, conditions, and interpretations.
+
+✅ Everything functions offline and instantly.
+
+🧩 7. Final Instruction for Replit AI Agent
+
+Implement a full Utility & SDF Visual Simulator inside the Advanced Investments Lab.
+
+The module must visually show:
+
+Three utility classes (CARA, CRRA, DARA);
+
+Corresponding marginal utilities and risk aversion measures;
+
+Stochastic Discount Factors derived from utility (plus CAPM linear SDF).
+
+No real or synthetic datasets are needed — all functions are generated mathematically.
+Ensure the experience is educational: include dynamic sliders, clear tooltips, and a TheoryCard summarizing all formulas, assumptions, and economic intuition.
+
+This module should make risk aversion and SDF concepts visually intuitive, bridging microeconomic preferences and asset pricing foundations.
