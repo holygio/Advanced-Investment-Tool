@@ -2,136 +2,17 @@
 
 ## Overview
 
-This is an interactive web platform for exploring advanced investment concepts including portfolio theory, CAPM, factor models, risk metrics, utility functions, and fixed income analysis. The application provides hands-on tools to visualize and test financial models using real market data from Yahoo Finance.
+This project is an interactive web platform designed to explore advanced investment concepts such as portfolio theory, CAPM, factor models, risk metrics, utility functions, and fixed income analysis. It offers hands-on tools for visualizing and testing financial models using real market data from Yahoo Finance. The application aims to provide a comprehensive learning environment for understanding complex financial theories and their practical application, supporting both theoretical exploration and practical analysis with real-world data.
 
-## Two Modes of Operation
+The platform operates in two main modes: "Practice Mode," which uses real market data and allows users to configure and analyze their own portfolios, and "Theory Mode" (currently in development), which will utilize synthetic data to explore financial theories with reproducible "Model Worlds."
 
-### Practice Mode (Your Data)
-- Use real market data from Yahoo Finance
-- Configure your own portfolio with tickers, dates, and constraints
-- Analyze actual historical returns and correlations
-- All calculations use weekly data with proper annualization (52 weeks/year)
-
-### Theory Mode (Model Worlds) - IN DEVELOPMENT
-- Explore financial theories with synthetic data generators
-- Six "Model Worlds" with known parameters:
-  - CAPM World - Perfect beta pricing with known betas
-  - Fama-French World - Multi-factor models with configurable factors
-  - LPM/Higher-Moments World - Non-normal distributions and downside risk
-  - Utility & SDF World - Preference-based asset pricing
-  - Fixed Income World - Term structure and credit spreads
-  - Risk-Neutral World - Options pricing
-- Reproducible with fixed random seeds
-- No API calls required - works offline
-
-## Six Learning Modules
-
-1. **Portfolio Builder** - Mean-Variance Optimization & Capital Market Line
-   - Efficient frontier visualization
-   - Pie chart allocation
-   - Correlation heatmap
-   - Optimal weights table
-
-2. **Model Tester** - CAPM regression and Security Market Line analysis
-
-3. **Factor Analyzer** - Fama-French 3-Factor & 5-Factor Models
-   - Historical factor data from Kenneth French Data Library (1926-2024)
-   - FF3: Market (Mkt-RF), Size (SMB), Value (HML)
-   - FF5: Adds Profitability (RMW) and Investment (CMA)
-   - Regression analysis with alpha, betas, t-statistics for user portfolios
-   - GRS test for joint alpha significance testing
-   - Correlation heatmap and cumulative factor returns visualization
-
-4. **Risk** - Performance metrics and higher moments analysis
-   - Sharpe, Treynor, Information Ratio, Jensen's Alpha, M²
-   - Return distribution histogram
-   - Lower Partial Moments (LPM) with configurable tau and n
-   - Return-LPM Frontier visualization
-
-5. **Utility Explorer** - Utility functions (CRRA, CARA, DARA) and SDF concepts
-
-6. **Fixed Income** - Term structure and credit spread analysis
-
-## Recent Changes (October 2025)
-
-### Portfolio Optimization Fixes
-- **Fixed Expected Return Bug**: Rewrote efficient frontier calculation to properly compute tangency portfolio metrics
-  - Was displaying 0.00% due to optimization failures
-  - Now correctly shows 17.03% annualized return using robust Markowitz optimization
-  - Algorithm: Min variance → Max return → 50 frontier points → Tangency selection via max Sharpe ratio
-  
-- **Fixed Pydantic Serialization**: Added `Field(serialization_alias='return')` to properly serialize `return_` field
-  - FastAPI now correctly emits `"return": 0.17` instead of `"return_": 0.17`
-  - Frontend properly reads tangency.return for Expected Return metric
-
-### Security Market Line Improvements
-- **Added Expected Return Field**: Backend now includes `expected_return` in CAPM results
-- **Enhanced SML Visualization**: 
-  - Red dashed SML line using backend-calculated data points
-  - Asset points with ticker labels and white borders
-  - Green diamond marker for risk-free rate (β=0)
-  - Orange star marker for market portfolio (β=1)
-  - Interactive tooltips with detailed metrics
-  
-- **Multi-Asset Default Portfolio**: Replaced old tickers with diversified 10-asset mix
-  - **Equities**: SPY (S&P 500), QQQ (Tech/Growth), IWM (Small Cap), XLF (Financials)
-  - **Fixed Income**: TLT (Long Treasuries), HYG (High Yield Bonds)
-  - **Commodities**: GLD (Gold), SLV (Silver)
-  - **FX**: UUP (US Dollar Index)
-  - **Volatility**: VIXY (VIX Futures - tail risk hedge)
-  - Enables testing of growth/value cycles, term/credit dynamics, commodity/FX diversification, and negative correlation effects
-
-### UX Improvements
-- **Auto-Execution**: CAPM analysis now auto-runs when portfolio data loads (removed "Run CAPM" button)
-- **Always-Accessible Configuration**: Portfolio configuration sidebar is now always editable (removed lock mechanism)
-  - Users can modify tickers, dates, and constraints at any time
-  - No need to return to home page to reconfigure
-  - Live updates when clicking "Load Data & Optimize Portfolio"
-
-### Fama-French Factor Analysis Module (October 2025)
-- **Complete Rewrite**: Replaced synthetic factor generation with real historical Fama-French data
-  - CSV files stored in `server/data/factors/` (FF3: 1926-2024, FF5: 1963-2024)
-  - Monthly factor returns from Kenneth French Data Library
-  - All returns converted to decimals with proper date handling
-
-- **Backend API** (`server/api/ff_factors.py`):
-  - `/api/ff/data` - Load and filter factor data by date range with descriptive statistics
-  - `/api/ff/analyze` - Run FF3/FF5 regressions on user portfolios
-  - `/api/ff/grs` - GRS test for joint hypothesis testing of alphas
-  - Data alignment with user portfolio returns using pandas merge
-
-- **Data Source Transparency**: 
-  - Added Kenneth French Data Library citation with hyperlink to Dartmouth College source
-  - Model formulas displayed prominently in both Theory and Practice tabs
-  - GRS test methodology documented: uses Yahoo Finance portfolio returns tested against historical FF factors
-
-- **UX/Styling Fixes**:
-  - Fixed theory section styling across ALL modules (CAPM, Portfolio Builder, Risk/Performance, Fixed Income, Utility Explorer, Factor Analyzer)
-  - Replaced invisible white text (`bg-background`) with proper contrast (`bg-muted/50 border border-border text-foreground`)
-  - All mathematical formulas now clearly visible in theory tabs
-
-- **Frontend** (`client/src/pages/factor-analyzer.tsx`):
-  - Model selector (FF3 vs FF5) with radio buttons
-  - Theory tabs with complete factor formulas and interpretations
-  - Three tabbed views:
-    1. **Descriptive Statistics** - Annualized means, std devs, min/max for each factor
-    2. **Correlations** - Plotly heatmap showing factor correlation matrix
-    3. **Factor Premia** - Cumulative return chart (log scale) showing factor performance over time
-  - Regression results table: Alpha (annualized), betas, t-stats, R² for each user ticker
-  - GRS test card: F-statistic, p-value, interpretation, degrees of freedom
-
-- **Technical Implementation**:
-  - Monthly frequency matching Fama-French data (changed from weekly)
-  - Annualization: multiply monthly returns by 12, std dev by √12
-
-### Risk Module Improvements (October 2025)
-- **Module Title**: Changed from "Risk & Performance" to "Risk" per user feedback
-- **UI Restructuring**: Removed Correlations tab, now 3 tabs: Overview, LPM & Frontier, Ratios & Performance
-- **Multi-Asset Metrics**: Updated to use all 10 portfolio assets for performance metrics calculation
-- **Bug Fixes**:
-  - Fixed `model.params.iloc[0]` AttributeError - changed to array indexing `model.params[0]`
-  - Fixed portfolio optimization default max_weight from 0.5 (50%) to 0.2 (20%)
-  - Ensures portfolio respects maximum weight per asset constraint
+Key capabilities include:
+- **Portfolio Builder:** Mean-Variance Optimization, Capital Market Line, efficient frontier visualization, and optimal weight calculation.
+- **Model Tester:** CAPM regression and Security Market Line analysis.
+- **Factor Analyzer:** Fama-French 3-Factor & 5-Factor Models using historical factor data.
+- **Risk Analysis:** Performance metrics (Sharpe, Treynor, Jensen's Alpha, LPM) and higher moments analysis.
+- **Utility Explorer:** Utility functions (CRRA, CARA, DARA) and Stochastic Discount Factor (SDF) concepts.
+- **Fixed Income:** Term structure and credit spread analysis.
 
 ## User Preferences
 
@@ -141,143 +22,55 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Architecture
 
-**Technology Stack:**
-- React 18 with TypeScript
-- Vite for build tooling and development server
-- Wouter for client-side routing
-- TanStack Query (React Query) for server state management
-- Shadcn UI component library based on Radix UI primitives
-- Tailwind CSS for styling with custom design tokens
-
-**Design System:**
-- Clean white/light theme for optimal graph visibility  
-- Inspired by professional financial dashboards
-- Custom color palette optimized for financial data visualization (trust blue, success green, danger red)
-- Typography: Inter for UI, IBM Plex Mono for numerical/tabular data
-
-**User Workflow:**
-1. User configures portfolio in left sidebar (tickers, dates, constraints)
-2. Clicks "Load Data & Optimize Portfolio" button
-3. Navigates to /portfolio route
-4. **Both Portfolio Builder AND CAPM automatically run** with configured parameters
-5. Results are displayed immediately with graphs and theory tabs
-6. Configuration sidebar remains accessible for live updates and reconfiguration
-
-**State Management:**
-- Global state managed via React Context (`GlobalStateContext`) for shared parameters:
-  - Ticker symbols
-  - Date ranges (start/end)
-  - Risk-free rate
-  - Market proxy selection
-- Server state cached and synchronized using TanStack Query
-- Component-local state for UI interactions
-
-**Component Structure:**
-- Module layout pattern with Practice/Theory tabs
-- Reusable components: MetricCard, DataTable, charts
-- Shared GlobalControls bar for cross-module parameters
-- AppSidebar for navigation between modules
+The frontend is built with **React 18** and **TypeScript**, using **Vite** for tooling. **Wouter** handles client-side routing, and **TanStack Query** manages server state. The UI leverages **Shadcn UI** components, based on Radix UI primitives, and **Tailwind CSS** for styling, adhering to a clean, light theme inspired by professional financial dashboards. The design system features a custom color palette optimized for financial data and uses Inter for UI typography and IBM Plex Mono for numerical data. User workflow involves configuring portfolios in a persistent sidebar, triggering automatic analysis upon data loading, and real-time updates. Global state for shared parameters (tickers, dates, risk-free rate) is managed via `GlobalStateContext`, with server state cached by TanStack Query.
 
 ### Backend Architecture
 
-**Hybrid Node.js + Python Architecture:**
-- **Express.js** (Node.js) serves as the main application server
-  - Handles static file serving via Vite in development
-  - Proxies `/api/*` requests to Python FastAPI backend
-  - Session management (placeholder for user storage in `storage.ts`)
-
-- **FastAPI** (Python) provides computational APIs
-  - Runs on port 8000, spawned as child process from Express server
-  - Organized into domain-specific routers:
-    - `data.py` - Price/return data fetching via yfinance
-    - `portfolio.py` - Portfolio optimization (efficient frontier, tangency portfolio)
-    - `model.py` - CAPM regression and SML calculations
-    - `risk.py` - Performance metrics (Sharpe, Treynor, Jensen's alpha, LPM)
-    - `utility.py` - Utility function calculations (CRRA, CARA, DARA)
-    - `fixedincome.py` - Yield curve and credit spread data
-
-**Why this hybrid approach:**
-- Python excels at numerical computation with libraries like numpy, pandas, scipy, cvxpy
-- Node.js provides superior frontend development experience and React integration
-- Clear separation: Node handles serving/routing, Python handles computation
-- No authentication required for educational tool (placeholder storage exists for future expansion)
+A hybrid **Node.js (Express.js)** and **Python (FastAPI)** architecture is employed. Express.js serves the frontend and proxies `/api/*` requests to the Python FastAPI backend. FastAPI, running on port 8000, provides computational APIs, leveraging Python's strengths in numerical computing with libraries like NumPy, Pandas, SciPy, and Cvxpy. This separation allows Node.js to handle serving and routing efficiently while Python manages complex financial computations, including data fetching (yfinance), portfolio optimization, CAPM regression, risk metrics, and fixed income calculations. Pydantic models in Python are used for defining response schemas, mirrored by Zod schemas in TypeScript for type safety across the frontend/backend boundary.
 
 ### Data Processing Layer
 
-**Market Data:**
-- Primary source: yfinance (Yahoo Finance) - free, no API key required
-- Data types: adjusted close prices, computed returns (simple or log)
-- Interval support: daily (1d), weekly (1wk), monthly (1mo)
-- All data fetched on-demand, no database persistence (stateless)
-
-**Financial Computations:**
-- Portfolio optimization: cvxpy for convex optimization problems
-- Statistics: numpy for matrix operations, scipy for statistical functions
-- Regression analysis: statsmodels for OLS regression (CAPM, factor models)
-- Time series: pandas for data manipulation and alignment
-
-**Response Schemas:**
-- Defined using Pydantic models in Python (FastAPI)
-- Mirrored using Zod schemas in `shared/schema.ts` for type safety
-- Consistent data structures across frontend/backend boundary
+Market data is primarily sourced from **yfinance (Yahoo Finance)**, providing adjusted close prices and computed returns. Data fetching is on-demand, making the application stateless. Financial computations utilize **cvxpy** for optimization, **numpy** and **scipy** for statistical operations, **statsmodels** for regression analysis, and **pandas** for data manipulation and alignment.
 
 ### Database & Persistence
 
-**Current State:**
-- No persistent database - application is stateless
-- Drizzle ORM configured (`drizzle.config.ts`) for PostgreSQL via Neon serverless
-- Schema defined in `shared/schema.ts` (currently only User model as placeholder)
-- In-memory storage (`MemStorage` class) used for development
-
-**Rationale:**
-- Educational tool doesn't require data persistence
-- All calculations performed on-demand from fresh market data
-- Database scaffolding present for future features (user portfolios, saved analyses)
-
-### Build & Deployment
-
-**Development:**
-- Concurrent servers via npm script: Vite dev server + Express + FastAPI
-- Hot module replacement for React components
-- Python server runs with `--reload` flag for auto-restart
-
-**Production Build:**
-- Frontend: Vite bundles React app to `dist/public`
-- Backend: esbuild bundles Express server to `dist/index.js`
-- Python dependencies: `requirements.txt` (not shown but implied by imports)
-- Deployment expects Node.js runtime + Python 3.x environment
+The application is currently stateless and does not use a persistent database, as all calculations are performed on-demand from fresh market data. However, **Drizzle ORM** is configured for potential future integration with PostgreSQL (via Neon serverless), and a `User` model placeholder exists. An in-memory storage (`MemStorage`) is used during development.
 
 ## External Dependencies
 
 ### Third-Party APIs
-- **Yahoo Finance (yfinance)** - Stock price and market data (free, no authentication)
-- **FRED API** - Optional Federal Reserve economic data (placeholder for API key in fixed income module)
+
+-   **Yahoo Finance (yfinance)**: For real-time and historical stock price and market data.
+-   **FRED API**: (Placeholder) For Federal Reserve economic data.
 
 ### Python Libraries
-- **yfinance** - Market data fetching
-- **pandas** - Data manipulation and time series
-- **numpy** - Numerical computing
-- **scipy** - Scientific computing and statistics
-- **statsmodels** - Statistical models and hypothesis testing
-- **cvxpy** - Convex optimization for portfolio construction
-- **PyPortfolioOpt** - Portfolio optimization utilities (implied by requirements)
-- **FastAPI** - Web framework for Python API
-- **uvicorn** - ASGI server for FastAPI
+
+-   **yfinance**: Market data fetching.
+-   **pandas**: Data manipulation and time series analysis.
+-   **numpy**: Numerical computing.
+-   **scipy**: Scientific computing and statistics.
+-   **statsmodels**: Statistical models and hypothesis testing (e.g., OLS regression).
+-   **cvxpy**: Convex optimization for portfolio construction.
+-   **PyPortfolioOpt**: Portfolio optimization utilities.
+-   **FastAPI**: Web framework for building Python APIs.
+-   **uvicorn**: ASGI server for running FastAPI applications.
 
 ### JavaScript/TypeScript Libraries
-- **React** - UI framework
-- **Vite** - Build tool and dev server
-- **TanStack Query** - Server state management
-- **Radix UI** - Headless component primitives
-- **Plotly.js** - Interactive charting (via react-plotly.js)
-- **Tailwind CSS** - Utility-first CSS framework
-- **Wouter** - Lightweight routing
-- **Zod** - Schema validation
-- **React Hook Form** - Form state management
+
+-   **React**: Frontend UI framework.
+-   **Vite**: Build tool and development server.
+-   **TanStack Query**: Server state management.
+-   **Radix UI**: Headless UI component primitives.
+-   **Plotly.js**: Interactive charting library (via `react-plotly.js`).
+-   **Tailwind CSS**: Utility-first CSS framework.
+-   **Wouter**: Lightweight client-side router.
+-   **Zod**: Schema validation library.
+-   **React Hook Form**: Form state management.
 
 ### Design & Styling
-- **Shadcn UI** - Pre-built component library (New York style variant)
-- **class-variance-authority** - Component variant styling
-- **Inter font** - Primary UI typography
-- **IBM Plex Mono** - Monospace font for financial data
-- Custom CSS variables for theming (HSL color space)
+
+-   **Shadcn UI**: Pre-built component library for React.
+-   **class-variance-authority**: For managing component variants.
+-   **Inter font**: Primary UI typography.
+-   **IBM Plex Mono**: Monospace font for numerical and tabular data.
+-   **Custom CSS variables**: For theme management using HSL color space.
