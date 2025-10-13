@@ -72,6 +72,37 @@ The Utility Explorer has been completely rebuilt as a comprehensive pedagogical 
 
 This implementation provides a reproducible, theory-focused learning environment for understanding how investor preferences map to asset pricing through the stochastic discount factor framework.
 
+### Comprehensive Theory Tabs (Portfolio & CAPM Modules)
+
+Both Portfolio Builder and CAPM Model Tester modules now feature comprehensive theory content designed for advanced investment courses:
+
+**Portfolio Theory Module:**
+- **Fundamental Assumptions (A1–A7):** Nonsatiation, Risk Aversion, Single Period, Mean-Variance Preferences, No Market Frictions, Homogeneous Information, Divisible Assets
+- **Mathematical Core:** Portfolio optimization problem with Lagrangian solution and frontier equation
+- **Capital Market Line (CML):** Risk-free asset introduction and Two-Fund Separation Theorem
+- **Economic Intuition:** Diversification benefits, efficient frontier geometry
+- **Extensions & Limitations:** Short-sale constraints, non-normal returns, estimation error
+- **"So What?" Summary:** Connecting theory to CAPM and modern factor models
+
+**CAPM Module:**
+- **Conceptual Bridge:** From portfolio optimization to market equilibrium
+- **Additional Assumptions (A8–A10):** Homogeneous Expectations, Unlimited Borrow/Lend, Perfect Competition
+- **CAPM Derivation:** Beta formula and systematic risk pricing
+- **CML vs SML Comparison:** Side-by-side table showing axes, applicability, and equations
+- **SDF View:** CAPM as linear stochastic discount factor
+- **Fama–MacBeth Testing:** Two-step regression methodology for empirical validation
+- **Empirical Challenges:** Beta instability, Roll (1977) critique, anomalies leading to multi-factor models
+- **Economic Meaning:** Interpretation of risk premiums and asset covariance
+- **Extensions:** Conditional CAPM, Consumption CAPM, Multi-factor models
+- **"So What?" Summary:** CAPM as foundation for performance metrics and cost of capital
+
+**Pedagogical Features:**
+- Color-coded sections (blue for key concepts, green for major results)
+- Numbered assumptions (A1–A10) for systematic reference
+- Mathematical formulas with monospace styling
+- Cross-references to other modules (Factor Analyzer, Risk Analysis)
+- Styled summary boxes highlighting practical implications
+
 ## External Dependencies
 
 ### Third-Party APIs
