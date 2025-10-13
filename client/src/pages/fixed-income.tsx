@@ -138,6 +138,14 @@ export default function FixedIncome() {
 
   return (
     <ModuleLayout title="Fixed Income & Derivatives" theory={theory}>
+      {/* Data Source Disclaimer */}
+      <div className="mb-4 p-3 bg-muted/50 border border-border rounded-md">
+        <p className="text-xs text-muted-foreground">
+          <strong>Note:</strong> This module uses curated offline datasets (yield curves, credit spreads, and bond characteristics) 
+          for educational purposes. The data is not sourced from Yahoo Finance or other live market data providers.
+        </p>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4" data-testid="tabs-fixedincome">
           <TabsTrigger value="yield-curves" data-testid="tab-yield-curves">Yield Curves</TabsTrigger>
