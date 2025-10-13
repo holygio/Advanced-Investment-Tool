@@ -11,7 +11,7 @@ Key capabilities include:
 - **Model Tester:** CAPM regression and Security Market Line analysis.
 - **Factor Analyzer:** Fama-French 3-Factor & 5-Factor Models using historical factor data.
 - **Risk Analysis:** Performance metrics (Sharpe, Treynor, Jensen's Alpha, LPM) and higher moments analysis.
-- **Utility Explorer:** Utility functions (CRRA, CARA, DARA) and Stochastic Discount Factor (SDF) concepts.
+- **Utility & SDF Explorer:** Comprehensive pedagogical simulator for utility theory (CRRA, CARA, DARA) and Stochastic Discount Factor concepts using synthetic data generation for reproducible model exploration.
 - **Fixed Income:** Term structure and credit spread analysis.
 
 ## User Preferences
@@ -35,6 +35,42 @@ Market data is primarily sourced from **yfinance (Yahoo Finance)**, providing ad
 ### Database & Persistence
 
 The application is currently stateless and does not use a persistent database, as all calculations are performed on-demand from fresh market data. However, **Drizzle ORM** is configured for potential future integration with PostgreSQL (via Neon serverless), and a `User` model placeholder exists. An in-memory storage (`MemStorage`) is used during development.
+
+## Recent Changes (October 2025)
+
+### Utility & SDF Explorer Rebuild (Theory Mode Implementation)
+
+The Utility Explorer has been completely rebuilt as a comprehensive pedagogical simulator using synthetic data generation:
+
+**Backend (`/api/theory/utility/generate`):**
+- Generates 240 months of correlated consumption growth and market returns (synthetic data with configurable parameters)
+- Implements corrected utility formulas:
+  - CARA: U(x) = -e^(-bx)/b
+  - CRRA: U(x) = x^(1-γ)/(1-γ)
+  - DARA: U(x) = (a+x)^(1-γ)/(1-γ) (using shift parameter a for proper implementation)
+- Computes SDF paths using utility theory: m_t = β·U'(c_{t+1})/U'(c_t)
+- Generates linear CAPM SDF comparison for pedagogical purposes
+- Returns wealth grids, utility values, marginal utilities, risk aversion measures (A(x), R(x)), and summary statistics
+
+**Frontend (Three-Tab Interface):**
+1. **Utility & Marginal Tab:** Dual-axis Plotly charts showing U(x) and U'(x) with wealth on x-axis
+2. **Risk Aversion Tab:** Overlaid plots of absolute (A(x)) and relative (R(x)) risk aversion measures
+3. **SDF Explorer Tab:** Time-series SDF paths with recession shading (highlighting negative consumption growth periods), KPI cards for mean SDF, volatility, and pricing error
+
+**Interactive Controls:**
+- Risk aversion (γ): 0.5 to 10
+- Discount factor (β): 0.9 to 0.999
+- Consumption volatility (σ_c): 1% to 5%
+- Correlation ρ(Δc, R_m): -0.9 to 0.9
+- Wealth range (max): 10 to 500
+
+**Pedagogical Features:**
+- Theory cards explaining CARA, CRRA, DARA utility functions
+- Risk aversion measure interpretations
+- SDF pricing kernel explanations
+- Visual recession shading to highlight bad states where SDF spikes
+
+This implementation provides a reproducible, theory-focused learning environment for understanding how investor preferences map to asset pricing through the stochastic discount factor framework.
 
 ## External Dependencies
 
