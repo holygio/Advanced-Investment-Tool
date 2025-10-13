@@ -1,109 +1,38 @@
 [
   {
-    "id": "capm_2017_sdf",
-    "source": "Oct 2017 Advanced Investments Exam",
-    "year": 2017,
-    "topic_primary": "CAPM",
-    "topic_secondary": ["Utility", "SDF"],
-    "difficulty": "medium",
-    "question": "Explain how the SDF m_{t+1} = 0.75 - 2.1*R_m + 0.04*R_m² differs from the CAPM SDF, and why this is likely an improvement.",
-    "hint": "Look at the additional term and what it represents.",
-    "answer_short": "The R_m² term adds skewness preference, which helps explain actual return data better than linear CAPM.",
-    "framework": {
-      "step1_problem_and_topic": "Identify differences between quadratic SDF and linear CAPM SDF; assess empirical improvement.",
-      "step2_single_or_combined": "Combined: CAPM (linear SDF baseline) + Utility (skewness preferences via higher moments).",
-      "step3_variables_and_effects": [
-        "CAPM SDF: m = a + b·R_M (linear)",
-        "Given SDF: m = 0.75 - 2.1·R_M + 0.04·R_M² (quadratic)",
-        "R_M² term → captures skewness preference",
-        "Research shows skewness is priced empirically"
-      ],
-      "step4_required_action": "Compare functional forms; explain why quadratic term improves empirical fit.",
-      "step5_method_or_truth_test": "Analytical: quadratic captures non-linear marginal utility (skewness pref); empirical: skewness factors are significant in data.",
-      "result_takeaway": "Adding R_M² allows SDF to price skewness risk, improving on CAPM's mean-variance limitation."
-    }
-  },
-  {
-    "id": "risk_2020_jb_normality",
-    "source": "Advanced Investments Jul 2020 Exam",
-    "year": 2020,
-    "topic_primary": "Risk",
-    "topic_secondary": ["Statistics"],
-    "difficulty": "medium",
-    "question": "True/False: Incorporating kurtosis of the return distribution means you account for asymmetry in the distribution.",
-    "hint": "Think about what kurtosis measures vs skewness.",
-    "answer_short": "False. Kurtosis is the 4th moment (deviations^4), which removes sign info. Asymmetry requires skewness (3rd moment).",
-    "framework": {
-      "step1_problem_and_topic": "Distinguish between kurtosis (4th moment) and asymmetry (3rd moment/skewness).",
-      "step2_single_or_combined": "Single topic: Risk measurement via distribution moments.",
-      "step3_variables_and_effects": [
-        "Skewness = E[(r-μ)³]/σ³ → captures asymmetry (sign matters)",
-        "Kurtosis = E[(r-μ)⁴]/σ⁴ → captures tail thickness (sign lost via ^4)",
-        "Asymmetry ≠ tail heaviness"
-      ],
-      "step4_required_action": "Evaluate T/F statement; explain why kurtosis doesn't capture asymmetry.",
-      "step5_method_or_truth_test": "Truth test: show kurtosis formula uses even power (^4) → removes directional info; asymmetry needs odd power (^3).",
-      "result_takeaway": "Kurtosis measures peakedness/tails but loses sign information. Only skewness captures asymmetry."
-    }
-  },
-  {
-    "id": "fi_2017_duration_convexity",
-    "source": "Oct 2017 Advanced Investments Exam",
-    "year": 2017,
-    "topic_primary": "Fixed Income",
-    "topic_secondary": ["Risk"],
-    "difficulty": "medium",
-    "question": "For a bond with Duration=8.5 and Convexity=62, approximate ΔP/P for Δy = +100 bps and −100 bps.",
-    "hint": "Use duration-convexity approximation formula.",
-    "answer_short": "+100 bps: ≈ −8.19%; −100 bps: ≈ +8.81% (asymmetry due to convexity).",
-    "framework": {
-      "step1_problem_and_topic": "Compute bond price change for rate shocks using duration-convexity approximation.",
-      "step2_single_or_combined": "Single: Fixed Income rate sensitivity.",
-      "step3_variables_and_effects": [
-        "ΔP/P ≈ −D·Δy + 0.5·C·(Δy)²",
-        "D = 8.5, C = 62",
-        "Δy = ±0.01 (100 bps)",
-        "Convexity term → asymmetry"
-      ],
-      "step4_required_action": "Plug values for +0.01 and −0.01; show asymmetry.",
-      "step5_method_or_truth_test": "Compute: +100bps: −8.5(0.01) + 0.5(62)(0.01)² = −0.085 + 0.0031 = −0.0819 = −8.19%. −100bps: −8.5(−0.01) + 0.5(62)(0.01)² = +0.085 + 0.0031 = +0.0881 = +8.81%.",
-      "result_takeaway": "Convexity creates asymmetry: losses smaller than gains for symmetric rate shocks in absolute terms."
-    }
-  },
-  {
-    "id": "portfolio_2020_correlation_change",
-    "source": "Advanced Investments Jul 2020 Exam",
+    "id": "jul2020_q1_correlation",
+    "source": "Jul 2020 Exam Q1",
     "year": 2020,
     "topic_primary": "Portfolio",
     "topic_secondary": ["Diversification"],
-    "difficulty": "easy",
-    "question": "UK-Eurozone correlation changes from positive to negative. UK-US stays positive. What happens to a US investor's portfolio (initially holding all three)?",
-    "hint": "Think diversification benefits and correlation structure.",
-    "answer_short": "Diversification benefits increase. Portfolio weights will likely change; higher Eurozone allocation likely due to negative UK-Eurozone correlation.",
+    "difficulty": "medium",
+    "question": "UK-Eurozone correlation changes from positive to negative. UK-US stays positive. What does this mean for a US investor's portfolio (initially holding all three with positive weights)?",
+    "hint": "Consider diversification benefits and how correlations interact.",
+    "answer_short": "Diversification benefits increase. Portfolio weights will change; likely higher Eurozone allocation due to negative correlation providing better hedging.",
     "framework": {
-      "step1_problem_and_topic": "Assess impact of correlation change on diversification for US-based portfolio.",
-      "step2_single_or_combined": "Single: Portfolio optimization via correlation structure.",
+      "step1_problem_and_topic": "Assess impact of correlation change on portfolio diversification for US-based investor.",
+      "step2_single_or_combined": "Single: Portfolio theory via correlation structure.",
       "step3_variables_and_effects": [
-        "ρ(UK, Euro): positive → negative (better diversification)",
+        "ρ(UK, Euro): positive → negative (improved diversification)",
         "ρ(UK, US): positive (unchanged)",
-        "Implied ρ(Euro, US) via UK: likely negative",
-        "σ_p decreases with negative correlations"
+        "Implied ρ(Euro, US) via UK linkage: likely negative",
+        "σ_p² = w'Σw → decreases with negative correlations"
       ],
-      "step4_required_action": "Explain weight changes and diversification impact.",
-      "step5_method_or_truth_test": "Logical: negative correlation → risk cancels out more; MV optimization → higher weights where diversification strongest.",
-      "result_takeaway": "Negative UK-Euro correlation improves diversification; likely increases Eurozone weight since it now hedges both UK and US exposures."
+      "step4_required_action": "Explain weight changes and diversification impact; derive Euro-US correlation implication.",
+      "step5_method_or_truth_test": "Logical: Negative UK-Euro correlation → better risk cancellation; MV optimization → increase weights where diversification strongest (Eurozone).",
+      "result_takeaway": "Negative UK-Euro correlation improves diversification; likely increase Eurozone weight since it now hedges both UK and US exposures."
     }
   },
   {
-    "id": "anomalies_2020_reversal_short",
-    "source": "Advanced Investments Jul 2020 Exam",
+    "id": "jul2020_q2_reversal_short",
+    "source": "Jul 2020 Exam Q2",
     "year": 2020,
     "topic_primary": "Anomalies",
     "topic_secondary": ["Trading Strategies"],
     "difficulty": "easy",
     "question": "Would constructing a reversal strategy portfolio be affected by short sale constraints? Explain.",
-    "hint": "Think about which leg (long/short) drives the strategy.",
-    "answer_short": "Yes. Reversal goes long past losers, short past winners. Short constraint makes strategy impossible (or severely limits it to one leg).",
+    "hint": "Think about the long and short legs of the strategy.",
+    "answer_short": "Yes, severely affected. Reversal requires long past losers and short past winners. Short constraint eliminates the short leg, making zero-investment strategy impossible.",
     "framework": {
       "step1_problem_and_topic": "Assess if short sale constraints impact reversal strategy implementation.",
       "step2_single_or_combined": "Combined: Anomalies (reversal) + Trading constraints.",
@@ -113,346 +42,962 @@
         "Short constraint → can't short winners",
         "Profits may concentrate in short leg"
       ],
-      "step4_required_action": "Explain constraint impact on strategy feasibility.",
-      "step5_method_or_truth_test": "Logical: if short sales blocked, only long leg remains; zero-cost strategy impossible; profits unclear if concentrated in shorts.",
+      "step4_required_action": "Explain constraint impact on strategy feasibility and profitability.",
+      "step5_method_or_truth_test": "Logical: If short sales blocked, only long leg remains; zero-cost strategy impossible; if majority of profits from shorts, strategy fails.",
       "result_takeaway": "Short constraints cripple reversal strategy since shorting past winners is essential for the zero-investment portfolio."
     }
   },
   {
-    "id": "performance_2020_risk_measures",
-    "source": "Advanced Investments Jul 2020 Exam",
+    "id": "jul2020_q3_performance_ratios",
+    "source": "Jul 2020 Exam Q3",
     "year": 2020,
-    "topic_primary": "Portfolio",
+    "topic_primary": "Risk",
     "topic_secondary": ["Performance"],
     "difficulty": "medium",
-    "question": "Three investors (A, B, C) each hold 5 stocks. A uses M², B uses Treynor, C uses Sharpe. Would B and C regard stocks as equally risky? Which risk measures could A use? Which are affected by negative r_f?",
-    "hint": "Think total vs systematic risk, and how each metric incorporates r_f.",
-    "answer_short": "No (B uses β, C uses σ). A can use any risk measure. All three affected by negative r_f.",
+    "question": "Three investors with 5-stock portfolios use different metrics vs S&P 500 benchmark: A uses M², B uses Treynor, C uses Sharpe. Do B and C view risk equally? What risk measures can A use? Which are affected by negative r_f?",
+    "hint": "Consider what each ratio measures (total vs systematic risk) and how r_f enters formulas.",
+    "answer_short": "B and C don't view risk equally (B=systematic, C=total). A can use any risk measure (σ, β, LPM). All three affected by negative r_f.",
     "framework": {
-      "step1_problem_and_topic": "Compare risk perceptions across M², Treynor, Sharpe for undiversified 5-stock portfolios.",
+      "step1_problem_and_topic": "Compare risk perceptions across M², Treynor, Sharpe for undiversified portfolios; identify r_f sensitivity.",
       "step2_single_or_combined": "Combined: Performance evaluation + Risk measurement.",
       "step3_variables_and_effects": [
-        "Treynor: (r_p - r_f)/β → systematic risk only",
-        "Sharpe: (r_p - r_f)/σ → total risk",
-        "M²: leverage to equalize risk, then compare returns",
-        "5 stocks → high idiosyncratic risk"
+        "Treynor: (R_p - r_f)/β → systematic risk only",
+        "Sharpe: (R_p - r_f)/σ_p → total risk",
+        "M²: leverage to match risk, then compare returns → any risk measure",
+        "5 stocks → high idiosyncratic risk (diversifiable)",
+        "All use excess returns (R - r_f)"
       ],
-      "step4_required_action": "Assess if B & C view risk equally; identify A's options; find r_f impact.",
-      "step5_method_or_truth_test": "Analytical: B underestimates risk (ignores diversifiable σ). A can use σ, β, LPM (any). All use (r-r_f), so negative r_f affects all.",
-      "result_takeaway": "B (Treynor) misses idiosyncratic risk in 5-stock portfolio. All metrics sensitive to r_f via excess returns or leverage."
+      "step4_required_action": "Compare risk views B vs C; list A's options; identify r_f impact.",
+      "step5_method_or_truth_test": "B underestimates risk (ignores diversifiable); C captures total risk. M² flexible (σ, β, LPM all work). Negative r_f → excess returns change for all.",
+      "result_takeaway": "Treynor ignores diversifiable risk (bad for 5-stock portfolio). M² works with any risk measure. All metrics affected by r_f via excess returns."
     }
   },
   {
-    "id": "sdf_2020_wellbehaved",
-    "source": "Advanced Investments Jul 2020 Exam",
+    "id": "jul2020_q4_sdf_violations",
+    "source": "Jul 2020 Exam Q4",
     "year": 2020,
     "topic_primary": "Utility",
     "topic_secondary": ["SDF", "CAPM"],
     "difficulty": "hard",
-    "question": "Given SDF m_{t+1} = -2.54 + 1.07*R_m (R_m ∈ [-14.21%, +19.75%]), explain how it differs from well-behaved CAPM SDF. Give two reasons it's not well-behaved.",
-    "hint": "Check nonsatiation (m>0) and risk aversion (decreasing m).",
-    "answer_short": "Linear structure OK, but: (1) negative intercept → m<0 near R_m=0 (violates nonsatiation), (2) positive slope → m increasing (violates risk aversion).",
+    "question": "Given SDF m_{t+1} = -2.54 + 1.07*R_m with R_m ∈ [-14.21%, +19.75%]. Explain two reasons why this SDF is not well-behaved vs CAPM.",
+    "hint": "Check nonsatiation (m>0) and risk aversion (m decreasing).",
+    "answer_short": "Negative intercept (-2.54) → m<0 for some R_m (violates nonsatiation). Positive slope (+1.07) → m increasing (violates risk aversion globally).",
     "framework": {
-      "step1_problem_and_topic": "Verify SDF satisfies nonsatiation (m>0) and risk aversion (dm/dR_m<0) conditions.",
-      "step2_single_or_combined": "Combined: SDF (pricing kernel) + CAPM (linear form) + Utility axioms.",
+      "step1_problem_and_topic": "Identify SDF violations of nonsatiation and risk aversion vs CAPM structure.",
+      "step2_single_or_combined": "Combined: CAPM (linear SDF) + Utility (preference axioms).",
       "step3_variables_and_effects": [
         "CAPM SDF: m = a + b·R_M with a>0, b<0",
         "Given: m = -2.54 + 1.07·R_M",
-        "Nonsatiation: m > 0 everywhere",
-        "Risk aversion: dm/dR_M < 0"
+        "Nonsatiation: requires m>0 ∀ R_M",
+        "Risk aversion: requires dm/dR_M < 0",
+        "Intercept a = -2.54 < 0 → m<0 near R_M=0",
+        "Slope b = +1.07 > 0 → m increasing"
       ],
-      "step4_required_action": "Identify violations of well-behaved SDF axioms.",
-      "step5_method_or_truth_test": "Test: (1) at R_m=0, m=-2.54<0 → violates m>0 (nonsatiation). (2) slope=+1.07>0 → m increasing → violates risk aversion globally.",
-      "result_takeaway": "Negative intercept creates negative m region; positive slope means SDF increases with R_M (opposite of risk-averse behavior)."
+      "step4_required_action": "Test nonsatiation (m>0?) and risk aversion (dm/dR_M<0?) across R_M range.",
+      "step5_method_or_truth_test": "Plug R_M=0: m=-2.54<0 (violates nonsatiation). Derivative: dm/dR_M=+1.07>0 (violates risk aversion). Both fail.",
+      "result_takeaway": "Negative intercept → SDF goes negative (nonsatiation fails). Positive slope → SDF increases with R_M (risk aversion fails)."
     }
   },
   {
-    "id": "factors_2020_ff5",
-    "source": "Advanced Investments Jul 2020 Exam",
+    "id": "jul2020_q4b_ff5_factors",
+    "source": "Jul 2020 Exam Q4b",
     "year": 2020,
     "topic_primary": "Factors",
     "topic_secondary": ["Fama-French"],
     "difficulty": "medium",
-    "question": "Which factors should you add to the CAPM SDF to obtain the Fama & French (2015) five-factor model? Briefly describe each.",
-    "hint": "Think Size, Value, Profitability, Investment beyond MKT.",
-    "answer_short": "Add SMB (size), HML (value), RMW (profitability), CMA (investment). Each is a long-short portfolio capturing anomalies.",
+    "question": "What factors should you add to the CAPM SDF to obtain the Fama-French 2015 five-factor model? Briefly describe these factors.",
+    "hint": "Think about the anomalies FF5 captures beyond market risk.",
+    "answer_short": "Add SMB (size), HML (value), RMW (profitability), CMA (investment). Long-short portfolios capturing Size, B/M, Operating Profitability, Investment Intensity anomalies.",
     "framework": {
-      "step1_problem_and_topic": "Extend CAPM SDF (MKT only) to FF5 by adding four factor portfolios.",
-      "step2_single_or_combined": "Single: Factor models (FF5 extension of CAPM).",
+      "step1_problem_and_topic": "Identify FF5 factors beyond CAPM; describe their construction.",
+      "step2_single_or_combined": "Single: Factor models (FF5 structure).",
       "step3_variables_and_effects": [
-        "CAPM: m = a + b·R_M",
-        "FF5: m = a + b_MKT·R_M + b_SMB·SMB + b_HML·HML + b_RMW·RMW + b_CMA·CMA",
-        "SMB (Small Minus Big): size effect",
-        "HML (High Minus Low B/M): value anomaly",
-        "RMW (Robust Minus Weak profit): profitability",
-        "CMA (Conservative Minus Aggressive invest): investment intensity"
+        "CAPM SDF: m = a + b_M·R_M",
+        "FF5 SDF: m = a + b_M·R_M + b_SMB·SMB + b_HML·HML + b_RMW·RMW + b_CMA·CMA",
+        "SMB: Small minus Big (size anomaly)",
+        "HML: High minus Low B/M (value anomaly)",
+        "RMW: Robust minus Weak profitability",
+        "CMA: Conservative minus Aggressive investment"
       ],
-      "step4_required_action": "List the 4 additional factors and describe their construction.",
-      "step5_method_or_truth_test": "Definitional: each factor = long-short portfolio targeting documented anomaly (size, value, prof, invest).",
-      "result_takeaway": "FF5 = CAPM + 4 anomaly factors (SMB, HML, RMW, CMA), each capturing empirical return patterns beyond β."
+      "step4_required_action": "List the 4 additional factors and explain their economic meaning.",
+      "step5_method_or_truth_test": "Enumeration: SMB, HML, RMW, CMA. Each is long-short portfolio: SMB (small-big), HML (high B/M - low B/M), RMW (robust profit - weak), CMA (conservative invest - aggressive).",
+      "result_takeaway": "FF5 adds 4 factors (SMB, HML, RMW, CMA) to CAPM, capturing size, value, profitability, and investment anomalies via long-short portfolios."
     }
   },
   {
-    "id": "utility_2020_crra",
-    "source": "Advanced Investments Jul 2020 Exam",
+    "id": "jul2020_q5_crra_nonsatiation",
+    "source": "Jul 2020 Exam Q5",
     "year": 2020,
     "topic_primary": "Utility",
     "topic_secondary": ["CAPM"],
     "difficulty": "medium",
-    "question": "True/False: A CRRA utility function by definition violates non-satiation, but this is rarely relevant in CAPM applications.",
-    "hint": "CRRA is about relative risk aversion, not necessarily the CAPM SDF form.",
-    "answer_short": "False. CRRA concerns xU''/U' ratio, not SDF<0. CRRA is broader than CAPM's linear SDF and doesn't require R_M-based violations.",
+    "question": "True/False: 'A CRRA utility function by definition violates non-satiation, but this is rarely relevant in practical applications of the CAPM.'",
+    "hint": "Think about what CRRA measures vs what CAPM SDF requires.",
+    "answer_short": "False. CRRA doesn't inherently violate nonsatiation—it only constrains relative risk aversion (xU''/U'). CAPM SDF may violate nonsatiation, but that's unrelated to CRRA.",
     "framework": {
-      "step1_problem_and_topic": "Assess if CRRA inherently violates nonsatiation (m>0) and relevance to CAPM.",
-      "step2_single_or_combined": "Combined: Utility (CRRA functional form) + CAPM (linear SDF).",
+      "step1_problem_and_topic": "Evaluate if CRRA utility inherently violates nonsatiation; assess CAPM relevance.",
+      "step2_single_or_combined": "Combined: Utility theory (CRRA) + CAPM (linear SDF).",
       "step3_variables_and_effects": [
-        "CRRA: Relative Risk Aversion = −xU''/U' = constant",
-        "Nonsatiation: m > 0 (SDF positive)",
-        "CAPM SDF: m = a + b·R_M (can violate m>0 at extremes)",
-        "CRRA ≠ necessarily linear in R_M"
+        "CRRA: -xU''(x)/U'(x) = γ (constant relative risk aversion)",
+        "Nonsatiation: U'(x) > 0 ∀ x (or SDF m > 0)",
+        "CAPM SDF: m = a + b·R_M (linear)",
+        "CRRA doesn't imply SDF<0",
+        "CAPM SDF violation depends on parameters a, b, not CRRA"
       ],
-      "step4_required_action": "Evaluate T/F about CRRA and nonsatiation violation.",
-      "step5_method_or_truth_test": "Truth test: CRRA defines curvature preference, not SDF functional form. CAPM's linear SDF may violate m>0, but CRRA itself doesn't mandate this.",
-      "result_takeaway": "CRRA is a preference class, not a specific SDF form. It doesn't inherently violate nonsatiation; CAPM's linear approximation can."
+      "step4_required_action": "Test if CRRA implies SDF<0; separate CRRA definition from CAPM issues.",
+      "step5_method_or_truth_test": "Truth test: CRRA only constrains risk aversion ratio, doesn't force U'<0 or m<0. CAPM SDF can violate nonsatiation at extreme R_M, but this isn't a CRRA property.",
+      "result_takeaway": "False. CRRA doesn't violate nonsatiation—it's just a risk aversion measure. CAPM SDF violations are separate from CRRA."
     }
   },
   {
-    "id": "lpm_2020_tangency",
-    "source": "Advanced Investments Jul 2020 Exam",
+    "id": "jul2020_q6_kurtosis_asymmetry",
+    "source": "Jul 2020 Exam Q6",
+    "year": 2020,
+    "topic_primary": "Risk",
+    "topic_secondary": ["Statistics"],
+    "difficulty": "easy",
+    "question": "True/False: 'Incorporating kurtosis of the return distribution in your model does not mean you account for asymmetry in the return distribution.'",
+    "hint": "What does kurtosis measure vs skewness?",
+    "answer_short": "True. Kurtosis is the 4th moment (deviations^4), which removes sign info. Asymmetry requires skewness (3rd moment).",
+    "framework": {
+      "step1_problem_and_topic": "Distinguish kurtosis (4th moment) from asymmetry (3rd moment/skewness).",
+      "step2_single_or_combined": "Single: Risk measurement via distribution moments.",
+      "step3_variables_and_effects": [
+        "Skewness = E[(r-μ)³]/σ³ → captures asymmetry (sign preserved)",
+        "Kurtosis = E[(r-μ)⁴]/σ⁴ → captures tail thickness (sign lost via ^4)",
+        "Even power → removes directional information",
+        "Asymmetry ≠ peakedness/tail heaviness"
+      ],
+      "step4_required_action": "Evaluate T/F statement; explain why kurtosis doesn't capture asymmetry.",
+      "step5_method_or_truth_test": "Truth test: Kurtosis formula uses even power (^4) → removes sign; asymmetry needs odd power (^3) to preserve direction.",
+      "result_takeaway": "Kurtosis measures peakedness/tails but loses sign information due to ^4 power. Only skewness (^3) captures asymmetry."
+    }
+  },
+  {
+    "id": "jul2020_q7_lpm_tangency",
+    "source": "Jul 2020 Exam Q7",
     "year": 2020,
     "topic_primary": "Risk",
     "topic_secondary": ["Portfolio", "LPM"],
     "difficulty": "medium",
-    "question": "True/False: There is no tangency portfolio possible in the mean-lower partial moment framework.",
-    "hint": "Think about efficient frontier and risk-free asset combinations.",
-    "answer_short": "False. Tangency portfolio exists: line from r_f tangent to LPM-efficient frontier. Just uses LPM instead of variance on risk axis.",
+    "question": "True/False: 'There is no tangency portfolio possible in the mean-lower partial moment framework.'",
+    "hint": "Can you still have a risk-free asset and efficient frontier with LPM?",
+    "answer_short": "False. Tangency portfolio exists in LPM framework—it's where r_f line touches LPM efficient frontier. Same concept as MV, just different risk measure.",
     "framework": {
-      "step1_problem_and_topic": "Assess if tangency portfolio concept applies to mean-LPM framework.",
-      "step2_single_or_combined": "Combined: Portfolio Theory (tangency) + Risk (LPM vs variance).",
+      "step1_problem_and_topic": "Assess if tangency portfolio concept applies to LPM framework.",
+      "step2_single_or_combined": "Combined: Portfolio theory (tangency) + LPM risk measure.",
       "step3_variables_and_effects": [
-        "Tangency portfolio: r_f + optimal risky combo where Sharpe-like ratio maximized",
-        "Mean-Variance: (μ, σ²) space",
-        "Mean-LPM: (μ, LPM_n(τ)) space",
-        "Efficient frontier exists in both; diversification still applies"
+        "Tangency portfolio: point where r_f line is tangent to efficient frontier",
+        "Requires: (1) r_f exists, (2) efficient frontier exists",
+        "LPM framework: can have r_f, can build LPM-efficient frontier",
+        "Only difference: LPM on horizontal axis instead of σ²",
+        "Diversification to minimize LPM(τ, n) for given return still possible"
       ],
-      "step4_required_action": "Prove or disprove existence of tangency in LPM framework.",
-      "step5_method_or_truth_test": "Logical: tangency = r_f + risky portfolio where (μ_p - r_f)/Risk_p maximized. Risk can be σ, LPM, or other. Frontier exists → tangency exists.",
-      "result_takeaway": "Tangency portfolio exists in mean-LPM just as in MV; only difference is LPM replaces σ on risk axis."
+      "step4_required_action": "Test if tangency concept works with LPM; identify any fundamental barriers.",
+      "step5_method_or_truth_test": "Logical: Tangency = r_f + efficient frontier. Both exist in LPM. Therefore tangency portfolio exists (though math more complex than MV).",
+      "result_takeaway": "Tangency portfolio exists in LPM framework. Concept unchanged: r_f line tangent to efficient frontier, just with LPM instead of variance."
     }
   },
   {
-    "id": "lpm_2016_calculation",
-    "source": "Advanced Investments Practice Exam July 2016",
-    "year": 2016,
+    "id": "jul2020_q8_lpm_calculation",
+    "source": "Jul 2020 Exam Q8",
+    "year": 2020,
     "topic_primary": "Risk",
     "topic_secondary": ["LPM"],
-    "difficulty": "easy",
-    "question": "Calculate LPM (order=2, threshold=-3%) for: Asset 1: 20% prob +8%, 35% +7%, 45% -8%. Asset 2: 20% -5%, 35% -6%, 45% +9%. Asset 3: 20% +20%, 35% -8%, 45% +5%. Which is least risky?",
-    "hint": "LPM = Σ prob × max(τ - r, 0)²",
-    "answer_short": "Asset 1: 11.25, Asset 2: 3.95, Asset 3: 8.75. Asset 2 is least risky.",
+    "difficulty": "medium",
+    "question": "Given probability distribution for 3 assets, find least risky for LPM(order=2, threshold=-3%). No diversification. Show calculations.",
+    "hint": "Calculate LPM = E[max(τ-r, 0)²] for each asset.",
+    "answer_short": "Asset 2 has lowest LPM=3.95. Asset 1: LPM=11.25, Asset 3: LPM=8.75.",
     "framework": {
-      "step1_problem_and_topic": "Compute LPM₂(τ=-3%) for three assets; identify minimum risk.",
-      "step2_single_or_combined": "Single: Risk measurement via LPM.",
+      "step1_problem_and_topic": "Calculate LPM₂(-3%) for each asset; identify minimum.",
+      "step2_single_or_combined": "Single: Risk measurement (LPM calculation).",
       "step3_variables_and_effects": [
-        "LPM_n(τ) = Σ p_i × max(τ - r_i, 0)^n",
-        "n = 2, τ = -3%",
-        "Only states where r < -3% contribute"
+        "LPM(τ, n) = E[max(τ - r, 0)ⁿ]",
+        "τ = -3%, n = 2",
+        "Asset 1: returns +8%, +7%, -8% with prob 20%, 35%, 45%",
+        "Asset 2: returns -5%, -6%, +9% with prob 20%, 35%, 45%",
+        "Asset 3: returns +20%, -8%, +5% with prob 20%, 35%, 45%"
       ],
-      "step4_required_action": "Calculate LPM for each asset; compare values.",
-      "step5_method_or_truth_test": "Compute: Asset1: 0.45×(-8-(-3))²=0.45×25=11.25. Asset2: 0.2×(-5-(-3))²+0.35×(-6-(-3))²=0.2×4+0.35×9=3.95. Asset3: 0.35×(-8-(-3))²=0.35×25=8.75.",
-      "result_takeaway": "Asset 2 has lowest LPM (3.95), making it least risky under downside risk framework."
+      "step4_required_action": "Compute LPM for each asset; only count returns below -3%.",
+      "step5_method_or_truth_test": "Asset 1: 0.45*(-8-(-3))² = 0.45*25 = 11.25. Asset 2: 0.2*(-5-(-3))² + 0.35*(-6-(-3))² = 0.2*4 + 0.35*9 = 3.95. Asset 3: 0.35*(-8-(-3))² = 0.35*25 = 8.75. Min = Asset 2.",
+      "result_takeaway": "Asset 2 has lowest LPM (3.95) → least risky. Only downside deviations below -3% matter for LPM."
     }
   },
   {
-    "id": "anomalies_2016_momentum",
-    "source": "Advanced Investments Practice Exam July 2016",
-    "year": 2016,
+    "id": "jul2020_q9_momentum_strategy",
+    "source": "Jul 2020 Exam Q9",
+    "year": 2020,
     "topic_primary": "Anomalies",
-    "topic_secondary": ["Trading Strategies"],
+    "topic_secondary": ["Momentum"],
     "difficulty": "easy",
-    "question": "To optimally profit from momentum strategy, should you: (A) Buy losers short winners, 3yr hold? (B) Buy losers short winners, 6mo rebalance? (C) Buy winners short losers, 3yr hold? (D) Buy winners short losers, 6mo rebalance?",
+    "question": "To optimally profit from momentum strategy: Buy losers/short winners for 3 years? Buy losers/short winners for 6 months rebalanced? Buy winners/short losers for 3 years? Buy winners/short losers for 6 months rebalanced?",
     "hint": "Momentum is short-term; reversal is long-term.",
-    "answer_short": "D. Buy winners, short losers, hold 6 months then rebalance. Momentum is short-term; 3 years risks reversal.",
+    "answer_short": "D: Buy winners and short losers, hold 6 months, then rebalance and repeat. Momentum is short-term strategy requiring frequent rebalancing.",
     "framework": {
       "step1_problem_and_topic": "Identify correct momentum strategy implementation (direction + horizon).",
-      "step2_single_or_combined": "Single: Anomalies (momentum vs reversal).",
+      "step2_single_or_combined": "Single: Anomalies (momentum mechanics).",
       "step3_variables_and_effects": [
-        "Momentum: short-term continuation (3-12 months)",
-        "Reversal: long-term mean reversion (3-5 years)",
-        "Strategy: long recent winners, short recent losers",
-        "Rebalancing: needed to capture new winners/losers"
+        "Momentum: recent winners continue winning (3-12 month horizon)",
+        "Reversal: long-term losers become winners (3-5 year horizon)",
+        "Momentum → long recent winners, short recent losers",
+        "Requires rebalancing to stay 'recent'",
+        "3 years → captures reversal instead"
       ],
-      "step4_required_action": "Select correct strategy from multiple choice; explain timing.",
-      "step5_method_or_truth_test": "Empirical: momentum documented at 6-12mo horizons; 3yr holding captures reversal instead. Must rebalance to stay current.",
-      "result_takeaway": "Momentum = long winners, short losers, 6-month rebalance. Long horizons (3yr) switch to reversal territory."
+      "step4_required_action": "Choose correct long/short direction and holding period.",
+      "step5_method_or_truth_test": "Momentum = long winners, short losers (eliminates A, B). 6-month rebalanced (not 3 years) keeps positions recent. Answer: D.",
+      "result_takeaway": "Momentum: long recent winners, short recent losers, 6-month rebalanced. 3-year horizon would capture reversal instead."
     }
   },
   {
-    "id": "capm_2016_assumptions",
-    "source": "Advanced Investments Practice Exam July 2016",
-    "year": 2016,
+    "id": "jul2020_q10_capm_mpt_assumptions",
+    "source": "Jul 2020 Exam Q10",
+    "year": 2020,
     "topic_primary": "CAPM",
     "topic_secondary": ["Portfolio"],
     "difficulty": "medium",
-    "question": "Which CAPM assumption can be dropped without destroying Modern Portfolio Theory results? (A) No taxes/costs, (B) Infinite divisibility, (C) Mean-variance appropriate, (D) None can be dropped.",
-    "hint": "MPT is individual investor behavior; CAPM adds market equilibrium assumptions.",
-    "answer_short": "D. All three assumptions are needed for MPT individual behavior. CAPM adds market-level assumptions (price-taker, homogeneous expectations).",
+    "question": "Which CAPM assumption can be dropped without destroying Modern Portfolio Theory results? No taxes/costs? Infinite divisibility? Mean-variance appropriate? None can be dropped?",
+    "hint": "MPT is about individual investor behavior; CAPM adds market equilibrium.",
+    "answer_short": "D: None can be dropped. All three are needed for individual MPT investor behavior (which CAPM builds upon).",
     "framework": {
-      "step1_problem_and_topic": "Distinguish MPT (individual optimization) from CAPM (market equilibrium); identify essential MPT assumptions.",
-      "step2_single_or_combined": "Combined: Portfolio Theory (MPT) + CAPM (equilibrium extension).",
+      "step1_problem_and_topic": "Identify which CAPM assumptions are essential for MPT vs market equilibrium.",
+      "step2_single_or_combined": "Combined: MPT (individual) + CAPM (equilibrium).",
       "step3_variables_and_effects": [
-        "MPT: individual mean-variance optimization",
-        "CAPM: MPT + price-taker + homogeneous expectations → market portfolio",
-        "Given assumptions: frictionless (A), divisibility (B), MV (C)",
-        "All three affect individual diversification/optimization"
+        "MPT assumptions: no taxes/costs, infinite divisibility, mean-variance",
+        "CAPM adds: homogeneous expectations, price takers, etc.",
+        "MPT = individual investor optimization",
+        "CAPM = aggregation to market equilibrium",
+        "All three choices describe individual behavior → needed for MPT"
       ],
-      "step4_required_action": "Identify which assumption (if any) is CAPM-specific, not MPT-essential.",
-      "step5_method_or_truth_test": "Logical: MPT requires MV framework (C), frictionless (A) for optimization, divisibility (B) for smooth frontier. CAPM adds equilibrium assumptions. None of A/B/C are CAPM-only.",
-      "result_takeaway": "All listed assumptions underpin MPT individual behavior. CAPM's unique assumptions are market-level (homogeneity, price-taking)."
+      "step4_required_action": "Test if each assumption is MPT-essential vs CAPM-only.",
+      "step5_method_or_truth_test": "No taxes/costs → enables frictionless MPT optimization. Infinite divisibility → allows any weight. Mean-variance → defines MPT objective. All three essential for MPT, not just CAPM.",
+      "result_takeaway": "All three assumptions are MPT-essential for individual investor behavior. Only aggregation assumptions (homogeneous expectations, price taking) are CAPM-specific."
     }
   },
   {
-    "id": "performance_2017_m2_lpm",
-    "source": "Oct 2017 Advanced Investments Exam",
+    "id": "oct2017_q1_sdf_skewness",
+    "source": "Oct 2017 Exam Q1",
+    "year": 2017,
+    "topic_primary": "CAPM",
+    "topic_secondary": ["Utility", "SDF"],
+    "difficulty": "medium",
+    "question": "Explain how SDF m_{t+1} = 0.75 - 2.1*R_m + 0.04*R_m² differs from CAPM SDF, and why this is likely an improvement for explaining actual return data.",
+    "hint": "Look at the additional term and what it represents.",
+    "answer_short": "The R_m² term adds skewness preference, which helps explain actual return data better than linear CAPM.",
+    "framework": {
+      "step1_problem_and_topic": "Identify differences between quadratic SDF and linear CAPM SDF; assess empirical improvement.",
+      "step2_single_or_combined": "Combined: CAPM (linear SDF baseline) + Utility (skewness preferences via higher moments).",
+      "step3_variables_and_effects": [
+        "CAPM SDF: m = a + b·R_M (linear)",
+        "Given SDF: m = 0.75 - 2.1·R_M + 0.04·R_M² (quadratic)",
+        "R_M² term → captures skewness preference",
+        "Research shows skewness is priced empirically",
+        "Extra term → more degrees of freedom → better fit"
+      ],
+      "step4_required_action": "Compare functional forms; explain why quadratic term improves empirical fit.",
+      "step5_method_or_truth_test": "Analytical: Quadratic captures non-linear marginal utility (skewness preference). Empirical: Skewness factors significant in data. Therefore, R_M² improves model.",
+      "result_takeaway": "Adding R_M² allows SDF to price skewness risk, improving on CAPM's mean-variance limitation."
+    }
+  },
+  {
+    "id": "oct2017_q2_sdf_validity",
+    "source": "Oct 2017 Exam Q2",
+    "year": 2017,
+    "topic_primary": "Utility",
+    "topic_secondary": ["SDF"],
+    "difficulty": "hard",
+    "question": "For SDF m_{t+1} = 0.75 - 2.1*R_m + 0.04*R_m² with R_m ∈ [-0.217, 0.275], explain how to check nonsatiation and risk aversion. Perform the check.",
+    "hint": "Nonsatiation: m>0. Risk aversion: dm/dR_m < 0. Watch out for parabola minimum.",
+    "answer_short": "Nonsatiation: Check m>0 by finding minimum (at R_m=26.25, outside range). Plugging bounds gives m>0. Risk aversion: dm/dR_m = -2.1+0.08R_m < 0 at max R_m. Both valid.",
+    "framework": {
+      "step1_problem_and_topic": "Verify nonsatiation (m>0) and risk aversion (m decreasing) for quadratic SDF over data range.",
+      "step2_single_or_combined": "Single: Utility axioms applied to quadratic SDF.",
+      "step3_variables_and_effects": [
+        "Nonsatiation: m > 0 ∀ R_m ∈ [-0.217, 0.275]",
+        "Risk aversion: dm/dR_m < 0 ∀ R_m",
+        "Quadratic → find minimum via dm/dR_m = 0",
+        "dm/dR_m = -2.1 + 0.08R_m = 0 → R_m = 26.25",
+        "Minimum outside range → check endpoints"
+      ],
+      "step4_required_action": "Find minimum of parabola; verify m>0 at endpoints; check derivative <0.",
+      "step5_method_or_truth_test": "Min at R_m=26.25 (outside range). m(-0.217)=0.75-2.1(-0.217)+0.04(-0.217)²=1.21>0. m(0.275)=0.75-2.1(0.275)+0.04(0.275)²=0.18>0. dm/dR_m at max: -2.1+0.08(0.275)=-2.08<0. Valid.",
+      "result_takeaway": "Parabola minimum outside data range; endpoints positive → nonsatiation holds. Derivative negative throughout → risk aversion holds."
+    }
+  },
+  {
+    "id": "oct2017_q3_correlation_crisis",
+    "source": "Oct 2017 Exam Q3",
     "year": 2017,
     "topic_primary": "Portfolio",
-    "topic_secondary": ["Performance", "LPM"],
+    "topic_secondary": ["Diversification", "Risk"],
     "difficulty": "hard",
-    "question": "Explain how to calculate classical M² measure for an investor with LPM (order=2, threshold=-4%) preferences. Illustrate with a graph.",
-    "hint": "M² equalizes risk via leverage, then compares returns.",
-    "answer_short": "Lever portfolio (or benchmark) so LPM matches; compare returns. Vertical distance = M². Can lever portfolio to benchmark's LPM or vice versa.",
+    "question": "During crisis/bubble, correlations between risky assets increase toward +1. Explain impact on: (a) σ of 100-asset portfolio, (b) E[R] for variance-constrained investor (no shorts), (c) demand for shorts from investors who can short.",
+    "hint": "Think diversification benefits, risk-return tradeoff, and hedging opportunities.",
+    "answer_short": "(a) σ increases (less diversification). (b) E[R] decreases (must flee to safer assets). (c) Short demand increases (long+short with ρ≈1 → low risk, high return).",
     "framework": {
-      "step1_problem_and_topic": "Calculate M² performance measure using LPM as risk metric instead of variance.",
-      "step2_single_or_combined": "Combined: Performance evaluation (M²) + Risk (LPM).",
+      "step1_problem_and_topic": "Assess crisis-driven correlation increase impact on portfolio σ, constrained returns, and short demand.",
+      "step2_single_or_combined": "Combined: Portfolio theory (diversification) + Trading strategies (shorting).",
       "step3_variables_and_effects": [
-        "M² principle: equalize risk (here LPM), compare returns",
-        "Method 1: lever portfolio + r_f to match benchmark LPM",
-        "Method 2: lever benchmark + r_f to match portfolio LPM",
-        "M² = return difference at equal risk"
+        "ρ → +1 → diversification benefits ↓",
+        "σ_p² = Σw_i²σ_i² + ΣΣw_iw_jρ_ijσ_iσ_j",
+        "Higher ρ → higher σ_p",
+        "Variance constraint + no shorts → reduce risky assets",
+        "Short position + long position with ρ≈1 → near-zero risk"
       ],
-      "step4_required_action": "Describe calculation process and graph both levering methods.",
-      "step5_method_or_truth_test": "Graphical: plot (LPM, return) space; show levered combo reaching same LPM as comparator; measure vertical gap (M²).",
-      "result_takeaway": "M² works with any risk measure (here LPM₂(-4%)). Lever to equalize risk, then compare returns for performance gap."
+      "step4_required_action": "(a) Derive σ impact; (b) explain return constraint effect; (c) explain short demand logic.",
+      "step5_method_or_truth_test": "(a) Higher ρ in σ_p formula → σ_p↑. (b) To maintain σ constraint, flee to r_f → E[R]↓. (c) Long A + short B with ρ_AB≈1 → β≈0, high return from spread.",
+      "result_takeaway": "ρ→1 destroys diversification: σ↑, constrained investors earn less, shorting becomes attractive for hedged returns."
     }
   },
   {
-    "id": "factors_2017_bonds_stocks",
-    "source": "Oct 2017 Advanced Investments Exam",
+    "id": "oct2017_q4_m2_lpm",
+    "source": "Oct 2017 Exam Q4",
+    "year": 2017,
+    "topic_primary": "Risk",
+    "topic_secondary": ["Performance", "LPM"],
+    "difficulty": "medium",
+    "question": "Explain how to calculate the classical M² measure for an investor with LPM(order=2, threshold=-4%) preferences. Illustrate with a graph.",
+    "hint": "Leverage portfolio or benchmark to equalize risk, then compare returns.",
+    "answer_short": "Leverage portfolio (long portfolio + short/long r_f) until LPM matches benchmark. Then compare returns vertically. M² is the return difference.",
+    "framework": {
+      "step1_problem_and_topic": "Calculate M² using LPM risk measure instead of standard deviation.",
+      "step2_single_or_combined": "Combined: Performance evaluation (M²) + LPM risk measure.",
+      "step3_variables_and_effects": [
+        "M² principle: equalize risk, then compare returns",
+        "Classical: leverage portfolio to match benchmark risk",
+        "Risk measure: LPM₂(-4%) instead of σ",
+        "Levered portfolio: w% in portfolio + (1-w)% in r_f",
+        "Adjust w until LPM_levered = LPM_benchmark"
+      ],
+      "step4_required_action": "Describe leverage procedure using LPM; draw graph showing risk-return space.",
+      "step5_method_or_truth_test": "Method: Scale portfolio with r_f (e.g., 180% portfolio, -80% r_f) until LPM matches benchmark. Read vertical distance on return axis = M². Graph shows levered portfolio, benchmark, r_f on LPM-return axes.",
+      "result_takeaway": "M² works with any risk measure (LPM, σ, β). Principle unchanged: leverage to equalize risk, then compare returns."
+    }
+  },
+  {
+    "id": "oct2017_q5_stock_bond_factors",
+    "source": "Oct 2017 Exam Q5",
     "year": 2017,
     "topic_primary": "Factors",
     "topic_secondary": ["Fixed Income"],
     "difficulty": "medium",
-    "question": "Give an economic reason why a model with both stock and bond market factors may achieve higher explanatory power for all asset classes.",
-    "hint": "Think about claim seniority and cashflow linkages.",
-    "answer_short": "Stocks and corporate bonds are claims on same cashflows. Bonds senior to equity. Stock factors affect bond risk (solvency); bond factors affect stock risk (rates/credit).",
+    "question": "Give an economic reason why a model incorporating both stock and bond market factors may achieve higher explanatory power for all asset classes.",
+    "hint": "Think about the relationship between equity and debt claims on the same firm.",
+    "answer_short": "Stocks and bonds are claims on the same cashflows. Bond factors affect stocks (solvency risk), stock factors affect bonds (asset value vs debt level). Cross-market linkages improve explanatory power.",
     "framework": {
-      "step1_problem_and_topic": "Explain economic rationale for cross-asset factor models (stocks + bonds).",
-      "step2_single_or_combined": "Combined: Factors (multi-asset) + Fixed Income (bond-stock linkage).",
+      "step1_problem_and_topic": "Explain economic linkage between stock and bond factors for cross-asset pricing.",
+      "step2_single_or_combined": "Combined: Factor models + Corporate finance (capital structure).",
       "step3_variables_and_effects": [
-        "Corporate bonds + stocks → same firm cashflows",
-        "Bond holders: senior claim (fixed coupons + principal)",
-        "Equity holders: residual claim (after debt service)",
-        "Firm value risk affects both; default risk links them"
+        "Stocks = residual claim on firm cashflows",
+        "Bonds = senior claim on firm cashflows",
+        "Bond factors (term, credit) → affect equity via solvency risk",
+        "Stock factors (market, SMB) → affect bonds via asset value relative to debt",
+        "Same underlying firm risk → factors cross over"
       ],
-      "step4_required_action": "Provide economic justification for including both asset classes in factor model.",
-      "step5_method_or_truth_test": "Logical: (1) bond factors (TERM, CREDIT) capture rate/default risk affecting equity discount rates. (2) stock factors (MKT) indicate firm health affecting bond default probability.",
-      "result_takeaway": "Stock and bond returns share common firm-level risk drivers due to claim structure. Cross-asset factors capture these linkages."
+      "step4_required_action": "Provide economic reasoning for cross-market factor relevance.",
+      "step5_method_or_truth_test": "Economic logic: Bonds paid before stocks → bond factors indicate if firm can cover debt (matters for equity). Stock factors indicate firm value → affects bond recovery rate. Therefore, cross-market factors improve pricing.",
+      "result_takeaway": "Stock and bond factors share economic foundations via firm capital structure. Including both captures cross-asset linkages, improving explanatory power."
     }
   },
   {
-    "id": "capm_2017_alpha_variance",
-    "source": "Oct 2017 Advanced Investments Exam",
+    "id": "oct2017_q6_alpha_variance",
+    "source": "Oct 2017 Exam Q6",
     "year": 2017,
     "topic_primary": "CAPM",
-    "topic_secondary": ["Portfolio"],
+    "topic_secondary": ["Risk"],
     "difficulty": "medium",
-    "question": "True/False: An asset with higher expected return but same variance might not be better, while higher alpha will be better. (Assume model is correct.)",
-    "hint": "Think total vs systematic risk, and what alpha measures.",
-    "answer_short": "True. Same variance = same total risk, but diversifiable portion varies. Alpha measures reward for systematic risk only → higher α always better.",
+    "question": "True/False: 'An asset with higher E[R] but same variance might not be better, while an asset with higher alpha will be better.' Assume your model is correct.",
+    "hint": "Consider total risk vs systematic risk and what's priced.",
+    "answer_short": "True. Same variance = same total risk, but diversifiable risk isn't priced. Only systematic risk (α) matters. Higher α → always better given correct model.",
     "framework": {
-      "step1_problem_and_topic": "Compare investment attractiveness via (μ, σ²) vs via alpha under CAPM.",
-      "step2_single_or_combined": "Combined: CAPM (systematic vs idiosyncratic risk) + Portfolio (diversification).",
+      "step1_problem_and_topic": "Compare investment attractiveness using variance (total risk) vs alpha (systematic risk-adjusted).",
+      "step2_single_or_combined": "Single: CAPM pricing (systematic vs diversifiable risk).",
       "step3_variables_and_effects": [
-        "Total risk σ² = systematic + idiosyncratic",
-        "Diversifiable risk → no premium (under CAPM)",
-        "Alpha = r_i - [r_f + β_i(r_M - r_f)] → abnormal return for systematic risk",
-        "Higher α → unambiguously better (abnormal reward)"
+        "Variance = total risk (systematic + diversifiable)",
+        "Alpha = excess return after adjusting for systematic risk",
+        "Only systematic risk is priced in CAPM",
+        "Same σ² doesn't mean same β",
+        "α > 0 → underpriced (always better if model correct)"
       ],
-      "step4_required_action": "Evaluate T/F for (μ, σ²) comparison vs alpha comparison.",
-      "step5_method_or_truth_test": "Logical: same σ² can have different β (different diversifiable components) → can't conclude one is better. Higher α = more return per unit systematic risk → always better.",
-      "result_takeaway": "Total variance doesn't distinguish systematic from diversifiable risk. Alpha isolates systematic mispricing → higher α unambiguously better."
+      "step4_required_action": "Evaluate if same variance guarantees better investment; explain why alpha does.",
+      "step5_method_or_truth_test": "Logical: Asset A and B have same σ² but different β. If A has higher E[R] due to diversifiable risk (higher β for same σ²), doesn't mean better. But α = E[R] - [r_f + β(E[R_M]-r_f)] → higher α always better (model correct).",
+      "result_takeaway": "Same variance doesn't guarantee better investment (diversifiable risk not priced). Higher alpha always better (systematic risk-adjusted measure)."
     }
   },
   {
-    "id": "risk_2017_news_systematic",
-    "source": "Oct 2017 Advanced Investments Exam",
+    "id": "oct2017_q7_news_risk_types",
+    "source": "Oct 2017 Exam Q7",
     "year": 2017,
     "topic_primary": "Risk",
     "topic_secondary": ["CAPM"],
     "difficulty": "medium",
-    "question": "True/False: Any news event should be seen as either diversifiable risk OR systematic risk, but cannot contribute to both.",
-    "hint": "Think about VW emissions scandal in German market.",
-    "answer_short": "False. News can be both: firm-specific (diversifiable) and sector/market-wide (systematic). VW scandal affected VW directly + German market via sector contagion.",
+    "question": "True/False: 'Any news event should be seen as a contribution to diversifiable risk, or as an expression of systematic risk, but it cannot be a contribution to both.'",
+    "hint": "Can an event affect both the specific company and the broader market?",
+    "answer_short": "False. News can be both: diversifiable (firm-specific component) and systematic (market-wide impact). Example: VW scandal affected VW (diversifiable) and German market via sector (systematic).",
     "framework": {
       "step1_problem_and_topic": "Assess if news events can simultaneously contribute to diversifiable and systematic risk.",
-      "step2_single_or_combined": "Combined: Risk decomposition + Market structure (sector effects).",
+      "step2_single_or_combined": "Single: Risk decomposition (systematic vs diversifiable).",
       "step3_variables_and_effects": [
-        "Diversifiable: firm-specific impact",
-        "Systematic: market-wide or sector-wide impact",
-        "Large firm news → sector effects → partial systematic",
-        "Example: VW emissions → VW stock + German auto sector + DAX"
+        "Total risk = systematic + diversifiable",
+        "Systematic: affects broad market (non-diversifiable)",
+        "Diversifiable: firm-specific (eliminated in large portfolio)",
+        "News can have both components",
+        "Example: VW scandal → firm loss (diversifiable) + sector impact (systematic)"
       ],
-      "step4_required_action": "Evaluate T/F about mutually exclusive risk classification.",
-      "step5_method_or_truth_test": "Counterexample: VW scandal primarily firm-specific (diversifiable) but sector concentration made it partially systematic for German market.",
-      "result_takeaway": "News events can be both diversifiable (firm-specific) and systematic (sector/market spillover), especially for large firms in concentrated sectors."
+      "step4_required_action": "Test if news can be purely one type or mixed; provide example.",
+      "step5_method_or_truth_test": "Counterexample: VW emissions scandal primarily hurts VW (diversifiable), but if large enough to move entire German auto sector/market → becomes partially systematic. Therefore, both possible.",
+      "result_takeaway": "News events can be both diversifiable (firm-specific) and systematic (market-wide) simultaneously. Decomposition is magnitude-dependent, not binary."
     }
   },
   {
-    "id": "sdf_2017_multifactor_risk_aversion",
-    "source": "Oct 2017 Advanced Investments Exam",
+    "id": "oct2017_q8_multifactor_sdf_risk_aversion",
+    "source": "Oct 2017 Exam Q8",
     "year": 2017,
     "topic_primary": "Utility",
-    "topic_secondary": ["SDF"],
+    "topic_secondary": ["SDF", "Factors"],
     "difficulty": "easy",
-    "question": "True/False: An SDF depending on several factors will violate risk-aversion because of multiple factors.",
-    "hint": "Risk aversion requires decreasing SDF, regardless of number of factors.",
-    "answer_short": "False. Risk aversion = dm/dR < 0 (decreasing SDF). Number of factors irrelevant; parameters must satisfy dm/dR_i < 0 for each factor.",
+    "question": "True/False: 'An SDF that depends on several factors will violate risk-aversion because of the presence of multiple factors.'",
+    "hint": "What does risk aversion require (decreasing SDF) and does # of factors matter?",
+    "answer_short": "False. Risk aversion requires decreasing SDF (dm/dR<0). Multiple factors don't inherently violate this—depends on parameter signs, not factor count.",
     "framework": {
-      "step1_problem_and_topic": "Assess if multi-factor SDF inherently violates risk aversion axiom.",
-      "step2_single_or_combined": "Combined: Utility (risk aversion) + SDF (multi-factor pricing).",
+      "step1_problem_and_topic": "Assess if multifactor SDF inherently violates risk aversion axiom.",
+      "step2_single_or_combined": "Single: SDF properties (risk aversion + factor structure).",
       "step3_variables_and_effects": [
-        "Risk aversion: SDF decreasing in returns (dm/dR < 0)",
-        "Single-factor: m = a + b·R → need b < 0",
-        "Multi-factor: m = a + Σb_i·R_i → need each b_i < 0 (typically)",
-        "Number of factors ≠ violation; parameter signs matter"
+        "Risk aversion: dm/dR_i < 0 for all factors i (SDF decreasing)",
+        "Multifactor SDF: m = a + Σb_i·f_i",
+        "Violation depends on b_i signs (need b_i < 0)",
+        "Number of factors irrelevant to monotonicity",
+        "Well-chosen parameters → risk aversion holds"
       ],
-      "step4_required_action": "Evaluate T/F about multi-factor and risk aversion.",
-      "step5_method_or_truth_test": "Logical: risk aversion = global decreasing property. Multi-factor SDF can satisfy this if parameters chosen correctly (negative loadings on 'bad' states).",
-      "result_takeaway": "Risk aversion depends on SDF monotonicity, not factor count. Multi-factor models can be risk-averse if properly parameterized."
+      "step4_required_action": "Test if factor count affects risk aversion condition.",
+      "step5_method_or_truth_test": "Logical: Risk aversion = dm/df_i < 0 ∀ i. With multiple factors, just need all b_i < 0. Number of factors doesn't affect decreasing property if parameters correct.",
+      "result_takeaway": "Multiple factors don't violate risk aversion. Risk aversion depends on parameter signs (b_i < 0), not number of factors."
     }
   },
   {
-    "id": "portfolio_2017_rf_sharpe",
-    "source": "Oct 2017 Advanced Investments Exam",
+    "id": "oct2017_q9_rf_sharpe_graph",
+    "source": "Oct 2017 Exam Q9",
     "year": 2017,
     "topic_primary": "Portfolio",
     "topic_secondary": ["Performance"],
     "difficulty": "medium",
-    "question": "True/False: An increase in the risk-free rate will lower the Sharpe ratio of the market portfolio. Illustrate with a graph.",
-    "hint": "Sharpe ratio is the slope of the capital allocation line.",
-    "answer_short": "True. Higher r_f → steeper CAL required to be tangent → market portfolio shifts right → lower Sharpe (flatter efficient frontier slope).",
+    "question": "True/False: 'An increase in the risk-free rate will lower the Sharpe ratio of the market portfolio.' Illustrate with a graph.",
+    "hint": "How does r_f affect the tangency portfolio and CAL slope?",
+    "answer_short": "True. Higher r_f → steeper CAL slope initially, but tangency portfolio shifts right (higher risk), reducing net Sharpe ratio (CAL slope).",
     "framework": {
-      "step1_problem_and_topic": "Assess r_f impact on market Sharpe ratio via tangency portfolio shift.",
-      "step2_single_or_combined": "Combined: Portfolio Theory (efficient frontier) + Performance (Sharpe).",
+      "step1_problem_and_topic": "Assess r_f impact on market portfolio Sharpe ratio; illustrate graphically.",
+      "step2_single_or_combined": "Combined: Portfolio theory (CAL) + Performance (Sharpe ratio).",
       "step3_variables_and_effects": [
-        "Sharpe = (μ_M - r_f)/σ_M = slope of CAL",
-        "Higher r_f → CAL pivots up from r_f",
-        "New tangency point → further right on frontier",
-        "Slope decreases → Sharpe decreases"
+        "Sharpe ratio = (E[R_M] - r_f)/σ_M = slope of CAL",
+        "Higher r_f → CAL intercept moves up",
+        "Tangency portfolio shifts (new optimal portfolio)",
+        "New tangency further right on frontier → flatter CAL",
+        "Net effect: Sharpe ratio decreases"
       ],
-      "step4_required_action": "Evaluate T/F with graphical illustration of CAL shift.",
-      "step5_method_or_truth_test": "Graphical: plot (σ, μ) space; show r_f increase → CAL steeper intercept → tangency moves right → slope (Sharpe) falls.",
-      "result_takeaway": "Higher r_f reduces market Sharpe ratio as tangency portfolio shifts to lower slope region of efficient frontier."
+      "step4_required_action": "Derive effect of r_f on Sharpe ratio; draw efficient frontier + CAL shift.",
+      "step5_method_or_truth_test": "Graph shows efficient frontier (fixed). Initial CAL from r_f₁ tangent at M₁. New CAL from higher r_f₂ is tangent at M₂ (further right, flatter). Sharpe = slope → lower.",
+      "result_takeaway": "Higher r_f shifts tangency portfolio rightward, making CAL flatter. Sharpe ratio (CAL slope) decreases."
+    }
+  },
+  {
+    "id": "oct2017_q10_black_litterman_returns",
+    "source": "Oct 2017 Exam Q10",
+    "year": 2017,
+    "topic_primary": "Portfolio",
+    "topic_secondary": [],
+    "difficulty": "easy",
+    "question": "True/False: 'The Black-Litterman approach should be implemented using returns calculated as geometric averages.'",
+    "hint": "Think about the time horizon: one period expectations vs compounded multi-period.",
+    "answer_short": "False. Black-Litterman captures one-period expectations → use arithmetic averages, not geometric (which compound multiple periods).",
+    "framework": {
+      "step1_problem_and_topic": "Determine appropriate return averaging method for Black-Litterman framework.",
+      "step2_single_or_combined": "Single: Portfolio theory (Black-Litterman inputs).",
+      "step3_variables_and_effects": [
+        "Black-Litterman: Bayesian framework for combining views + market equilibrium",
+        "Expectations: one-period forward-looking E[R]",
+        "Arithmetic average: (R₁ + R₂ + ... + R_n)/n → one-period estimate",
+        "Geometric average: [(1+R₁)(1+R₂)...(1+R_n)]^(1/n) - 1 → compounded multi-period",
+        "BL needs single-period E[R]"
+      ],
+      "step4_required_action": "Identify if BL requires one-period (arithmetic) or multi-period (geometric) returns.",
+      "step5_method_or_truth_test": "Truth test: BL designed for single-period optimization → arithmetic returns capture one-period expectation. Geometric averages compound across periods (irrelevant for BL).",
+      "result_takeaway": "Black-Litterman uses arithmetic averages (one-period expectations), not geometric (multi-period compounding)."
+    }
+  },
+  {
+    "id": "oct2017_q11_one_period_horizon",
+    "source": "Oct 2017 Exam Q11",
+    "year": 2017,
+    "topic_primary": "Portfolio",
+    "topic_secondary": [],
+    "difficulty": "easy",
+    "question": "True/False: 'A one-period model means that the investment horizon is fixed, and will also be a major determinant of your investment decisions.'",
+    "hint": "Does the period length affect return distributions and optimal portfolios?",
+    "answer_short": "True. One-period model fixes the horizon. Return distributions change with frequency (daily vs annual), so horizon determines optimal decisions.",
+    "framework": {
+      "step1_problem_and_topic": "Assess if one-period model constrains investment horizon and affects decisions.",
+      "step2_single_or_combined": "Single: Portfolio theory (time horizon effects).",
+      "step3_variables_and_effects": [
+        "One-period model: optimize over single period (e.g., 1 month, 1 year)",
+        "Return distributions scale with horizon (σ ∝ √t)",
+        "Different horizons → different optimal portfolios",
+        "Cannot shift horizon without changing distribution",
+        "Horizon is model parameter, not choice variable"
+      ],
+      "step4_required_action": "Test if one-period model locks horizon; explain impact on decisions.",
+      "step5_method_or_truth_test": "Logical: One-period = fixed horizon. Changing frequency (daily→annual) changes distributions → changes optimal weights. Therefore, horizon is major determinant.",
+      "result_takeaway": "One-period model fixes investment horizon, which determines return distributions and optimal portfolio decisions."
+    }
+  },
+  {
+    "id": "oct2017_q12_capm_ff_sector_crisis",
+    "source": "Oct 2017 Exam Q12",
+    "year": 2017,
+    "topic_primary": "Factors",
+    "topic_secondary": ["Risk"],
+    "difficulty": "hard",
+    "question": "Which model would have the largest alpha differences vs CAPM for financial sector stocks in 2007-2010? Carhart, Grossmann, LPM (Bawa-Lindenberg), or FF5 (1993)?",
+    "hint": "Consider 2007-2010 crisis characteristics: severe negative returns, asymmetry.",
+    "answer_short": "C: LPM model. Financial crisis had severe asymmetric downside → LPM captures this better than symmetric CAPM. Carhart (momentum) and FF factors help less.",
+    "framework": {
+      "step1_problem_and_topic": "Identify which model best captures 2007-2010 financial crisis alpha deviations from CAPM.",
+      "step2_single_or_combined": "Combined: Factor models + Risk measurement (crisis context).",
+      "step3_variables_and_effects": [
+        "2007-2010: severe negative returns in financials",
+        "Asymmetric downside (crash risk)",
+        "Carhart: adds momentum (helps somewhat - prolonged losses)",
+        "FF (1993 or 5-factor): adds bond factors (moderate help)",
+        "LPM: explicitly captures downside risk asymmetry",
+        "Grossmann: no alphas (equilibrium model)"
+      ],
+      "step4_required_action": "Match crisis characteristics (asymmetry, downside) to model strength.",
+      "step5_method_or_truth_test": "Analysis: LPM explicitly models downside deviations → best fit for asymmetric crash. Carhart momentum helps (losers stayed losers) but less than LPM. FF bond factors moderate. Grossmann irrelevant (no alphas).",
+      "result_takeaway": "LPM model (Bawa-Lindenberg) best captures financial crisis alphas due to explicit downside asymmetry modeling vs symmetric CAPM."
+    }
+  },
+  {
+    "id": "oct2017_q13_preferences_beta_invariant",
+    "source": "Oct 2017 Exam Q13",
+    "year": 2017,
+    "topic_primary": "CAPM",
+    "topic_secondary": ["Utility"],
+    "difficulty": "medium",
+    "question": "If your preferences change, which could NOT change: SDF, coefficient of relative risk aversion, betas for judging investments, or time-value preference coefficient?",
+    "hint": "What's investor-specific vs market-determined?",
+    "answer_short": "C: Betas. Betas are market features (cov(R_i, R_M)/var(R_M)), independent of your preferences. SDF, risk aversion, time preference all depend on your utility.",
+    "framework": {
+      "step1_problem_and_topic": "Identify which quantity is investor-specific (preference-dependent) vs market-determined.",
+      "step2_single_or_combined": "Combined: CAPM (beta as market measure) + Utility (preference parameters).",
+      "step3_variables_and_effects": [
+        "SDF: m = β·U'(C_{t+1})/U'(C_t) → depends on your utility",
+        "RRA: -xU''(x)/U'(x) → depends on your utility curvature",
+        "Time preference: β in discount factor → your preference",
+        "Beta: β_i = cov(R_i, R_M)/var(R_M) → market covariance (objective)",
+        "Your preferences don't change market statistics"
+      ],
+      "step4_required_action": "Test each option: does preference change affect it?",
+      "step5_method_or_truth_test": "A: SDF depends on U → changes. B: RRA uses U'' → changes. D: Time preference is preference parameter → changes. C: Beta is market covariance ratio → unchanged by your preferences.",
+      "result_takeaway": "Betas are market-determined (covariances), independent of investor preferences. SDF, risk aversion, time preference all depend on individual utility."
+    }
+  },
+  {
+    "id": "jul2016_q1_lpm_frequency",
+    "source": "Jul 2016 Exam Q1",
+    "year": 2016,
+    "topic_primary": "Risk",
+    "topic_secondary": ["LPM"],
+    "difficulty": "medium",
+    "question": "Two investors fear only returns dropping >10%: A uses monthly, B uses daily returns. Who sees more risk? Who has more realistic model? Give the SDF consistent with their preferences.",
+    "hint": "Compare frequency of -10% events on daily vs monthly basis.",
+    "answer_short": "A sees more risk (monthly -10% realistic). A more realistic (daily -10% extremely rare). SDF: m = a + b·min(R_M - (-10%), 0) [LPM with τ=-10%].",
+    "framework": {
+      "step1_problem_and_topic": "Compare LPM risk perception at different frequencies; derive consistent SDF.",
+      "step2_single_or_combined": "Combined: Risk measurement (LPM) + SDF construction.",
+      "step3_variables_and_effects": [
+        "Threshold τ = -10%",
+        "Daily: -10% extremely rare → almost no risk perceived",
+        "Monthly: -10% rare but occurs → substantial risk perceived",
+        "Investor A (monthly) sees more risk",
+        "LPM SDF: m = a + b·min(R_M - τ, 0)"
+      ],
+      "step4_required_action": "Compare risk perception by frequency; identify more realistic model; write SDF.",
+      "step5_method_or_truth_test": "Daily -10% virtually never happens → B sees little risk (unrealistic threshold-frequency mismatch). Monthly -10% happens occasionally → A sees risk (realistic). SDF: m = a + b·min(R_M - (-10%), 0).",
+      "result_takeaway": "Monthly investor sees more risk (realistic -10% threshold). Daily investor nearly risk-neutral (threshold too extreme). LPM SDF: m = a + b·min(R_M - τ, 0)."
+    }
+  },
+  {
+    "id": "jul2016_q2a_momentum_sdf",
+    "source": "Jul 2016 Exam Q2a",
+    "year": 2016,
+    "topic_primary": "Anomalies",
+    "topic_secondary": ["SDF"],
+    "difficulty": "medium",
+    "question": "Explain why there are theoretical objections to including a momentum factor in the SDF.",
+    "hint": "What should SDF depend on (future consumption) vs what momentum uses (past returns)?",
+    "answer_short": "SDF should depend on marginal utility of future consumption (concurrent events), not past returns. Momentum uses past performance, violating consumption-based logic and efficiency.",
+    "framework": {
+      "step1_problem_and_topic": "Assess theoretical validity of momentum factor in consumption-based SDF.",
+      "step2_single_or_combined": "Combined: SDF theory (consumption-based) + Anomalies (momentum).",
+      "step3_variables_and_effects": [
+        "SDF: m_{t+1} = β·U'(C_{t+1})/U'(C_t) → depends on future consumption",
+        "Momentum factor: based on past 3-12 month returns",
+        "SDF should reflect concurrent utility, not past performance",
+        "Market efficiency: future returns shouldn't depend on past",
+        "Momentum violates both consumption-based logic and efficiency"
+      ],
+      "step4_required_action": "Explain theoretical inconsistency of past-return factor in consumption-based SDF.",
+      "step5_method_or_truth_test": "Theoretical objection: SDF is marginal utility ratio (forward-looking, concurrent). Momentum uses backward-looking returns. Inconsistent with consumption theory and market efficiency.",
+      "result_takeaway": "Momentum factor theoretically inconsistent with SDF: uses past returns instead of future consumption/utility. Violates consumption-based logic and efficiency."
+    }
+  },
+  {
+    "id": "jul2016_q2b_sdf_meaning",
+    "source": "Jul 2016 Exam Q2b",
+    "year": 2016,
+    "topic_primary": "Utility",
+    "topic_secondary": ["SDF"],
+    "difficulty": "easy",
+    "question": "What is the meaning of m_{t+1} in the SDF formula p_t = E[m_{t+1}·x_{t+1}]?",
+    "hint": "Think about marginal utility and how we value future payoffs.",
+    "answer_short": "m_{t+1} is marginal utility of future consumption: how much we value returns (used for consumption) under conditions prevailing when we receive those returns.",
+    "framework": {
+      "step1_problem_and_topic": "Define economic meaning of SDF m_{t+1} in pricing equation.",
+      "step2_single_or_combined": "Single: SDF fundamentals (utility interpretation).",
+      "step3_variables_and_effects": [
+        "p_t = E[m_{t+1}·x_{t+1}] → pricing equation",
+        "m_{t+1} = β·U'(C_{t+1})/U'(C_t) → marginal utility ratio",
+        "High m when future consumption low (marginal utility high)",
+        "m_{t+1} converts future payoff x_{t+1} to present value",
+        "State-dependent valuation"
+      ],
+      "step4_required_action": "Explain intuitive meaning of m_{t+1} as valuation kernel.",
+      "step5_method_or_truth_test": "Economic interpretation: m_{t+1} is marginal utility of future consumption → how much we value $1 received in state (t+1) relative to today. High in bad states (high marginal utility).",
+      "result_takeaway": "m_{t+1} represents marginal utility of future consumption: state-dependent valuation of future payoffs based on how much we value consumption in that state."
+    }
+  },
+  {
+    "id": "jul2016_q3_correlation_germany_short",
+    "source": "Jul 2016 Exam Q3",
+    "year": 2016,
+    "topic_primary": "Portfolio",
+    "topic_secondary": ["Diversification"],
+    "difficulty": "medium",
+    "question": "US-China correlation becomes negative (was positive), E[R] unchanged. (a) Impact on German investor's portfolio (held both with positive weights)? (b) Implications if China bans short sales?",
+    "hint": "(a) Diversification benefits; (b) Do you need shorts for negative correlation benefit?",
+    "answer_short": "(a) Diversification benefits increase, weights likely change but stay positive. (b) No impact from short ban—negative correlation helps with positive weights.",
+    "framework": {
+      "step1_problem_and_topic": "Assess negative correlation impact on portfolio with and without short constraints.",
+      "step2_single_or_combined": "Combined: Portfolio theory + Trading constraints.",
+      "step3_variables_and_effects": [
+        "ρ(US, China): positive → negative",
+        "E[R] unchanged",
+        "Negative ρ → better diversification with long positions",
+        "σ_p² decreases with negative correlations (long+long)",
+        "Short ban: irrelevant if both weights positive"
+      ],
+      "step4_required_action": "(a) Explain weight change and diversification; (b) assess short ban impact.",
+      "step5_method_or_truth_test": "(a) Negative ρ → lower σ_p for given weights → adjust weights (likely keep both positive). (b) Short ban irrelevant: negative correlation benefits accrue with long+long positions.",
+      "result_takeaway": "Negative correlation improves diversification with positive weights. Short ban has no impact—diversification benefits work with long positions only."
+    }
+  },
+  {
+    "id": "jul2016_q4_portfolio_weights_anomalies",
+    "source": "Jul 2016 Exam Q4",
+    "year": 2016,
+    "topic_primary": "Anomalies",
+    "topic_secondary": ["CAPM"],
+    "difficulty": "medium",
+    "question": "Portfolio: +100% small (12m winners), -100% large (12m losers), +50% high profit, -50% low profit, +100% r_f. r_f=1.5%, MRP=5%, all β=1.1. (a) E[R] per CAPM? (b) Consistent with anomaly literature?",
+    "hint": "(a) Net risky weight=0% → only r_f. (b) Check if strategy aligns with known anomalies.",
+    "answer_short": "(a) E[R]=1.5% (net 0% in risky assets). (b) Yes, consistent: long small+high profit (known anomalies), but momentum interpretation questionable (12m horizon may be reversal).",
+    "framework": {
+      "step1_problem_and_topic": "Calculate CAPM E[R] for zero-net risky portfolio; assess anomaly consistency.",
+      "step2_single_or_combined": "Combined: CAPM + Anomalies (size, profitability, momentum/reversal).",
+      "step3_variables_and_effects": [
+        "Net risky weight: +100% - 100% + 50% - 50% = 0%",
+        "Remaining: +100% r_f → E[R] = r_f = 1.5%",
+        "Size anomaly: small > large ✓",
+        "Profitability: high > low ✓ (FF 2015)",
+        "12m winners/losers: momentum typically 3-12m, reversal >12m"
+      ],
+      "step4_required_action": "(a) Compute E[R] using net weights; (b) match strategy to known anomalies.",
+      "step5_method_or_truth_test": "(a) Net 0% risky → E[R]=r_f=1.5%. (b) Long small (size anomaly ✓), long high profit (FF5 ✓). 12m may blur momentum/reversal boundary.",
+      "result_takeaway": "CAPM E[R]=1.5% (zero risky exposure). Strategy partially consistent with anomalies (size, profitability), though 12m horizon ambiguous."
+    }
+  },
+  {
+    "id": "jul2016_q5_rolls_critique",
+    "source": "Jul 2016 Exam Q5",
+    "year": 2016,
+    "topic_primary": "CAPM",
+    "topic_secondary": [],
+    "difficulty": "easy",
+    "question": "Explain what you should do to minimize the influence of Roll's critique.",
+    "hint": "What's the core problem (unmeasurable market portfolio) and how to mitigate?",
+    "answer_short": "Use the broadest possible market proxy (global index with all asset classes) to minimize measurement error and make joint test less problematic.",
+    "framework": {
+      "step1_problem_and_topic": "Identify Roll's critique; propose mitigation strategy.",
+      "step2_single_or_combined": "Single: CAPM testing (joint hypothesis problem).",
+      "step3_variables_and_effects": [
+        "Roll's critique: True market portfolio unmeasurable (should include all assets globally)",
+        "Testing CAPM = joint test of (1) model validity + (2) proxy accuracy",
+        "Rejection could be bad proxy, not bad model",
+        "Mitigation: broader proxy → closer to true market",
+        "Use global index with stocks, bonds, real estate, commodities"
+      ],
+      "step4_required_action": "Explain Roll's critique; identify best mitigation approach.",
+      "step5_method_or_truth_test": "Solution: Use broadest possible proxy (global multi-asset index) to minimize gap between proxy and true market portfolio. Reduces joint test problem.",
+      "result_takeaway": "Roll's critique: market portfolio unmeasurable → joint test problem. Mitigation: use broadest global multi-asset proxy."
+    }
+  },
+  {
+    "id": "jul2016_q6_reversal_transaction_costs",
+    "source": "Jul 2016 Exam Q6",
+    "year": 2016,
+    "topic_primary": "Anomalies",
+    "topic_secondary": [],
+    "difficulty": "easy",
+    "question": "True/False: 'Investing in a reversal-based strategy would incur more transaction costs than investing based on the size-anomaly.'",
+    "hint": "Consider rebalancing frequency for each strategy.",
+    "answer_short": "False. Reversal is long-term (3-5yr losers → winners), size is characteristic-based. Both low turnover with moderate horizon → similar transaction costs.",
+    "framework": {
+      "step1_problem_and_topic": "Compare transaction costs for reversal vs size strategies.",
+      "step2_single_or_combined": "Single: Anomalies (trading strategy implementation).",
+      "step3_variables_and_effects": [
+        "Reversal: long 3-5yr losers, short recent winners → long horizon",
+        "Size: long small, short big → characteristic-based",
+        "Size changes slowly (market cap evolution)",
+        "Reversal rebalancing: infrequent (annual or less)",
+        "Similar turnover → similar costs"
+      ],
+      "step4_required_action": "Compare rebalancing frequency and transaction costs.",
+      "step5_method_or_truth_test": "Analysis: Reversal uses 3-5yr horizon → low turnover. Size based on stable characteristic → low turnover. With moderate rebalancing, both have similar costs.",
+      "result_takeaway": "Reversal doesn't incur more costs than size. Both are relatively low-turnover strategies with infrequent rebalancing."
+    }
+  },
+  {
+    "id": "jul2016_q7_currency_hedge_sharpe",
+    "source": "Jul 2016 Exam Q7",
+    "year": 2016,
+    "topic_primary": "Portfolio",
+    "topic_secondary": ["Risk"],
+    "difficulty": "medium",
+    "question": "True/False: 'The Sharpe ratio of a foreign investment with currency hedging will almost surely be lower than without hedging (judged in home currency).'",
+    "hint": "Does currency correlation with returns matter?",
+    "answer_short": "False. Sharpe could increase or decrease depending on whether foreign currency is positively or negatively correlated with returns. Hedging removes this correlation effect.",
+    "framework": {
+      "step1_problem_and_topic": "Assess currency hedging impact on Sharpe ratio via correlation effects.",
+      "step2_single_or_combined": "Combined: Portfolio theory (Sharpe) + Currency risk.",
+      "step3_variables_and_effects": [
+        "Sharpe = (E[R] - r_f)/σ",
+        "Unhedged: R = R_foreign·(1 + FX_change)",
+        "Hedging removes FX correlation with returns",
+        "If ρ(R_foreign, FX) > 0 → hedging reduces σ → Sharpe may rise",
+        "If ρ(R_foreign, FX) < 0 → hedging removes natural hedge → Sharpe may fall"
+      ],
+      "step4_required_action": "Analyze hedging effect on Sharpe via return-FX correlation.",
+      "step5_method_or_truth_test": "Logical: Positive ρ → FX adds volatility → hedge helps (Sharpe up). Negative ρ → FX provides hedge → removing it hurts (Sharpe down). Direction depends on correlation.",
+      "result_takeaway": "Currency hedging impact on Sharpe depends on return-FX correlation. Not 'almost surely lower'—can increase if positive correlation."
+    }
+  },
+  {
+    "id": "jul2016_q8_capm_nonsatiation_practice",
+    "source": "Jul 2016 Exam Q8",
+    "year": 2016,
+    "topic_primary": "CAPM",
+    "topic_secondary": ["Utility"],
+    "difficulty": "easy",
+    "question": "True/False: 'The CAPM violates non-satiation, but this is rarely relevant in practical applications of the CAPM.'",
+    "hint": "When does CAPM SDF go negative and how often does that happen?",
+    "answer_short": "True. CAPM SDF (m = a + b·R_M) goes negative for very high R_M (violates nonsatiation), but such extreme returns are rare in practice.",
+    "framework": {
+      "step1_problem_and_topic": "Assess CAPM nonsatiation violation and its practical relevance.",
+      "step2_single_or_combined": "Combined: CAPM (SDF) + Utility (nonsatiation axiom).",
+      "step3_variables_and_effects": [
+        "CAPM SDF: m = a + b·R_M with a>0, b<0",
+        "Nonsatiation: requires m > 0 ∀ R_M",
+        "Violation: m < 0 when R_M > -a/b (very positive)",
+        "Extreme positive R_M rare in practice",
+        "Practical impact minimal"
+      ],
+      "step4_required_action": "Identify where violation occurs; assess frequency in practice.",
+      "step5_method_or_truth_test": "CAPM SDF negative when R_M very high (m = a + b·R_M < 0 when R_M > -a/b). Such extreme returns rare → violation rarely relevant practically.",
+      "result_takeaway": "CAPM violates nonsatiation at extreme positive R_M, but this is rare in practice, making the theoretical violation practically irrelevant."
+    }
+  },
+  {
+    "id": "jul2016_q9_event_alpha_impact",
+    "source": "Jul 2016 Exam Q9",
+    "year": 2016,
+    "topic_primary": "Risk",
+    "topic_secondary": ["CAPM"],
+    "difficulty": "medium",
+    "question": "True/False: 'An event that erodes trust in a stock (e.g., VW emissions scandal) will influence the alpha of a portfolio containing such a stock.'",
+    "hint": "Is the impact diversifiable? Does portfolio composition matter?",
+    "answer_short": "Yes, but depends on portfolio composition. If competitors benefit (diversifiable within portfolio), net alpha impact may be zero. If not compensated, alpha affected.",
+    "framework": {
+      "step1_problem_and_topic": "Assess if firm-specific event affects portfolio alpha.",
+      "step2_single_or_combined": "Combined: CAPM (alpha) + Risk decomposition (diversifiable vs systematic).",
+      "step3_variables_and_effects": [
+        "Alpha = E[R_p] - [r_f + β_p(E[R_M] - r_f)]",
+        "Scandal: firm-specific (diversifiable risk)",
+        "If portfolio holds competitors → they gain when VW loses",
+        "Net impact depends on weights",
+        "If not diversified within portfolio → alpha affected"
+      ],
+      "step4_required_action": "Determine if event affects portfolio alpha; identify conditions.",
+      "step5_method_or_truth_test": "Conditional: If portfolio diversified (holds competitors) → gains offset losses → no net alpha impact (diversifiable). If concentrated → alpha falls. Answer: yes, but depends on portfolio.",
+      "result_takeaway": "Firm-specific events affect portfolio alpha only if not diversified away. If portfolio holds competitors benefiting from scandal, net alpha impact may be zero."
+    }
+  },
+  {
+    "id": "jul2016_q10_capm_diversifiable_risk",
+    "source": "Jul 2016 Exam Q10",
+    "year": 2016,
+    "topic_primary": "CAPM",
+    "topic_secondary": ["Risk"],
+    "difficulty": "easy",
+    "question": "True/False: 'If everyone would invest according to the CAPM, non-diversifiable risk would not exist any longer.'",
+    "hint": "Does CAPM eliminate risk or just not price it?",
+    "answer_short": "False. CAPM says diversifiable risk isn't priced, but it still exists. Firms can still fail, have scandals, etc.—just no compensation for bearing that risk.",
+    "framework": {
+      "step1_problem_and_topic": "Assess if CAPM investing eliminates diversifiable risk.",
+      "step2_single_or_combined": "Single: CAPM (pricing vs existence of risk).",
+      "step3_variables_and_effects": [
+        "CAPM: diversifiable risk not priced (no compensation)",
+        "Diversification eliminates diversifiable risk from portfolio",
+        "Individual firm idiosyncratic risk still exists",
+        "Firms can fail, have scandals, innovations",
+        "Existence ≠ pricing"
+      ],
+      "step4_required_action": "Test if CAPM investing eliminates diversifiable risk or just removes pricing.",
+      "step5_method_or_truth_test": "Logical: CAPM → hold market portfolio → diversifiable risk eliminated from portfolio level. But individual firms still have idiosyncratic shocks. Risk exists, just not priced.",
+      "result_takeaway": "Diversifiable risk still exists under CAPM (firm bankruptcies, scandals, etc.). It's just not priced—investors don't get compensated for bearing it."
+    }
+  },
+  {
+    "id": "jul2016_q11_ff5_beta_bonds",
+    "source": "Jul 2016 Exam Q11",
+    "year": 2016,
+    "topic_primary": "Factors",
+    "topic_secondary": ["Fixed Income"],
+    "difficulty": "easy",
+    "question": "Which asset would have the lowest market beta according to Fama-French 5-factor model? Social media portfolio, S&P500 ETF, call options on MSCI global, or government bonds?",
+    "hint": "What doesn't co-move with equity markets?",
+    "answer_short": "D: Government bonds. Gov bonds have near-zero equity beta (don't co-move with stocks). Others all have positive equity beta.",
+    "framework": {
+      "step1_problem_and_topic": "Identify asset with lowest equity market beta.",
+      "step2_single_or_combined": "Combined: Factor models (beta definition) + Asset classes.",
+      "step3_variables_and_effects": [
+        "Market beta: β_M = cov(R_i, R_M)/var(R_M)",
+        "A: Social media → β ≈ 1+ (tech sector)",
+        "B: S&P500 ETF → β ≈ 1 (is the market)",
+        "C: Call options on MSCI → β ∈ (0,1) depending on moneyness",
+        "D: Gov bonds → β ≈ 0 (little equity comovement)"
+      ],
+      "step4_required_action": "Compare equity beta across asset classes.",
+      "step5_method_or_truth_test": "Comparison: Social media β>1, S&P500 β≈1, options 0<β<1, gov bonds β≈0. Minimum = gov bonds.",
+      "result_takeaway": "Government bonds have lowest equity market beta (≈0) since they don't co-move with stock markets."
+    }
+  },
+  {
+    "id": "jul2016_q12_ff3_mrp_estimation_bubble",
+    "source": "Jul 2016 Exam Q12",
+    "year": 2016,
+    "topic_primary": "Factors",
+    "topic_secondary": ["CAPM"],
+    "difficulty": "hard",
+    "question": "Stock market rallies 80%, you estimate FF3 during rally. Then bubble bursts (-40%). You calculate E[R] post-burst using rally-period parameters. Which input causes problems?",
+    "hint": "What changes dramatically between boom and bust?",
+    "answer_short": "C: Market risk premium. MRP massively overestimated during rally; not applicable in downturn. Betas relatively stable.",
+    "framework": {
+      "step1_problem_and_topic": "Identify which FF3 parameter most biased by estimating in bubble period.",
+      "step2_single_or_combined": "Combined: Factor models (FF3) + Parameter estimation (regime change).",
+      "step3_variables_and_effects": [
+        "FF3: E[R] = r_f + β_M·MRP + β_SMB·E[SMB] + β_HML·E[HML]",
+        "Estimation period: +80% rally → inflated MRP estimate",
+        "Application period: -40% crash → MRP very different",
+        "Betas (covariances) relatively stable across regimes",
+        "r_f changes slowly",
+        "MRP = E[R_M] - r_f → highly regime-dependent"
+      ],
+      "step4_required_action": "Identify which parameter most affected by boom-bust regime change.",
+      "step5_method_or_truth_test": "Analysis: MRP estimated during +80% rally will be very high. Applying this to post-crash period (-40%) massively overestimates expected returns. Betas and r_f more stable.",
+      "result_takeaway": "Market risk premium is most problematic—massively overestimated during rally, not applicable in downturn. Betas relatively regime-invariant."
+    }
+  },
+  {
+    "id": "jul2016_q13_negative_rf_performance",
+    "source": "Jul 2016 Exam Q13",
+    "year": 2016,
+    "topic_primary": "Risk",
+    "topic_secondary": ["Performance"],
+    "difficulty": "medium",
+    "question": "If the risk-free rate becomes negative, which performance measures are impacted: M², Sharpe ratio, Treynor ratio, or all of the above?",
+    "hint": "Think about how r_f enters each measure's calculation.",
+    "answer_short": "D: All of the above. M² uses r_f for leveraging, Sharpe uses excess returns (R-r_f), Treynor uses excess returns and beta (which involves r_f).",
+    "framework": {
+      "step1_problem_and_topic": "Assess r_f sensitivity across performance measures.",
+      "step2_single_or_combined": "Single: Performance evaluation (r_f impact).",
+      "step3_variables_and_effects": [
+        "M²: leverage portfolio/benchmark with r_f to equalize risk → directly uses r_f",
+        "Sharpe: (R_p - r_f)/σ_p → excess returns use r_f",
+        "Treynor: (R_p - r_f)/β_p → excess returns use r_f",
+        "β calculated relative to market excess returns",
+        "All formulas contain r_f"
+      ],
+      "step4_required_action": "Check if r_f appears in each measure's formula.",
+      "step5_method_or_truth_test": "M²: uses r_f for leverage combo. Sharpe: numerator = R_p - r_f. Treynor: numerator = R_p - r_f, β uses excess returns. All affected.",
+      "result_takeaway": "All three measures (M², Sharpe, Treynor) affected by negative r_f through excess return calculations and leveraging."
+    }
+  },
+  {
+    "id": "jul2016_q14_lpm_least_risky",
+    "source": "Jul 2016 Exam Q14",
+    "year": 2016,
+    "topic_primary": "Risk",
+    "topic_secondary": ["LPM"],
+    "difficulty": "medium",
+    "question": "Given probability distribution for 3 assets, find least risky for LPM(order=2, threshold=-5%). No diversification. Show calculations.",
+    "hint": "Calculate LPM = E[max(τ-r, 0)²] only for returns below -5%.",
+    "answer_short": "B: Asset 2 has LPM=0 (no returns below -5%). Asset 1: LPM=32.4, Asset 3: LPM=0.9.",
+    "framework": {
+      "step1_problem_and_topic": "Calculate LPM₂(-5%) for each asset; identify minimum.",
+      "step2_single_or_combined": "Single: Risk measurement (LPM calculation).",
+      "step3_variables_and_effects": [
+        "LPM(τ, n) = E[max(τ - r, 0)ⁿ]",
+        "τ = -5%, n = 2",
+        "Asset 1: returns +10%, -14%, +4% with prob 10%, 40%, 50%",
+        "Asset 2: returns -4%, +3%, -2% with prob 10%, 40%, 50%",
+        "Asset 3: returns +50%, -6%, -6% with prob 10%, 40%, 50%"
+      ],
+      "step4_required_action": "Compute LPM for each asset; only count returns below -5%.",
+      "step5_method_or_truth_test": "Asset 1: 0.4*(-14-(-5))² = 0.4*81 = 32.4. Asset 2: no returns below -5% → LPM=0. Asset 3: 0.4*(-6-(-5))² + 0.5*(-6-(-5))² = 0.4*1 + 0.5*1 = 0.9. Min = Asset 2.",
+      "result_takeaway": "Asset 2 has zero LPM (no returns below threshold) → least risky. Only downside deviations below -5% count."
+    }
+  },
+  {
+    "id": "jul2016_q15_lpm_short_strategy",
+    "source": "Jul 2016 Exam Q15",
+    "year": 2016,
+    "topic_primary": "Risk",
+    "topic_secondary": ["LPM", "Portfolio"],
+    "difficulty": "medium",
+    "question": "Using same distribution, with r_f=0% and shorts possible, which strategy would mean-LPM investor choose (no diversification): net long in 1/2/3, no investment, or net short in 1/2/3?",
+    "hint": "All expected returns are negative—what does that imply?",
+    "answer_short": "C: Net short in Asset 2. All E[R] < 0 → short them. Asset 2 has zero LPM when long → when short, gives +0.2% E[R] with minimal risk.",
+    "framework": {
+      "step1_problem_and_topic": "Optimize mean-LPM with negative E[R] assets; consider shorting.",
+      "step2_single_or_combined": "Combined: Risk (LPM) + Portfolio (shorting strategy).",
+      "step3_variables_and_effects": [
+        "E[R₁] = 0.1(10) + 0.4(-14) + 0.5(4) = -1.6%",
+        "E[R₂] = 0.1(-4) + 0.4(3) + 0.5(-2) = -0.2%",
+        "E[R₃] = 0.1(50) + 0.4(-6) + 0.5(-6) = -0.4%",
+        "All E[R] < 0 → short to get positive E[R]",
+        "Asset 2: LPM=0 when long → attractive to short"
+      ],
+      "step4_required_action": "Calculate E[R] for each; determine optimal long/short strategy.",
+      "step5_method_or_truth_test": "All E[R] negative → go short. Short Asset 2 gives E[R]=+0.2% (best) with zero LPM risk when long (favorable short characteristics).",
+      "result_takeaway": "All assets have negative E[R] → short them. Asset 2 best: short position yields +0.2% with favorable LPM profile."
     }
   }
 ]

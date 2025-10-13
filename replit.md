@@ -13,6 +13,7 @@ Key capabilities include:
 - **Risk Analysis:** Performance metrics (Sharpe, Treynor, Jensen's Alpha, LPM) and higher moments analysis.
 - **Utility & SDF Explorer:** Pedagogical simulator for utility theory (CRRA, CARA, DARA) and Stochastic Discount Factor concepts using synthetic data.
 - **Fixed Income:** Term structure and credit spread analysis.
+- **Study Flashcards:** Interactive exam preparation module with 18 Q&A pairs from past exams (2016-2020), featuring professor's 5-step framework answers, topic/difficulty filtering, progress tracking, and keyboard shortcuts.
 
 ## User Preferences
 
@@ -115,3 +116,37 @@ The Fixed Income theory tab has been completely rebuilt with 10 comprehensive ca
 10. **Performance & Portfolio Construction:** Hierarchical optimization, cross-asset correlations
 
 **Pedagogical Design:** Same color-coded pattern as Utility module, formulas with proper mathematical notation, every card with "So what?" summary. Aligns with Lecture 6 (Oct 6, 2025).
+
+### Study Flashcards Module - Exam Preparation Tool (October 2025)
+
+The Study Flashcards module provides an interactive exam preparation experience using real questions from past exams (July 2016, October 2017, July 2020):
+
+**Core Features:**
+- **18 Q&A Pairs:** Extracted from 7 past exam PDFs with complete professor's 5-step framework
+- **5-Step Framework Structure:** Every answer follows the structured approach:
+  1. Problem & Topic: Identify core question and classify topic
+  2. Single/Combined: Determine if question requires single or multiple concepts
+  3. Variables & Effects: List relevant formulas, variables, and effects
+  4. Required Action: Specify what methodology/test is needed
+  5. Method/Truth Test & Result: Apply method and derive key takeaway
+- **Topic Coverage:** CAPM, Risk Analysis, Anomalies, Utility/SDF, Factor Models, Portfolio Theory, Fixed Income
+- **Difficulty Levels:** Easy, Medium, Hard classification for progressive learning
+- **Interactive Features:**
+  - 3D flip animation (question front, framework back)
+  - Topic and difficulty filtering
+  - Shuffle mode for randomized study
+  - Progress tracking with localStorage (known/review workflow)
+  - Progress bar showing mastery percentage
+  - Keyboard shortcuts: F (flip), N/→ (next), P/← (previous)
+  - Study/Quiz mode tabs (quiz mode ready for future expansion)
+
+**Data Structure (flashcards.json):**
+- Each card includes: id, source, year, question, hint, topics (primary + secondary[]), difficulty
+- Full 5-step framework fields populated for all 18 cards
+- Quick answer summary for rapid review
+- Source attribution (exam date and question number)
+
+**Integration:**
+- Route: `/study/flashcards`
+- Landing page: Dedicated Study Flashcards section with Brain icon
+- Offline-ready: Uses local JSON, no API dependencies

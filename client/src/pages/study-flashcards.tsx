@@ -44,7 +44,7 @@ export default function StudyFlashcards() {
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("knownFlashcards");
+    const stored = localStorage.getItem("flashcards_progress");
     if (stored) {
       setKnownCards(new Set(JSON.parse(stored)));
     }
@@ -102,7 +102,7 @@ export default function StudyFlashcards() {
       newKnown.delete(currentCard.id);
     }
     setKnownCards(newKnown);
-    localStorage.setItem("knownFlashcards", JSON.stringify(Array.from(newKnown)));
+    localStorage.setItem("flashcards_progress", JSON.stringify(Array.from(newKnown)));
   };
 
   useEffect(() => {
