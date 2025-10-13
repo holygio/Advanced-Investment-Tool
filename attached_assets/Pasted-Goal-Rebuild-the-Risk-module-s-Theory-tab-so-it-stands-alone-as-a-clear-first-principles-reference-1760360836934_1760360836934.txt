@@ -1,0 +1,619 @@
+Goal
+
+Rebuild the Risk module’s Theory tab so it stands alone as a clear, first-principles reference aligned with Advanced Investments — Lecture 4. Include:
+
+Empirical distribution facts & horizon/scaling issues
+
+Normality diagnostics (skew, kurtosis, Jarque–Bera)
+
+Higher-moment preferences/pricing (skewness, kurtosis; utility/SDF view)
+
+Risk & performance metrics (Sharpe, Treynor, Information Ratio, Jensen’s α, M²)
+
+Expectations & Black-Litterman (brief)
+
+Tie-ins to testing (sorted portfolios, GRS pointer)
+
+No data calls; render as markdown “TheoryCards” with LaTeX.
+
+Page: /theory/risk/page.tsx
+
+Render the following collapsible cards in order. Use LaTeX for formulas, short bullets for intuition, and an “ExplainTip” icon for each tricky concept.
+
+1) Why Risk Measurement Matters (First Principles)
+
+Idea: Portfolio choice and evaluation both require a quantitative map from randomness to decisions. Risk is not one thing: its definition depends on distribution shape, investor preferences, and horizon. 
+
+Advanced Investments Lecture Se…
+
+So what? If you change the horizon or the shape assumption (normal vs heavy-tailed), the “best” portfolio and the “best” manager can change. 
+
+Advanced Investments Lecture Se…
+
+2) Empirical Return Distributions & Horizon
+
+Returns are not frequency-invariant: means, variances, correlations, and higher moments change with sampling (daily vs weekly vs monthly). Risk does not scale neatly with √time in practice. 
+
+Advanced Investments Lecture Se…
+
+Returns are multiplicative; the product of normals is not normal → compounding creates skew/fat tails even when log-returns are close to normal. 
+
+Advanced Investments Lecture Se…
+
+Takeaway: Portfolio weights and “optimality” are sensitive to horizon and distributional assumptions—expect different efficient sets across frequencies. 
+
+Advanced Investments Lecture Se…
+
+3) Normality: What It Implies and Why It Fails
+
+Why the Normal is popular: Two parameters 
+(
+𝜇
+,
+𝜎
+2
+)
+(μ,σ
+2
+) summarize the entire distribution → gives the mean–variance framework. It’s one of two main routes to MV (the other is quadratic utility). 
+
+Advanced Investments Lecture Se…
+
+But in data: Financial returns often show asymmetry (skew) and fat tails (excess kurtosis), especially at higher frequencies. 
+
+Advanced Investments Lecture Se…
+
+Diagnostics
+
+Skewness (asymmetry):
+
+Skew
+=
+1
+𝑛
+∑
+(
+𝑥
+𝑡
+−
+𝑥
+ˉ
+)
+3
+(
+1
+𝑛
+∑
+(
+𝑥
+𝑡
+−
+𝑥
+ˉ
+)
+2
+)
+3
+/
+2
+Skew=
+(
+n
+1
+	​
+
+∑(x
+t
+	​
+
+−
+x
+ˉ
+)
+2
+)
+3/2
+n
+1
+	​
+
+∑(x
+t
+	​
+
+−
+x
+ˉ
+)
+3
+	​
+
+
+Kurtosis (tail thickness):
+
+Kurt
+=
+1
+𝑛
+∑
+(
+𝑥
+𝑡
+−
+𝑥
+ˉ
+)
+4
+(
+1
+𝑛
+∑
+(
+𝑥
+𝑡
+−
+𝑥
+ˉ
+)
+2
+)
+2
+Kurt=
+(
+n
+1
+	​
+
+∑(x
+t
+	​
+
+−
+x
+ˉ
+)
+2
+)
+2
+n
+1
+	​
+
+∑(x
+t
+	​
+
+−
+x
+ˉ
+)
+4
+	​
+
+
+Jarque–Bera test (joint skew/kurt test):
+
+𝐽
+𝐵
+=
+𝑛
+6
+(
+Skew
+2
++
+(
+Kurt
+−
+3
+)
+2
+4
+)
+ 
+∼
+ 
+𝜒
+2
+2
+JB=
+6
+n
+	​
+
+(Skew
+2
++
+4
+(Kurt−3)
+2
+	​
+
+) ∼ χ
+2
+2
+	​
+
+
+Interpretation: large JB → reject normality. Expect frequent rejections in finance. 
+
+Advanced Investments Lecture Se…
+
+So what? If normality fails, variance alone misses risk; investors may care about downside and tail behavior. 
+
+Advanced Investments Lecture Se…
+
+4) Higher Moments in Preferences & Pricing
+
+Motivation: Investors typically dislike negative skew and dislike excess kurtosis. Classic extensions (Kraus–Litzenberger, Harvey–Siddique, Dittmar): add skew/kurt moments to utility/SDF. 
+
+Advanced Investments Lecture Se…
+
+SDF adjustment (concept):
+General pricing identity 
+1
+=
+𝐸
+[
+𝑚
+𝑅
+]
+1=E[mR]. With higher-moment preferences, the SDF 
+𝑚
+m becomes a function of shocks beyond the market factor (captures skew/kurt aversion). (Slides reference the idea and Dittmar-style formulations.) 
+
+Advanced Investments Lecture Se…
+
+Implication: In cross-section tests, assets that worsen left tails require extra premium; those that hedge bad states earn less. Efficient set balancing return/variance/skew/kurt is more complex than MV. 
+
+Advanced Investments Lecture Se…
+
+So what? When tails matter, MV optimality is not sufficient; downside and tail metrics (like LPM, co-skew) become directly relevant. 
+
+Advanced Investments Lecture Se…
+
+5) Downside Risk & LPM (link to Practice)
+
+(Short theory anchor for your LPM frontier in Practice.)
+
+Lower Partial Moment (order 
+𝑛
+n, threshold 
+𝜏
+τ):
+
+𝐿
+𝑃
+𝑀
+𝑛
+(
+𝜏
+)
+=
+𝐸
+[
+max
+⁡
+(
+𝜏
+−
+𝑟
+,
+0
+)
+𝑛
+]
+LPM
+n
+	​
+
+(τ)=E[max(τ−r,0)
+n
+]
+
+Semivariance is 
+𝐿
+𝑃
+𝑀
+2
+(
+0
+)
+LPM
+2
+	​
+
+(0).
+
+Interpretation: Focuses only on bad outcomes (below 
+𝜏
+τ), matching investor loss aversion.
+
+Frontier: When you minimize LPM
+2
+(
+𝜏
+)
+2
+	​
+
+(τ) for a given expected return, you get a Return–LPM efficient frontier (generally differs from MV).
+
+So what? LPM reframes “risk” as bad-tail mass rather than total variance—aligns better with non-normal returns and left-tail fear. (Slides emphasize non-normality and higher-moment preferences.) 
+
+Advanced Investments Lecture Se…
+
+6) Performance Evaluation: Risk-Adjusted Metrics
+
+(Define precisely; show plain-English meaning. These match the lecture’s “Excess returns & portfolio evaluation” block.)
+
+Sharpe Ratio
+
+Sharpe
+=
+𝑟
+𝑝
+−
+𝑟
+𝑓
+𝜎
+𝑝
+Sharpe=
+σ
+p
+	​
+
+r
+p
+	​
+
+−r
+f
+	​
+
+	​
+
+
+“Excess return per unit of total volatility.” 
+
+Advanced Investments Lecture Se…
+
+Treynor Ratio
+
+Treynor
+=
+𝑟
+𝑝
+−
+𝑟
+𝑓
+𝛽
+𝑝
+Treynor=
+β
+p
+	​
+
+r
+p
+	​
+
+−r
+f
+	​
+
+	​
+
+
+“Excess return per unit of systematic risk.” 
+
+Advanced Investments Lecture Se…
+
+Information Ratio
+
+IR
+=
+𝛼
+𝑝
+𝜎
+𝜀
+,
+𝑝
+IR=
+σ
+ε,p
+	​
+
+α
+p
+	​
+
+	​
+
+
+“Alpha per unit of idiosyncratic (tracking) error.” 
+
+Advanced Investments Lecture Se…
+
+Jensen’s Alpha (CAPM)
+
+𝛼
+𝑝
+=
+𝑟
+𝑝
+−
+[
+𝑟
+𝑓
++
+𝛽
+𝑝
+(
+𝑟
+𝑚
+−
+𝑟
+𝑓
+)
+]
+α
+p
+	​
+
+=r
+p
+	​
+
+−[r
+f
+	​
+
++β
+p
+	​
+
+(r
+m
+	​
+
+−r
+f
+	​
+
+)]
+
+“Return unexplained by market beta (manager skill relative to CAPM).” 
+
+Advanced Investments Lecture Se…
+
+Modigliani–Modigliani (M²)
+
+𝑀
+2
+=
+𝑟
+𝑝
+,
+𝑎
+𝑑
+𝑗
+−
+𝑟
+𝑚
+M
+2
+=r
+p,adj
+	​
+
+−r
+m
+	​
+
+
+Construct 
+𝑟
+𝑝
+,
+𝑎
+𝑑
+𝑗
+r
+p,adj
+	​
+
+ by levering/de-levering the portfolio with 
+𝑟
+𝑓
+r
+f
+	​
+
+ so that 
+𝜎
+(
+𝑟
+𝑝
+,
+𝑎
+𝑑
+𝑗
+)
+=
+𝜎
+(
+𝑟
+𝑚
+)
+σ(r
+p,adj
+	​
+
+)=σ(r
+m
+	​
+
+); then compare levels in percent return. It’s a Sharpe-to-percent mapping and naturally compares active vs passive. (Lecture’s “formula of the week”.) 
+
+Advanced Investments Lecture Se…
+
+So what? Use Sharpe when total risk matters, Treynor when beta is the constraint, IR/Jensen for benchmarked skill, and M² when you want an apples-to-apples percent return comparison at the benchmark’s risk. 
+
+Advanced Investments Lecture Se…
+
+7) Expectations & Views: Black–Litterman (Brief Theory Anchor)
+
+Historical means/covariances can be unstable; investors may hold views (subjective expected returns).
+
+Black–Litterman blends equilibrium/benchmark returns with investor views, weighted by confidence, then runs the usual optimization. Best for asset-class allocation or small stock universes; less practical at full stock-level due to dimension. 
+
+Advanced Investments Lecture Se…
+
+So what? Risk evaluation depends on expected returns too; BL offers a disciplined way to inject views before computing Sharpe/M², etc. 
+
+Advanced Investments Lecture Se…
+
+8) Links to Testing (Where Risk Meets Evidence)
+
+Sorted portfolios amplify signals and define long–short factors used in models; good for diagnosing whether risk measures line up with realized premia. 
+
+Advanced Investments Lecture Se…
+
+GRS joint-alpha test (pointer): if a chosen risk model (e.g., MV+factors) is correct, all test-portfolio alphas should be zero jointly. Rejection ⇒ model missing risk dimensions (e.g., tails/downside). 
+
+Advanced Investments Lecture Se…
+
+9) Common Pitfalls (Callouts)
+
+Sharpe with non-normal returns: can mislead when tails skew; consider IR, downside or LPM complements. 
+
+Advanced Investments Lecture Se…
+
+Horizon drift: comparing daily Sharpe to monthly Sharpe is not apples-to-apples. 
+
+Advanced Investments Lecture Se…
+
+Over-reliance on 
+𝜇
+μ: optimal weights overly sensitive to expected returns; use robust/Bayesian or BL. 
+
+Advanced Investments Lecture Se…
+
+UI/Copy Instructions
+
+Implement each section as a TheoryCard with: header, 4–8 concise bullets, 1–3 equations, and a 1-line “So what?” takeaway.
+
+Add ExplainTip icons for: horizon scaling, JB test, LPM vs variance, M² construction, BL confidence.
+
+Keep everything offline (no charts/data fetch).
+
+Acceptance Criteria
+
+Theory tab covers: empirical distributions & horizon, normality & JB, higher-moment preferences/SDF idea, downside risk & LPM (bridge to Practice), full 5 metrics incl. M², expectations/BL, and testing pointers (sorted portfolios & GRS). All content matches Lecture 4 wording and emphasis. 
+
+Advanced Investments Lecture Se…
+
+Equations render cleanly; each card ends with a plain-English interpretation.
+
+No dependence on external data; purely explanatory.

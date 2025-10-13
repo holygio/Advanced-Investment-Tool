@@ -1,0 +1,620 @@
+🎯 Goal
+
+Rebuild the Theory tab for the “Utility & SDF” module.
+It should explain, in first-principles language with complete formulas, how utility functions generate risk aversion, how marginal utility defines the stochastic discount factor (SDF), and how stochastic dominance formalizes preference orders beyond mean-variance.
+End by connecting the theory to LPM-based SDFs as in Bawa-Lindenberg (1977).
+No real data—text + LaTeX equations + intuitive illustrations only.
+
+Page Layout
+
+/theory/utility/page.tsx
+Use collapsible “TheoryCards” with 6-8 sections:
+
+1️⃣ Why Utility Matters in Asset Pricing
+
+Utility functions formalize how investors trade off risk vs return.
+
+The shape of the utility function → the SDF, which prices assets through
+
+1
+=
+𝐸
+[
+𝑚
+𝑡
++
+1
+𝑅
+𝑡
++
+1
+]
+where
+𝑚
+𝑡
++
+1
+∝
+𝑈
+′
+(
+𝐶
+𝑡
++
+1
+)
+1=E[m
+t+1
+	​
+
+R
+t+1
+	​
+
+]wherem
+t+1
+	​
+
+∝U
+′
+(C
+t+1
+	​
+
+)
+
+Risk aversion ⇒ marginal utility declines as wealth rises.
+“Good-state” payoffs are less valuable than “bad-state” payoffs.
+
+So what? Every model—from CAPM to multifactor—implies a specific functional form for 
+𝑈
+(
+𝑥
+)
+U(x) and hence 
+𝑚
+m.
+
+2️⃣ Traditional Utility Forms: CARA, CRRA, DARA
+Type	Formula	Risk-aversion measure	Economic interpretation
+CRRA	
+𝑈
+(
+𝑥
+)
+=
+𝑥
+1
+−
+𝛾
+−
+1
+1
+−
+𝛾
+U(x)=
+1−γ
+x
+1−γ
+−1
+	​
+
+ or 
+ln
+⁡
+𝑥
+lnx if 
+𝛾
+=
+1
+γ=1	
+𝑅
+𝑅
+𝐴
+(
+𝑥
+)
+=
+−
+𝑥
+𝑈
+′
+′
+(
+𝑥
+)
+𝑈
+′
+(
+𝑥
+)
+=
+𝛾
+RRA(x)=−x
+U
+′
+(x)
+U
+′′
+(x)
+	​
+
+=γ (constant)	Risk aversion constant as % of wealth → “scale-invariant.”
+CARA	
+𝑈
+(
+𝑥
+)
+=
+−
+𝑒
+−
+𝑏
+𝑥
+U(x)=−e
+−bx
+, 
+𝑏
+>
+0
+b>0	
+𝐴
+𝑅
+𝐴
+(
+𝑥
+)
+=
+−
+𝑈
+′
+′
+(
+𝑥
+)
+𝑈
+′
+(
+𝑥
+)
+=
+𝑏
+ARA(x)=−
+U
+′
+(x)
+U
+′′
+(x)
+	​
+
+=b (constant)	Same aversion regardless of wealth—useful for absolute payoffs.
+DARA	e.g. 
+𝑈
+(
+𝑥
+)
+=
+ln
+⁡
+𝑥
+U(x)=lnx	
+𝐴
+𝑅
+𝐴
+ARA declines with x	Richer investors care less about losing a fixed amount.
+
+Graph: concave curve with diminishing slope → decreasing marginal utility.
+
+So what? Utility curvature = risk aversion; convexity of 
+𝑈
+′
+U
+′
+ drives pricing kernel curvature.
+
+3️⃣ From Marginal Utility to the SDF
+
+Marginal utility 
+𝑈
+′
+(
+𝐶
+𝑡
++
+1
+)
+U
+′
+(C
+t+1
+	​
+
+) defines how future payoffs are valued today.
+
+𝑚
+𝑡
++
+1
+=
+𝛽
+𝑈
+′
+(
+𝐶
+𝑡
++
+1
+)
+𝑈
+′
+(
+𝐶
+𝑡
+)
+m
+t+1
+	​
+
+=β
+U
+′
+(C
+t
+	​
+
+)
+U
+′
+(C
+t+1
+	​
+
+)
+	​
+
+
+Higher future consumption → lower 
+𝑈
+′
+(
+𝐶
+𝑡
++
+1
+)
+U
+′
+(C
+t+1
+	​
+
+) → smaller 
+𝑚
+𝑡
++
+1
+m
+t+1
+	​
+
+: assets paying in good states are less valuable.
+
+CAPM version:
+
+𝑚
+𝑡
++
+1
+=
+𝑎
++
+𝑏
+𝑅
+𝑀
+,
+𝑡
++
+1
+,
+𝑏
+<
+0
+m
+t+1
+	​
+
+=a+bR
+M,t+1
+	​
+
+,b<0
+
+ensures decreasing SDF = risk aversion.
+
+So what? 
+𝑚
+m summarizes all preferences, beliefs, and risks; “state price density.”
+
+4️⃣ Orders of Stochastic Dominance (SD)
+Order	Utility restrictions	Economic meaning	SDF restriction
+FSD	
+𝑈
+′
+>
+0
+U
+′
+>0	More is better (non-satiation)	
+𝑚
+>
+0
+m>0
+SSD	
+𝑈
+′
+>
+0
+,
+𝑈
+′
+′
+<
+0
+U
+′
+>0,U
+′′
+<0	Risk-averse	
+𝑚
+m decreasing
+TSD	
+𝑈
+′
+>
+0
+,
+𝑈
+′
+′
+<
+0
+,
+𝑈
+′
+′
+′
+>
+0
+U
+′
+>0,U
+′′
+<0,U
+′′′
+>0	Preference for positive skewness	
+𝑚
+m decreasing at decreasing rate
+4th Order	add 
+𝑈
+′
+′
+′
+′
+<
+0
+U
+′′′′
+<0	Kurtosis aversion	tails penalized more
+
+Interpretation: SD ranks investments by the broadest class of investors who would prefer them. FSD → “everyone,” SSD → all risk-averse, etc.
+
+So what? SD is a generalization of MV: it works without assuming normality or quadratic U(x).
+
+5️⃣ CAPM vs Stochastic Dominance
+
+CAPM assumes linear SDF: 
+𝑚
+=
+𝑎
++
+𝑏
+𝑅
+𝑀
+m=a+bR
+M
+	​
+
+ with 
+𝑏
+<
+0
+b<0.
+
+Ensures risk aversion but may violate non-satiation for extreme 
+𝑅
+𝑀
+R
+M
+	​
+
+ (m < 0).
+
+CAPM → quadratic utility → valid only locally; beyond that, marginal utility can turn negative.
+
+SD allows non-linear m, avoids negative regions, and can incorporate skew/kurtosis preferences.
+
+So what? CAPM ≈ a linearization of more general SD-consistent models; accurate near the mean, fails in extremes.
+
+6️⃣ Why / When Mean-Variance Still Useful
+
+MV assumes: (i) normal returns or (ii) quadratic U.
+
+Violates non-satiation occasionally (negative m), but serves as Taylor expansion of true U over limited range (Tsiang 1972).
+
+Works well if extremes rare; fails under fat tails or FSD dominance.
+
+So what? MV = second-order approximation to expected utility; acceptable locally, not universally.
+
+7️⃣ Beyond SSD → Skewness and Kurtosis Preferences
+
+Investors may prefer positive skewness (lottery-like payoffs) even with negative expected returns.
+
+Corresponds to TSD (3rd order): 
+𝑈
+′
+′
+′
+>
+0
+U
+′′′
+>0.
+
+4th order introduces kurtosis aversion (
+𝑈
+′
+′
+′
+′
+<
+0
+U
+′′′′
+<0) but adds little extra realism.
+
+So what? Adds behavioural realism: explains demand for lotteries, options, and asymmetric payoffs.
+
+8️⃣ Stochastic Dominance SDFs in Practice
+
+Empirically, one can estimate m directly by minimizing pricing errors:
+
+𝐸
+[
+𝑚
+𝑡
++
+1
+𝑅
+𝑡
++
+1
+]
+=
+1
+E[m
+t+1
+	​
+
+R
+t+1
+	​
+
+]=1
+
+→ find m consistent with positivity & monotonicity.
+
+Allows non-parametric asset-pricing tests: see Post & Versijp (2007 JFQA).
+
+Reveals strong aversion to large losses (~ −12% region).
+
+So what? SD-based SDFs describe how markets actually price tail risk beyond CAPM.
+
+9️⃣ Lower Partial Moments (LPM) — Bridging Utility & Risk
+
+LPMs parameterize utility by penalizing only downside outcomes:
+
+𝐿
+𝑃
+𝑀
+𝑛
+(
+𝜏
+)
+=
+𝐸
+[
+max
+⁡
+(
+𝜏
+−
+𝑅
+,
+0
+)
+𝑛
+]
+LPM
+n
+	​
+
+(τ)=E[max(τ−R,0)
+n
+]
+
+Economic intuition: returns above τ don’t increase risk; only shortfalls hurt.
+
+When returns ∼ normal ⇒ MV ≈ LPM; if not, LPM better fits preferences.
+
+SDF-form equilibrium:
+
+𝑚
+𝑡
+=
+𝑎
++
+𝑏
+min
+⁡
+(
+𝑅
+𝑀
+−
+𝑟
+𝑓
+,
+0
+)
+m
+t
+	​
+
+=a+bmin(R
+M
+	​
+
+−r
+f
+	​
+
+,0)
+
+→ risk-neutral above threshold; risk-averse below.
+
+Combos of τ and n build realistic positive-decreasing SDFs; can still yield portfolio separation with a risk-free asset.
+
+So what? LPMs merge the utility logic with downside risk metrics, preserving non-satiation and risk aversion without assuming normality.
+
+🔟 ESG Risk (Extension)
+
+Add optional paragraph summarizing slides 3–4: ESG factors can be modeled as state-contingent risks if they eventually affect returns. A “green” factor (long high ESG – short low ESG) fits the same SDF logic: priced only if it alters expected or downside risk.
+
+UI / Implementation Notes
+
+Render LaTeX; use blue (concepts), gold (formulas), green (economic intuition).
+
+Each card ends with “So what?” summary.
+
+Include one expandable “Illustration” showing marginal utility vs wealth and the SDF curvature (no live data).
+
+Offline-only.
+
+✅ Acceptance Checklist
+Requirement	Expected
+Explains CARA/CRRA/DARA with equations & intuition	✅
+Connects marginal utility ↔ SDF clearly	✅
+Covers FSD–TSD, CAPM vs SD, MV approximation	✅
+Integrates LPM logic & equilibrium SDF	✅
+Includes ESG extension (optional)	✅
+Fully offline, formatted with LaTeX and So-what blocks	✅

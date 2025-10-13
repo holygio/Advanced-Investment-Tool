@@ -102,74 +102,227 @@ export default function Performance() {
     });
   })() : [];
 
+  // Fetch distribution metrics
+  const { data: distributionData, isLoading: distributionLoading } = useQuery({
+    queryKey: ["/api/risk/distribution", portfolioReturns],
+    queryFn: async () => {
+      if (portfolioReturns.length < 3) return null;
+      
+      return await apiRequest("/api/risk/distribution", {
+        method: "POST",
+        body: JSON.stringify({
+          returns: portfolioReturns,
+          num_bins: 30
+        }),
+      });
+    },
+    enabled: portfolioReturns.length >= 3,
+  });
+
 
   const theory = (
     <div className="space-y-6 py-6">
+      {/* Introduction */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4 text-foreground">Portfolio Performance and Risk in Practice</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          The five classical performance metrics assess efficiency across different risk types. In parallel, 
-          Lower Partial Moments (LPM) and the Return–LPM Frontier extend risk measurement to asymmetric losses.
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">Risk Analysis: From Variance to Higher Moments</h2>
+        <p className="text-muted-foreground leading-relaxed mb-2">
+          Classical portfolio theory measures risk as variance, but investors care about the <em>full distribution</em> of returns—not just second moments.
+          This module extends risk assessment beyond mean-variance to include downside risk (LPM), distribution shape (skewness & kurtosis), and performance attribution.
         </p>
       </div>
 
+      {/* 1. Variance & Volatility */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Five Risk-Adjusted Performance Metrics</h3>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">1. Variance & Volatility: Second-Moment Risk</h3>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border mb-3">
+          <p className="text-foreground">Var(r) = E[(r − μ)<sup>2</sup>]</p>
+          <p className="text-foreground mt-1">σ = √Var(r)</p>
+        </div>
+        <p className="text-sm text-muted-foreground mb-2">
+          <strong className="text-foreground">Interpretation:</strong> Variance measures dispersion around the mean; volatility (σ) is its square root in return units.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          <strong className="text-foreground">Limitation:</strong> Treats upside and downside deviations symmetrically—investors actually dislike downside more.
+        </p>
+      </div>
+
+      {/* 2. Distribution Shape: Skewness & Kurtosis */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">2. Distribution Shape: Skewness & Kurtosis (3rd & 4th Moments)</h3>
+        
+        {/* Skewness */}
+        <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+          <h4 className="font-semibold text-foreground mb-2">Skewness (Asymmetry)</h4>
+          <div className="bg-white p-3 rounded font-mono text-sm border border-blue-200 mb-2">
+            <p className="text-foreground">Skew = E[(r − μ)<sup>3</sup>] / σ<sup>3</sup></p>
+          </div>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>• <strong className="text-foreground">Positive skew &gt; 0:</strong> Long right tail → occasional big gains (lottery-like)</li>
+            <li>• <strong className="text-foreground">Negative skew &lt; 0:</strong> Long left tail → occasional big losses (crash risk)</li>
+            <li>• <strong className="text-foreground">Zero skew:</strong> Symmetric distribution (normal)</li>
+          </ul>
+        </div>
+
+        {/* Kurtosis */}
+        <div className="mb-4 p-3 bg-green-50 rounded border border-green-200">
+          <h4 className="font-semibold text-foreground mb-2">Kurtosis (Tail Thickness)</h4>
+          <div className="bg-white p-3 rounded font-mono text-sm border border-green-200 mb-2">
+            <p className="text-foreground">Kurt = E[(r − μ)<sup>4</sup>] / σ<sup>4</sup></p>
+          </div>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>• <strong className="text-foreground">Normal distribution:</strong> Kurt = 3</li>
+            <li>• <strong className="text-foreground">Excess kurtosis &gt; 3:</strong> Fat tails → extreme events more likely</li>
+            <li>• <strong className="text-foreground">Kurt &lt; 3:</strong> Thin tails → fewer extremes than normal</li>
+          </ul>
+        </div>
+
+        {/* Jarque-Bera Test */}
+        <div className="p-3 bg-purple-50 rounded border border-purple-200">
+          <h4 className="font-semibold text-foreground mb-2">Jarque-Bera Normality Test</h4>
+          <div className="bg-white p-3 rounded font-mono text-sm border border-purple-200 mb-2">
+            <p className="text-foreground">JB = (n/6)[Skew<sup>2</sup> + (Kurt − 3)<sup>2</sup>/4]</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Tests if returns are normally distributed. <strong className="text-foreground">JB &gt; critical value</strong> (or p-value &lt; 0.05) → reject normality → variance alone is insufficient.
+          </p>
+        </div>
+
+        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+          <p className="text-sm text-foreground"><strong>So what?</strong> Two portfolios can have identical σ but vastly different risk experiences. Negative skew = crash exposure; high kurtosis = tail risk. Both demand risk premiums.</p>
+        </div>
+      </div>
+
+      {/* 3. Performance Ratios */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">3. Risk-Adjusted Performance Ratios</h3>
         <div className="space-y-3 text-sm">
           <div className="bg-muted/50 p-3 rounded border border-border">
             <p className="font-semibold mb-1 text-foreground">Sharpe Ratio</p>
-            <p className="font-mono text-sm mb-1 text-foreground">SR = (R<sub>p</sub> - R<sub>f</sub>) / σ<sub>p</sub></p>
-            <p className="text-muted-foreground">Excess return per unit of total volatility</p>
+            <p className="font-mono text-sm mb-1 text-foreground">SR = (R<sub>p</sub> − R<sub>f</sub>) / σ<sub>p</sub></p>
+            <p className="text-muted-foreground">Excess return per unit of <em>total</em> volatility</p>
           </div>
           <div className="bg-muted/50 p-3 rounded border border-border">
             <p className="font-semibold mb-1 text-foreground">Treynor Ratio</p>
-            <p className="font-mono text-sm mb-1 text-foreground">TR = (R<sub>p</sub> - R<sub>f</sub>) / β<sub>p</sub></p>
-            <p className="text-muted-foreground">Excess return per unit of systematic risk (beta)</p>
+            <p className="font-mono text-sm mb-1 text-foreground">TR = (R<sub>p</sub> − R<sub>f</sub>) / β<sub>p</sub></p>
+            <p className="text-muted-foreground">Excess return per unit of <em>systematic</em> risk (beta)</p>
           </div>
           <div className="bg-muted/50 p-3 rounded border border-border">
             <p className="font-semibold mb-1 text-foreground">Information Ratio</p>
-            <p className="font-mono text-sm mb-1 text-foreground">IR = α<sub>p</sub> / σ<sub>ε,p</sub></p>
-            <p className="text-muted-foreground">Alpha per unit of idiosyncratic (tracking) error</p>
+            <p className="font-mono text-sm mb-1 text-foreground">IR = α<sub>p</sub> / σ<sub>ε</sub></p>
+            <p className="text-muted-foreground">Alpha per unit of <em>idiosyncratic</em> (tracking) error</p>
           </div>
           <div className="bg-muted/50 p-3 rounded border border-border">
             <p className="font-semibold mb-1 text-foreground">Jensen's Alpha</p>
-            <p className="font-mono text-sm mb-1 text-foreground">α = R<sub>p</sub> - [R<sub>f</sub> + β<sub>p</sub>(R<sub>m</sub> - R<sub>f</sub>)]</p>
-            <p className="text-muted-foreground">Portion of return not explained by CAPM (manager skill)</p>
+            <p className="font-mono text-sm mb-1 text-foreground">α = R<sub>p</sub> − [R<sub>f</sub> + β<sub>p</sub>(R<sub>m</sub> − R<sub>f</sub>)]</p>
+            <p className="text-muted-foreground">Absolute CAPM outperformance (manager skill)</p>
           </div>
           <div className="bg-muted/50 p-3 rounded border border-border">
-            <p className="font-semibold mb-1 text-foreground">Modigliani–Modigliani (M²)</p>
-            <p className="font-mono text-sm mb-1 text-foreground">M² = R<sub>p,adj</sub> - R<sub>m</sub></p>
-            <p className="text-muted-foreground">Portfolio return adjusted to have same volatility as benchmark (Sharpe in %)</p>
+            <p className="font-semibold mb-1 text-foreground">Modigliani-Modigliani (M²)</p>
+            <p className="font-mono text-sm mb-1 text-foreground">M² = R<sub>p,adj</sub> − R<sub>m</sub></p>
+            <p className="text-muted-foreground">Sharpe ratio expressed as percentage return (easier comparison)</p>
           </div>
         </div>
-      </div>
-
-      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Lower Partial Moments (LPM)</h3>
-        <p className="text-sm text-muted-foreground mb-3">
-          While mean–variance theory treats all volatility as risk, LPM focuses only on downside outcomes, 
-          aligning better with investor preferences. The Return–LPM frontier extends the efficient frontier 
-          using this asymmetric risk measure.
-        </p>
-        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border">
-          <p className="text-foreground mb-2">LPM<sub>n</sub>(τ) = E[(min(0, R - τ))<sup>n</sup>]</p>
-          <p className="text-xs text-muted-foreground">
-            • n = 1: Mean shortfall (linear downside)<br/>
-            • n = 2: Semivariance (downside volatility)<br/>
-            • τ: Threshold return (often 0 or risk-free rate)
-          </p>
+        <div className="mt-3 p-3 bg-amber-50 rounded border border-amber-200">
+          <p className="text-sm text-foreground"><strong>When to use which?</strong> Sharpe if portfolio is standalone; Treynor if part of diversified holdings; IR for active management evaluation.</p>
         </div>
       </div>
 
+      {/* 4. Lower Partial Moments (LPM) */}
       <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
-        <h3 className="text-lg font-semibold mb-3 text-foreground">Interpretation Guide</h3>
+        <h3 className="text-lg font-semibold mb-3 text-foreground">4. Lower Partial Moments (LPM): Asymmetric Downside Risk</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Variance treats upside and downside volatility equally. LPM focuses only on <em>shortfalls</em> below a threshold τ, aligning with investor loss aversion.
+        </p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border mb-3">
+          <p className="text-foreground mb-2">LPM<sub>n</sub>(τ) = E[(max(0, τ − r))<sup>n</sup>]</p>
+          <p className="text-xs text-muted-foreground">
+            • n = 1: Mean shortfall (expected loss below τ)<br/>
+            • n = 2: Semivariance (downside volatility squared)<br/>
+            • τ: Threshold (often 0, r<sub>f</sub>, or target return)
+          </p>
+        </div>
+        <div className="p-3 bg-blue-50 rounded border border-blue-200">
+          <p className="text-sm text-foreground"><strong>Economic intuition:</strong> Investors dislike downside more than they enjoy upside. LPM<sub>2</sub> penalizes only losses → closer to actual preferences than variance.</p>
+        </div>
+      </div>
+
+      {/* 5. Return-LPM Frontier */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">5. Return–LPM Efficient Frontier</h3>
+        <p className="text-sm text-muted-foreground mb-3">
+          Analogous to mean-variance frontier, but optimizes <em>expected return vs. LPM</em> instead of σ.
+        </p>
+        <div className="bg-muted/50 p-4 rounded font-mono text-sm border border-border mb-3">
+          <p className="text-foreground">min<sub>w</sub> LPM<sub>n</sub>(τ)</p>
+          <p className="text-foreground">s.t. E[r<sub>p</sub>] = μ<sub>target</sub>, Σw<sub>i</sub> = 1</p>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Portfolios on this frontier minimize downside risk for each return level. Can yield different asset allocations than mean-variance, especially when returns are skewed.
+        </p>
+      </div>
+
+      {/* 6. Stochastic Dominance (SD) */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">6. Stochastic Dominance: Ranking Without Assumptions</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left p-2 font-semibold text-foreground">Order</th>
+                <th className="text-left p-2 font-semibold text-foreground">Utility Restriction</th>
+                <th className="text-left p-2 font-semibold text-foreground">Investor Preference</th>
+              </tr>
+            </thead>
+            <tbody className="text-muted-foreground">
+              <tr className="border-b border-border">
+                <td className="p-2">FSD (1st)</td>
+                <td className="p-2 font-mono">U′ &gt; 0</td>
+                <td className="p-2">Non-satiation (more is better)</td>
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-2">SSD (2nd)</td>
+                <td className="p-2 font-mono">U′ &gt; 0, U″ &lt; 0</td>
+                <td className="p-2">Risk aversion</td>
+              </tr>
+              <tr className="border-b border-border">
+                <td className="p-2">TSD (3rd)</td>
+                <td className="p-2 font-mono">U′ &gt; 0, U″ &lt; 0, U‴ &gt; 0</td>
+                <td className="p-2">Skewness preference (dislike negative skew)</td>
+              </tr>
+              <tr>
+                <td className="p-2">4th Order</td>
+                <td className="p-2 font-mono">+ U″″ &lt; 0</td>
+                <td className="p-2">Kurtosis aversion (dislike fat tails)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-3 p-3 bg-green-50 rounded border border-green-200">
+          <p className="text-sm text-foreground"><strong>So what?</strong> SD provides preference-free rankings. If A dominates B by SSD, <em>all</em> risk-averse investors prefer A. Goes beyond mean-variance without normality.</p>
+        </div>
+      </div>
+
+      {/* 7. Connecting Everything */}
+      <div className="bg-white rounded-md p-4 border-2 border-border shadow-sm">
+        <h3 className="text-lg font-semibold mb-3 text-foreground">7. Why Variance Alone Is Not Enough</h3>
         <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-          <li><strong className="text-foreground">Sharpe:</strong> Total risk adjustment - suitable when portfolio is investor's only holding</li>
-          <li><strong className="text-foreground">Treynor:</strong> Systematic risk only - appropriate when portfolio is part of diversified holdings</li>
-          <li><strong className="text-foreground">Information Ratio:</strong> Manager skill measurement - captures alpha generation efficiency</li>
-          <li><strong className="text-foreground">Jensen's Alpha:</strong> Absolute CAPM outperformance - positive alpha suggests manager adds value</li>
-          <li><strong className="text-foreground">M²:</strong> Sharpe ratio expressed as percentage return - easier to compare across portfolios</li>
+          <li><strong className="text-foreground">Non-normal returns:</strong> If skew ≠ 0 or kurt ≠ 3, variance misses tail risk and asymmetry</li>
+          <li><strong className="text-foreground">Loss aversion:</strong> Investors dislike downside more → LPM and downside deviations matter</li>
+          <li><strong className="text-foreground">Diversification limits:</strong> Portfolios reduce σ but not necessarily skew or kurtosis</li>
+          <li><strong className="text-foreground">Performance evaluation:</strong> Sharpe ratio can rank portfolios incorrectly if distributions differ in shape</li>
         </ul>
+        <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200">
+          <p className="text-sm text-foreground"><strong>Practical takeaway:</strong> Always check skewness, kurtosis, and JB test. If non-normal, supplement variance-based metrics with LPM, downside deviation, or SD criteria.</p>
+        </div>
+      </div>
+
+      {/* Final Summary */}
+      <div className="p-4 bg-primary/10 rounded-lg border-2 border-primary/30">
+        <h3 className="text-lg font-semibold mb-2 text-foreground">So What?</h3>
+        <p className="text-sm text-foreground">
+          Risk is multi-dimensional. Variance captures dispersion; skewness reveals asymmetry; kurtosis shows tail risk. LPM isolates downside; SD ranks without distribution assumptions.
+          Together, they provide a complete risk picture—essential for portfolio construction, performance attribution, and understanding when mean-variance theory breaks down.
+        </p>
       </div>
     </div>
   );
@@ -185,18 +338,87 @@ export default function Performance() {
 
         {/* Tab 1: Overview */}
         <TabsContent value="overview" className="space-y-6">
+          {/* Distribution Shape Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <MetricCard 
+              label="Mean" 
+              value={distributionData?.metrics?.mean || 0} 
+              format="percentage"
+              precision={2}
+              data-testid="metric-mean"
+            />
+            <MetricCard 
+              label="Volatility (σ)" 
+              value={distributionData?.metrics?.std || 0} 
+              format="percentage"
+              precision={2}
+              data-testid="metric-std"
+            />
+            <MetricCard 
+              label="Skewness" 
+              value={distributionData?.metrics?.skew || 0} 
+              precision={3}
+              data-testid="metric-skew"
+            />
+            <MetricCard 
+              label="Kurtosis (Excess)" 
+              value={distributionData?.metrics?.kurt || 0} 
+              precision={3}
+              data-testid="metric-kurt"
+            />
+            <MetricCard 
+              label="JB Statistic" 
+              value={distributionData?.metrics?.jb_stat || 0} 
+              precision={2}
+              data-testid="metric-jb"
+            />
+          </div>
+
+          {/* Interpretation Card */}
+          {distributionData?.metrics && (
+            <Card className="p-4 bg-blue-50 border-blue-200">
+              <h3 className="text-sm font-semibold mb-2 text-foreground">Distribution Analysis</h3>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                {distributionData.metrics.skew < -0.5 && (
+                  <p>• <strong className="text-foreground">Negative skewness ({distributionData.metrics.skew.toFixed(2)})</strong> → Long left tail: occasional large losses dominate risk perception</p>
+                )}
+                {distributionData.metrics.skew > 0.5 && (
+                  <p>• <strong className="text-foreground">Positive skewness ({distributionData.metrics.skew.toFixed(2)})</strong> → Long right tail: occasional large gains (lottery-like)</p>
+                )}
+                {distributionData.metrics.kurt > 1 && (
+                  <p>• <strong className="text-foreground">Excess kurtosis ({distributionData.metrics.kurt.toFixed(2)})</strong> → Fat tails: extreme events more likely than normal distribution</p>
+                )}
+                {distributionData.metrics.jb_pvalue < 0.05 && (
+                  <p>• <strong className="text-foreground">JB test rejects normality (p={distributionData.metrics.jb_pvalue.toFixed(3)})</strong> → Variance alone is insufficient; consider LPM or higher moments</p>
+                )}
+                {distributionData.metrics.jb_pvalue >= 0.05 && (
+                  <p>• <strong className="text-foreground">JB test does not reject normality (p={distributionData.metrics.jb_pvalue.toFixed(3)})</strong> → Returns approximately normal</p>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* Histogram with Normal Overlay */}
           <Card className="p-6 bg-card border-border">
-            <h2 className="text-xl font-semibold mb-4">Return Distribution</h2>
+            <h2 className="text-xl font-semibold mb-4">Return Distribution with Normal Overlay</h2>
             <div className="h-96">
-              {portfolioReturns.length > 0 ? (
+              {distributionData ? (
                 <Plot
                   data={[
                     {
-                      x: portfolioReturns,
-                      type: "histogram",
-                      name: "Returns",
-                      marker: { color: "#3b82f6" },
-                      nbinsx: 30,
+                      x: distributionData.histogram.map((b: any) => b.bin_center),
+                      y: distributionData.histogram.map((b: any) => b.density),
+                      type: "bar",
+                      name: "Actual Returns",
+                      marker: { color: "#3b82f6", opacity: 0.7 },
+                    },
+                    {
+                      x: distributionData.normal_curve_x,
+                      y: distributionData.normal_curve_y,
+                      type: "scatter",
+                      mode: "lines",
+                      name: "Normal Distribution",
+                      line: { color: "#ef4444", width: 3 },
                     },
                   ]}
                   layout={{
@@ -210,52 +432,85 @@ export default function Performance() {
                       showgrid: true,
                     },
                     yaxis: { 
-                      title: "Frequency", 
+                      title: "Density", 
                       gridcolor: "#e5e7eb",
                       showgrid: true,
                     },
                     margin: { l: 60, r: 20, t: 20, b: 60 },
-                    showlegend: false,
+                    showlegend: true,
+                    legend: { x: 0.7, y: 0.95, bgcolor: "rgba(255,255,255,0.9)" },
                   }}
                   config={{ responsive: true, displayModeBar: false }}
                   style={{ width: "100%", height: "100%" }}
                 />
               ) : (
                 <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
-                  <p className="text-sm text-muted-foreground">Loading distribution...</p>
+                  <p className="text-sm text-muted-foreground">
+                    {distributionLoading ? "Computing distribution..." : "No distribution data"}
+                  </p>
                 </div>
               )}
             </div>
           </Card>
 
+          {/* QQ Plot */}
           <Card className="p-6 bg-card border-border">
-            <h2 className="text-xl font-semibold mb-4">Distribution Statistics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Mean Return (Annual)</p>
-                <p className="text-3xl font-mono font-semibold tabular-nums" data-testid="stat-mean">
-                  {metricsData?.metrics?.[0] 
-                    ? (metricsData.metrics.reduce((sum: number, m: any) => sum + m.mean, 0) / metricsData.metrics.length * 100).toFixed(2) + "%" 
-                    : "—"}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Volatility (Annual)</p>
-                <p className="text-3xl font-mono font-semibold tabular-nums" data-testid="stat-vol">
-                  {metricsData?.metrics?.[0] 
-                    ? (metricsData.metrics.reduce((sum: number, m: any) => sum + m.std, 0) / metricsData.metrics.length * 100).toFixed(2) + "%" 
-                    : "—"}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Avg Sharpe Ratio</p>
-                <p className="text-3xl font-mono font-semibold tabular-nums" data-testid="stat-sharpe">
-                  {metricsData?.metrics?.[0] 
-                    ? (metricsData.metrics.reduce((sum: number, m: any) => sum + m.sharpe, 0) / metricsData.metrics.length).toFixed(3) 
-                    : "—"}
-                </p>
-              </div>
+            <h2 className="text-xl font-semibold mb-4">Q-Q Plot: Normal Quantiles vs. Sample Quantiles</h2>
+            <div className="h-96">
+              {distributionData ? (
+                <Plot
+                  data={[
+                    {
+                      x: distributionData.qq_theoretical,
+                      y: distributionData.qq_sample,
+                      type: "scatter",
+                      mode: "markers",
+                      name: "Sample Quantiles",
+                      marker: { color: "#3b82f6", size: 6 },
+                    },
+                    {
+                      x: distributionData.qq_theoretical,
+                      y: distributionData.qq_theoretical,
+                      type: "scatter",
+                      mode: "lines",
+                      name: "Normal Line",
+                      line: { color: "#ef4444", width: 2, dash: "dash" },
+                    },
+                  ]}
+                  layout={{
+                    autosize: true,
+                    paper_bgcolor: "rgba(0,0,0,0)",
+                    plot_bgcolor: "rgba(0,0,0,0)",
+                    font: { color: "#1f2937", family: "Inter, sans-serif", size: 12 },
+                    xaxis: { 
+                      title: "Theoretical Quantiles (Normal)", 
+                      gridcolor: "#e5e7eb",
+                      showgrid: true,
+                    },
+                    yaxis: { 
+                      title: "Sample Quantiles", 
+                      gridcolor: "#e5e7eb",
+                      showgrid: true,
+                    },
+                    margin: { l: 60, r: 20, t: 20, b: 60 },
+                    showlegend: true,
+                    legend: { x: 0.05, y: 0.95, bgcolor: "rgba(255,255,255,0.9)" },
+                  }}
+                  config={{ responsive: true, displayModeBar: false }}
+                  style={{ width: "100%", height: "100%" }}
+                />
+              ) : (
+                <div className="h-full bg-background/50 rounded-md flex items-center justify-center border border-border">
+                  <p className="text-sm text-muted-foreground">
+                    {distributionLoading ? "Computing Q-Q plot..." : "No Q-Q data"}
+                  </p>
+                </div>
+              )}
             </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              <strong>Interpretation:</strong> Points along the red line indicate normality. Deviations reveal distribution shape: 
+              S-curve suggests fat tails (high kurtosis); upward/downward curve indicates skewness.
+            </p>
           </Card>
         </TabsContent>
 

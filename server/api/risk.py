@@ -360,3 +360,89 @@ async def calculate_lpm_surface(request: LPMSurfaceRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating LPM surface: {str(e)}")
+
+
+# === DISTRIBUTION METRICS & VISUALIZATION ===
+
+class DistributionRequest(BaseModel):
+    returns: List[float]
+    num_bins: int = Field(default=30, description="Number of histogram bins")
+
+class HistogramBin(BaseModel):
+    bin_center: float
+    count: int
+    density: float
+
+class DistributionMetrics(BaseModel):
+    mean: float
+    std: float
+    skew: float
+    kurt: float
+    jb_stat: float
+    jb_pvalue: float
+    
+class DistributionResponse(BaseModel):
+    metrics: DistributionMetrics
+    histogram: List[HistogramBin]
+    normal_curve_x: List[float]
+    normal_curve_y: List[float]
+    qq_theoretical: List[float]
+    qq_sample: List[float]
+
+@router.post("/risk/distribution", response_model=DistributionResponse)
+async def calculate_distribution(request: DistributionRequest):
+    """Calculate distribution metrics, histogram, normal overlay, and QQ plot data"""
+    try:
+        returns_array = np.array(request.returns)
+        
+        # Basic statistics
+        mean = float(np.mean(returns_array))
+        std = float(np.std(returns_array))
+        skew_val = float(stats.skew(returns_array))
+        kurt_val = float(stats.kurtosis(returns_array, fisher=True))  # Excess kurtosis
+        jb_stat, jb_pval = stats.jarque_bera(returns_array)
+        
+        # Histogram
+        counts, bin_edges = np.histogram(returns_array, bins=request.num_bins, density=False)
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+        
+        # Density for normal overlay
+        total_count = len(returns_array)
+        bin_width = bin_edges[1] - bin_edges[0]
+        densities = counts / (total_count * bin_width)
+        
+        histogram_bins = [
+            HistogramBin(
+                bin_center=round(float(center), 6),
+                count=int(count),
+                density=round(float(density), 6)
+            )
+            for center, count, density in zip(bin_centers, counts, densities)
+        ]
+        
+        # Normal curve overlay
+        x_range = np.linspace(returns_array.min(), returns_array.max(), 200)
+        normal_y = stats.norm.pdf(x_range, mean, std)
+        
+        # QQ plot data
+        theoretical_quantiles = stats.norm.ppf(np.linspace(0.01, 0.99, 100))
+        sample_quantiles = np.percentile(returns_array, np.linspace(1, 99, 100))
+        
+        return DistributionResponse(
+            metrics=DistributionMetrics(
+                mean=round(mean, 6),
+                std=round(std, 6),
+                skew=round(skew_val, 4),
+                kurt=round(kurt_val, 4),
+                jb_stat=round(float(jb_stat), 4),
+                jb_pvalue=round(float(jb_pval), 4)
+            ),
+            histogram=[bin for bin in histogram_bins],
+            normal_curve_x=[round(float(x), 6) for x in x_range],
+            normal_curve_y=[round(float(y), 6) for y in normal_y],
+            qq_theoretical=[round(float(q), 6) for q in theoretical_quantiles],
+            qq_sample=[round(float(q), 6) for q in sample_quantiles]
+        )
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error calculating distribution: {str(e)}")

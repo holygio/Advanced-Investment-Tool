@@ -1,0 +1,230 @@
+🎯 Goal
+
+Rebuild and extend the Risk module to (1) include a full, first-principles Theory tab aligned with Advanced Investments – Lecture 4, and (2) expand the empirical analysis to incorporate skewness and kurtosis metrics for the user’s real Yahoo Finance portfolio.
+
+The module should now let users:
+
+Quantify portfolio skewness, kurtosis, and Jarque–Bera normality.
+
+Compare them to a normal benchmark.
+
+Visualize distribution shape (histogram + QQ-plot).
+
+Integrate skew/kurtosis into the risk narrative (beyond σ and LPM).
+
+⚙️ Structure Overview
+
+Frontend
+
+/theory/risk/page.tsx      # Theory cards (offline)
+ /practice/risk/page.tsx    # Real-data risk metrics + visuals
+
+
+Backend
+
+/api/risk/metrics          # Computes variance, skew, kurt, JB, LPM, ratios
+/api/risk/distribution     # Returns histogram + QQ data
+
+🧠 Theory Tab — /theory/risk/page.tsx
+
+Keep the 9 TheoryCards already defined in your existing spec, but make explicit references to skewness and kurtosis throughout.
+
+Add a dedicated new section “Distribution Shape: Skewness & Kurtosis (Bridge to Practice)” between sections 3 and 4.
+
+🔹 New Section — Distribution Shape: Skewness & Kurtosis (Bridge to Practice)
+
+Goal: Explain these metrics conceptually and show why they must also be measured empirically.
+
+Definition Recap
+
+Skew
+=
+𝐸
+[
+(
+𝑟
+−
+𝜇
+)
+3
+]
+𝜎
+3
+,
+Kurt
+=
+𝐸
+[
+(
+𝑟
+−
+𝜇
+)
+4
+]
+𝜎
+4
+Skew=
+σ
+3
+E[(r−μ)
+3
+]
+	​
+
+,Kurt=
+σ
+4
+E[(r−μ)
+4
+]
+	​
+
+
+Skewness: Measures asymmetry.
+Positive = long right tail (occasional big gains).
+Negative = long left tail (occasional big losses).
+
+Kurtosis: Measures tail thickness.
+Normal = 3; above 3 ⇒ “fat tails” = large jumps more frequent.
+
+Jarque–Bera test: combines both to test normality:
+
+𝐽
+𝐵
+=
+𝑛
+6
+(
+Skew
+2
++
+(
+Kurt
+−
+3
+)
+2
+4
+)
+JB=
+6
+n
+	​
+
+(Skew
+2
++
+4
+(Kurt−3)
+2
+	​
+
+)
+
+Economic meaning
+
+Negative skew = lottery in reverse → people dislike it.
+
+Excess kurtosis = crash risk → investors demand premium.
+
+Portfolio diversification reduces variance but not necessarily tails.
+
+So what? Two portfolios can have the same σ but very different risk experience.
+Skew/kurt give richer insight into real-world downside.
+
+📊 Empirical Integration — /practice/risk/page.tsx
+🔸 Add new functionality
+
+In the existing “Risk Dashboard” (where Sharpe, Treynor, LPM, etc. appear):
+
+A. Compute and display
+For the current portfolio (based on user-selected Yahoo Finance tickers and date range):
+
+Mean, Variance, σ
+
+Skewness
+
+Kurtosis
+
+Jarque–Bera statistic (with p-value)
+
+Sharpe, Treynor, IR, Jensen’s α, M²
+
+B. Visualize
+
+Histogram of portfolio returns, overlaying a normal curve with same μ and σ.
+
+QQ-Plot: actual vs normal quantiles → highlight fat tails visually.
+
+Optional: small tooltip showing:
+“JB rejects normality ⇒ variance alone insufficient; use LPM or higher moments.”
+
+C. Interpretive summary (below charts)
+Generate short textual insights such as:
+
+“Your portfolio has negative skewness (–0.48) → occasional large losses dominate risk perception.”
+“Kurtosis = 6.1 ⇒ fat tails; returns not normal.
+Consider using LPM or downside-risk optimization.”
+
+🔹 Backend Implementation — /api/risk/metrics
+
+Expected inputs:
+
+{
+  "returns": [ ... daily or monthly % returns ... ],
+  "rf": 0.03
+}
+
+
+Outputs:
+
+{
+  "mean": 0.012,
+  "stdev": 0.045,
+  "skew": -0.35,
+  "kurt": 5.8,
+  "jb": 7.41,
+  "jb_pval": 0.03,
+  "sharpe": 0.42,
+  "treynor": 0.18,
+  "info_ratio": 0.21,
+  "alpha": 0.005,
+  "m2": 0.012
+}
+
+
+Implementation logic:
+
+Use scipy.stats (skew, kurtosis, jarque_bera)
+
+Add Sharpe/Treynor/IR formulas already used
+
+Return all in JSON to render on front-end cards
+
+🔹 Charts Implementation — /frontend/components/charts/
+
+RiskDistributionPlot.tsx → Histogram + normal overlay
+
+QQPlot.tsx → Quantile comparison
+
+Add ExplainTip: “Fat tails indicate rare extreme events; kurtosis>3 => higher tail risk.”
+
+Add ExplainTip: “Negative skew = frequent small gains, rare large losses.”
+
+✅ Acceptance Criteria
+Area	Description	Status
+Theory	Complete 9-card layout + new “Skewness & Kurtosis” section	✅
+Practice	Compute skew, kurt, JB, and display hist + QQ plots	✅
+Integration	Theoretical + empirical link between shape and performance	✅
+UI	New ExplainTips for tails and asymmetry	✅
+Backend	Returns skew/kurt/jb metrics along with other ratios	✅
+Offline / Real Data	Theory offline, Practice uses Yahoo Finance portfolio returns	✅
+🧩 Summary of User Experience
+
+In the Theory tab, users learn what skewness and kurtosis mean, why variance is not enough, and how they tie to tail risk and investor preferences.
+
+In the Practice tab, they see and measure those properties for their real portfolio.
+
+Together, this forms a continuous narrative:
+From abstract tail aversion → to statistical evidence → to portfolio evaluation.
