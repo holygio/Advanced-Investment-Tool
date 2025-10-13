@@ -1,158 +1,225 @@
-import yfinance as yf
 import numpy as np
 import pandas as pd
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime, timedelta
+from pydantic import BaseModel, Field
+from typing import List, Dict
+from pathlib import Path
 
 router = APIRouter()
 
+# Load data files
+DATA_DIR = Path(__file__).parent.parent / "data" / "fixedincome"
+
+def load_yield_curves():
+    """Load historical yield curve data from CSV"""
+    filepath = DATA_DIR / "yield_curves.csv"
+    df = pd.read_csv(filepath, parse_dates=['Date'])
+    return df
+
+def load_credit_spreads():
+    """Load historical credit spread data from CSV"""
+    filepath = DATA_DIR / "credit_spreads.csv"
+    df = pd.read_csv(filepath, parse_dates=['Date'])
+    return df
+
+def load_bonds():
+    """Load bond characteristics data from CSV"""
+    filepath = DATA_DIR / "bonds.csv"
+    df = pd.read_csv(filepath)
+    return df
+
+# Response Models
 class YieldCurvePoint(BaseModel):
-    tenor: str
-    yield_: float
+    maturity: str
+    yield_: float = Field(..., serialization_alias='yield')
     
     class Config:
         populate_by_name = True
-        fields = {'yield_': 'yield'}
 
-class CreditSpreadPoint(BaseModel):
+class YieldCurveData(BaseModel):
     date: str
-    spread: float
+    points: List[YieldCurvePoint]
 
-class CreditProxyData(BaseModel):
-    series: List[CreditSpreadPoint]
-    latest: float
+class TermSpreadPoint(BaseModel):
+    date: str
+    term_spread: float
+    credit_spread_ig: float
+    credit_spread_hy: float
 
-class FixedIncomeRequest(BaseModel):
-    useFRED: Optional[bool] = False
+class BondSensitivity(BaseModel):
+    bond: str
+    maturity: float
+    coupon: float
+    yield_: float = Field(..., serialization_alias='yield')
+    duration: float
+    convexity: float
+    price_change_neg100: float  # -100 bps
+    price_change_pos100: float  # +100 bps
+    
+    class Config:
+        populate_by_name = True
 
-class FixedIncomeResponse(BaseModel):
-    yieldCurve: List[YieldCurvePoint]
-    termSpread: float
-    creditProxy: CreditProxyData
+class RiskNeutralCalc(BaseModel):
+    s: float  # Current price
+    u: float  # Up factor
+    d: float  # Down factor
+    r: float  # Risk-free rate
+    p_q: float  # Risk-neutral probability
+    call_price: float  # Call option value
+    
+class FixedIncomeDataResponse(BaseModel):
+    yield_curves: List[YieldCurveData]
+    term_spreads: List[TermSpreadPoint]
+    bonds: List[BondSensitivity]
+    latest_term_spread: float
+    latest_credit_ig: float
+    latest_credit_hy: float
 
-@router.post("/fixedincome/term-credit", response_model=FixedIncomeResponse)
-async def get_fixed_income_data(request: FixedIncomeRequest):
+# Endpoints
+@router.get("/fixedincome/data", response_model=FixedIncomeDataResponse)
+async def get_fixedincome_data():
+    """Get comprehensive fixed income data including yield curves, spreads, and bond sensitivities"""
     try:
-        # Use Treasury ETF proxies for yield curve
-        # SHY (1-3yr), IEF (7-10yr), TLT (20+yr)
-        tickers = {
-            "^IRX": "3M",  # 13 Week Treasury Bill
-            "^FVX": "5Y",  # 5 Year Treasury
-            "^TNX": "10Y", # 10 Year Treasury
-            "^TYX": "30Y"  # 30 Year Treasury
-        }
+        # Load data
+        yield_df = load_yield_curves()
+        credit_df = load_credit_spreads()
+        bonds_df = load_bonds()
         
-        yield_curve = []
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=5)
+        # Process yield curves - get select dates for visualization
+        # Get data from: 2015, 2018, 2020, 2023, 2024 (latest)
+        select_dates = ['2015-01-31', '2018-01-31', '2020-03-31', '2023-01-31', '2024-12-31']
+        yield_curves = []
         
-        for ticker, tenor in tickers.items():
-            try:
-                data = yf.download(ticker, start=start_date, end=end_date, progress=False)
-                if not data.empty:
-                    latest_yield = data['Close'].iloc[-1] / 100  # Convert to decimal
-                    yield_curve.append(YieldCurvePoint(tenor=tenor, yield_=float(latest_yield)))
-            except:
-                # Use approximate values if download fails
-                approx_yields = {"3M": 0.0525, "5Y": 0.0425, "10Y": 0.0410, "30Y": 0.0435}
-                if tenor in approx_yields:
-                    yield_curve.append(YieldCurvePoint(tenor=tenor, yield_=approx_yields[tenor]))
-        
-        # Sort by tenor
-        tenor_order = {"3M": 0, "6M": 1, "1Y": 2, "2Y": 3, "5Y": 4, "10Y": 5, "30Y": 6}
-        yield_curve.sort(key=lambda x: tenor_order.get(x.tenor, 999))
-        
-        # Calculate term spread (10Y - 3M)
-        yields_10y = [y.yield_ for y in yield_curve if y.tenor == "10Y"]
-        yields_3m = [y.yield_ for y in yield_curve if y.tenor == "3M"]
-        
-        if yields_10y and yields_3m:
-            term_spread = yields_10y[0] - yields_3m[0]
-        else:
-            term_spread = 0.0185  # Default
-        
-        # Credit spread proxy: LQD (investment grade) vs TLT (long treasury)
-        # Or HYG (high yield) vs IEF (intermediate treasury)
-        credit_series = []
-        
-        try:
-            # Fetch recent data for credit spread calculation
-            lqd_data = yf.download("LQD", start=start_date - timedelta(days=30), end=end_date, progress=False)
-            tlt_data = yf.download("TLT", start=start_date - timedelta(days=30), end=end_date, progress=False)
-            
-            if not lqd_data.empty and not tlt_data.empty:
-                # Calculate yield spread (simplified using price ratios as proxy)
-                lqd_returns = lqd_data['Close'].pct_change()
-                tlt_returns = tlt_data['Close'].pct_change()
-                
-                # Align dates
-                common_dates = lqd_returns.index.intersection(tlt_returns.index)
-                for date in common_dates[-10:]:  # Last 10 days
-                    spread = float(lqd_returns.loc[date] - tlt_returns.loc[date])
-                    credit_series.append(CreditSpreadPoint(
-                        date=date.strftime('%Y-%m-%d'),
-                        spread=spread
+        for date_str in select_dates:
+            row = yield_df[yield_df['Date'] == date_str]
+            if not row.empty:
+                points = []
+                for col in ['3M', '2Y', '5Y', '10Y', '30Y']:
+                    points.append(YieldCurvePoint(
+                        maturity=col,
+                        yield_=float(row[col].values[0])
                     ))
-                
-                latest_spread = credit_series[-1].spread if credit_series else 0.0125
-            else:
-                # Default values
-                latest_spread = 0.0125
-        except:
-            # Fallback to default
-            latest_spread = 0.0125
-            # Generate some dummy historical data
-            for i in range(10):
-                date = (end_date - timedelta(days=10-i)).strftime('%Y-%m-%d')
-                spread = 0.0125 + np.random.normal(0, 0.001)
-                credit_series.append(CreditSpreadPoint(date=date, spread=float(spread)))
+                yield_curves.append(YieldCurveData(
+                    date=date_str,
+                    points=points
+                ))
         
-        return FixedIncomeResponse(
-            yieldCurve=yield_curve,
-            termSpread=float(term_spread),
-            creditProxy=CreditProxyData(
-                series=credit_series,
-                latest=float(latest_spread)
-            )
+        # Compute term and credit spreads over time
+        term_spreads = []
+        for _, row in pd.concat([yield_df, credit_df], axis=1).iterrows():
+            if pd.notna(row['10Y']) and pd.notna(row['3M']):
+                term_spreads.append(TermSpreadPoint(
+                    date=row['Date'].strftime('%Y-%m-%d'),
+                    term_spread=float(row['10Y'] - row['3M']),
+                    credit_spread_ig=float(row['IG_Spread']) if pd.notna(row['IG_Spread']) else 0.0,
+                    credit_spread_hy=float(row['HY_Spread']) if pd.notna(row['HY_Spread']) else 0.0
+                ))
+        
+        # Calculate bond price sensitivities (duration-convexity approximation)
+        bonds_sensitivity = []
+        for _, bond in bonds_df.iterrows():
+            duration = float(bond['Duration'])
+            convexity = float(bond['Convexity'])
+            
+            # Price change for -100 bps (rates decrease)
+            delta_y_neg = -0.01
+            price_change_neg = -duration * delta_y_neg + 0.5 * convexity * (delta_y_neg ** 2)
+            
+            # Price change for +100 bps (rates increase)
+            delta_y_pos = 0.01
+            price_change_pos = -duration * delta_y_pos + 0.5 * convexity * (delta_y_pos ** 2)
+            
+            bonds_sensitivity.append(BondSensitivity(
+                bond=bond['Bond'],
+                maturity=float(bond['Maturity']),
+                coupon=float(bond['Coupon']),
+                yield_=float(bond['Yield']),
+                duration=duration,
+                convexity=convexity,
+                price_change_neg100=round(price_change_neg * 100, 2),  # Convert to percentage
+                price_change_pos100=round(price_change_pos * 100, 2)
+            ))
+        
+        # Get latest values
+        latest_yield = yield_df.iloc[-1]
+        latest_credit = credit_df.iloc[-1]
+        latest_term_spread = float(latest_yield['10Y'] - latest_yield['3M'])
+        
+        return FixedIncomeDataResponse(
+            yield_curves=yield_curves,
+            term_spreads=term_spreads,
+            bonds=bonds_sensitivity,
+            latest_term_spread=round(latest_term_spread, 4),
+            latest_credit_ig=round(float(latest_credit['IG_Spread']), 4),
+            latest_credit_hy=round(float(latest_credit['HY_Spread']), 4)
         )
     
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching fixed income data: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error loading fixed income data: {str(e)}")
 
-
+# Risk-Neutral Pricing Calculator
 class RiskNeutralRequest(BaseModel):
-    ticker: str
-    expiry: str
-    s: float  # Current stock price
-    r: float  # Risk-free rate
-    u: float  # Up factor
-    d: float  # Down factor
+    s: float = 100.0  # Current stock price
+    k: float = 100.0  # Strike price
+    u: float = 1.1    # Up factor
+    d: float = 0.9    # Down factor
+    r: float = 0.03   # Risk-free rate
 
 class RiskNeutralResponse(BaseModel):
-    p_up: float
-    p_down: float
-    notes: str
+    s: float
+    k: float
+    u: float
+    d: float
+    r: float
+    p_q: float  # Risk-neutral probability
+    p_up_state: float  # Probability of up state
+    s_up: float  # Stock price in up state
+    s_down: float  # Stock price in down state
+    call_up: float  # Call payoff in up state
+    call_down: float  # Call payoff in down state
+    call_price: float  # Present value of call option
+    interpretation: str
 
-@router.post("/derivatives/risk-neutral", response_model=RiskNeutralResponse)
+@router.post("/fixedincome/risk-neutral", response_model=RiskNeutralResponse)
 async def calculate_risk_neutral(request: RiskNeutralRequest):
+    """Calculate risk-neutral probabilities and option price in binomial model"""
     try:
-        # Calculate risk-neutral probability
-        # p = (e^r - d) / (u - d)
-        exp_r = np.exp(request.r)
-        p_up = (exp_r - request.d) / (request.u - request.d)
-        p_down = 1 - p_up
+        # Calculate risk-neutral probability: p_Q = (1+r - d) / (u - d)
+        p_q = (1 + request.r - request.d) / (request.u - request.d)
         
-        notes = f"Binomial model risk-neutral probabilities. "
-        notes += f"Under risk-neutral measure: E^Q[R] = r_f. "
-        notes += f"Up factor u={request.u:.3f}, down factor d={request.d:.3f}. "
-        notes += f"Risk-neutral probability p={p_up:.4f} ensures expected return equals risk-free rate."
+        # Stock prices in up and down states
+        s_up = request.s * request.u
+        s_down = request.s * request.d
+        
+        # Call option payoffs
+        call_up = max(s_up - request.k, 0)
+        call_down = max(s_down - request.k, 0)
+        
+        # Present value of call option
+        call_price = (p_q * call_up + (1 - p_q) * call_down) / (1 + request.r)
+        
+        # Interpretation
+        interpretation = (
+            f"Under risk-neutral measure Q, expected return equals risk-free rate. "
+            f"Risk-neutral probability p^Q = {p_q:.4f} differs from real-world probability. "
+            f"This adjustment prices the option by discounting risk-neutral expected payoff at r_f. "
+            f"The call option is worth ${call_price:.2f}, replicating the payoff structure."
+        )
         
         return RiskNeutralResponse(
-            p_up=float(p_up),
-            p_down=float(p_down),
-            notes=notes
+            s=request.s,
+            k=request.k,
+            u=request.u,
+            d=request.d,
+            r=request.r,
+            p_q=round(p_q, 4),
+            p_up_state=round(p_q, 4),
+            s_up=round(s_up, 2),
+            s_down=round(s_down, 2),
+            call_up=round(call_up, 2),
+            call_down=round(call_down, 2),
+            call_price=round(call_price, 2),
+            interpretation=interpretation
         )
     
     except Exception as e:
