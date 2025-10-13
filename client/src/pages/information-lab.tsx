@@ -74,12 +74,18 @@ export default function InformationLab() {
   const optimalSharpe = Math.max(...sharpeRatios);
   const efficiencyLoss = ((optimalSharpe - currentSharpe) / optimalSharpe) * 100;
 
-  // Grossman Model simulation (memoized to prevent random regeneration)
-  const grossmanResults = useMemo(() => {
-    const P_true = 100;
-    const signals = Array.from({ length: numInvestors }, () => 
+  // Grossman Model simulation - separate signal generation from calculations
+  const P_true = 100;
+  
+  // Step 1: Generate random signals (only depends on signal precision and num investors)
+  const signals = useMemo(() => {
+    return Array.from({ length: numInvestors }, () => 
       P_true + (Math.random() - 0.5) * 2 * (1 - signalPrecision) * 10
     );
+  }, [signalPrecision, numInvestors]);
+
+  // Step 2: Calculate positions and prices using the stable signals
+  const grossmanResults = useMemo(() => {
     const Var_post = (1 - Math.pow(signalPrecision, 2)) * 50;
     const positions = signals.map(s => 
       ((s - P_true) / (riskAversion * Var_post)) * (1 - infoCost)
@@ -88,10 +94,10 @@ export default function InformationLab() {
       sum + s - riskAversion * Var_post * positions[i], 0) / numInvestors;
     const infoIndex = signalPrecision * (1 - infoCost);
     
-    return { P_true, signals, positions, P_eq, infoIndex, Var_post };
-  }, [signalPrecision, riskAversion, infoCost, numInvestors]);
+    return { positions, P_eq, infoIndex, Var_post };
+  }, [signals, signalPrecision, riskAversion, infoCost]);
 
-  const { P_true, signals, positions, P_eq, infoIndex } = grossmanResults;
+  const { positions, P_eq, infoIndex } = grossmanResults;
 
   // Theory content
   const theory = (

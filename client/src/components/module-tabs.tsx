@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, BarChart3, LineChart, Network, Activity, TrendingUp, Building2 } from "lucide-react";
+import { Home, BarChart3, LineChart, Network, Activity, TrendingUp, Building2, Globe } from "lucide-react";
 
 const modules = [
   { title: "Home", path: "/", icon: Home },
@@ -10,6 +10,7 @@ const modules = [
   { title: "Risk", path: "/performance", icon: Activity },
   { title: "Utility", path: "/utility", icon: TrendingUp },
   { title: "Fixed Income", path: "/fixed-income", icon: Building2 },
+  { title: "Information", path: "/information", icon: Globe },
 ];
 
 export function ModuleTabs() {

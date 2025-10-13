@@ -13,6 +13,7 @@ Key capabilities include:
 - **Risk Analysis:** Performance metrics (Sharpe, Treynor, Jensen's Alpha, LPM) and higher moments analysis.
 - **Utility & SDF Explorer:** Pedagogical simulator for utility theory (CRRA, CARA, DARA) and Stochastic Discount Factor concepts using synthetic data.
 - **Fixed Income:** Term structure and credit spread analysis.
+- **Information & Global Markets Lab:** Interactive exploration of international diversification, home bias puzzle, Grossman (1976) information aggregation model, rational expectations, and Black-Litterman framework using synthetic data simulators.
 - **Study Flashcards:** Interactive exam preparation module with 18 Q&A pairs from past exams (2016-2020), featuring professor's 5-step framework answers, topic/difficulty filtering, progress tracking, and keyboard shortcuts.
 
 ## User Preferences
@@ -116,6 +117,49 @@ The Fixed Income theory tab has been completely rebuilt with 10 comprehensive ca
 10. **Performance & Portfolio Construction:** Hierarchical optimization, cross-asset correlations
 
 **Pedagogical Design:** Same color-coded pattern as Utility module, formulas with proper mathematical notation, every card with "So what?" summary. Aligns with Lecture 6 (Oct 6, 2025).
+
+### Information & Global Markets Lab - Comprehensive Theory & Simulators (October 2025)
+
+The Information & Global Markets Lab module provides an interactive platform for exploring international diversification, home bias, and information asymmetry through comprehensive theory and three fully interactive simulators:
+
+**Theory Section - 6 Comprehensive Cards:**
+
+1. **Global Diversification & FX Risk:** Why diversify globally (imperfect correlations), FX risk measurement (Var[R_total] = Var[R_local] + Var[R_FX] + 2·Cov[R_local, R_FX])
+2. **Home Bias Puzzle:** Empirical evidence (investors hold 70-90% domestic), efficiency loss from under-diversification
+3. **Grossman (1976) Model:** Information aggregation in prices, costly information acquisition, equilibrium price informativeness
+4. **Rational Expectations Equilibrium:** Agents learn from prices, market efficiency limits, impossibility of informationally efficient markets
+5. **Black-Litterman Connection:** Views as private signals, Bayesian posterior combining market equilibrium + investor views
+6. **Summary & Applications:** Unified framework connecting global diversification, information aggregation, and portfolio optimization
+
+**Practice Section - 3 Interactive Simulators:**
+
+1. **Foreign Assets Simulator:** 
+   - Controls: Correlation (-1 to 1), FX volatility (0-30%), domestic/foreign allocation (0-100%)
+   - Visualizations: Risk decomposition chart, portfolio metrics display
+   - Mathematical stability: Corrected FX variance formula using proper variance-space arithmetic
+
+2. **Home Bias Simulator:**
+   - Controls: Home bias level (0-100%), correlation (-1 to 1)
+   - Visualizations: Efficient frontier with current vs optimal allocation, Sharpe ratio comparison
+   - Metrics: Efficiency loss percentage, optimal bias level detection
+
+3. **Grossman Model Simulator:**
+   - Controls: Signal precision (0-100%), risk aversion (0.5-5), information cost (0-30%), number of investors (10-1000)
+   - Visualizations: Equilibrium price vs true value, information index metric
+   - Mathematical stability: useMemo isolation for random signal generation to prevent stochastic jumps
+
+**Technical Implementation:**
+- All simulators use synthetic/offline data (no API calls)
+- Mathematical stability via useMemo for random draws dependent on relevant controls
+- Corrected formulas for FX risk using consistent variance units
+- Real-time parameter adjustment with immediate visual feedback
+
+**Pedagogical Design:** Same color-coded highlights as other theory modules, monospace formulas with HTML notation, "So what?" summaries. Simulators provide hands-on exploration of theoretical concepts with parameter sensitivity analysis.
+
+**Integration:**
+- Route: `/information`
+- Navigation: Added to module tabs (next to Fixed Income) with Globe icon
+- No landing page section (pure navigation module)
 
 ### Study Flashcards Module - Exam Preparation Tool (October 2025)
 
