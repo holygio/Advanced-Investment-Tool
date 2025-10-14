@@ -1,4 +1,5 @@
-import { Switch, Route } from "wouter";
+import { useState, useEffect } from "react";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,13 +22,10 @@ import InformationLab from "@/pages/information-lab";
 import StudyFlashcards from "@/pages/study-flashcards";
 import NotFound from "@/pages/not-found";
 
-function Router() {
+function AuthenticatedApp() {
   return (
     <Switch>
       <Route path="/">
-        <AccessGateway />
-      </Route>
-      <Route path="/dashboard">
         <ModuleLayoutWrapper>
           <Landing />
         </ModuleLayoutWrapper>
@@ -80,6 +78,22 @@ function Router() {
 }
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [location] = useLocation();
+
+  useEffect(() => {
+    const authStatus = sessionStorage.getItem("auth") === "true";
+    setIsAuthenticated(authStatus);
+  }, [location]);
+
+  if (!isAuthenticated) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <AccessGateway />
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -88,7 +102,7 @@ function App() {
             <div className="flex h-screen w-full">
               <PortfolioConfigSidebar />
               <main className="flex-1 overflow-auto">
-                <Router />
+                <AuthenticatedApp />
               </main>
             </div>
           </GlobalStateProvider>
