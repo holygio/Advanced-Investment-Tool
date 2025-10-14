@@ -15,6 +15,10 @@ run = ["sh", "start-production.sh"]
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 33213
+externalPort = 3000
+
 [env]
 PORT = "5000"
 
