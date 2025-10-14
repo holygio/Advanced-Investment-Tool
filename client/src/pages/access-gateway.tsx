@@ -20,16 +20,38 @@ export default function AccessGateway() {
       const response = await fetch("/credentials.json");
       const data = await response.json();
 
-      if (password.trim() === data.password && accessCode.trim() === data.access_code) {
-        // Store authentication state and reload to trigger app re-render
-        sessionStorage.setItem("auth", "true");
-        window.location.href = "/";
-      } else {
-        setError("Invalid password or access code.");
+      const enteredPassword = password.trim();
+      const enteredCode = accessCode.trim().toUpperCase();
+
+      // Validate password
+      if (enteredPassword !== data.password) {
+        setError("Invalid password. Please try again.");
+        setIsLoading(false);
+        return;
       }
+
+      // Validate access code format (INV-LAB-1 to INV-LAB-200)
+      const regex = /^INV-LAB-(\d{1,3})$/;
+      const match = enteredCode.match(regex);
+
+      if (!match) {
+        setError("Invalid access code format. Use INV-LAB-1 to INV-LAB-200.");
+        setIsLoading(false);
+        return;
+      }
+
+      const codeNumber = parseInt(match[1]);
+      if (codeNumber < 1 || codeNumber > 200) {
+        setError("Access code must be between INV-LAB-1 and INV-LAB-200.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Success - grant access
+      sessionStorage.setItem("auth", "true");
+      window.location.href = "/";
     } catch (err) {
       setError("Failed to verify credentials. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   };

@@ -2,6 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { spawn } from "child_process";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -69,6 +71,19 @@ app.use((req, res, next) => {
 
   // Wait a bit for Python server to start
   await new Promise(resolve => setTimeout(resolve, isDev ? 2000 : 5000));
+
+  // Serve credentials.json before Vite middleware (editable file)
+  app.get('/credentials.json', (_req, res) => {
+    const credentialsPath = path.resolve(process.cwd(), 'public', 'credentials.json');
+    try {
+      const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
+      log('Serving credentials from file');
+      res.json(credentials);
+    } catch (err) {
+      log(`Failed to load credentials: ${err}`);
+      res.status(500).json({ error: 'Failed to load credentials' });
+    }
+  });
 
   const server = await registerRoutes(app);
 
