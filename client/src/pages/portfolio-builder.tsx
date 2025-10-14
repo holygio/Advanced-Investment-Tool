@@ -86,6 +86,8 @@ export default function PortfolioBuilder() {
       // Only optimize if parameters have changed
       if (lastOptimizedParams.current !== currentParams) {
         lastOptimizedParams.current = currentParams;
+        // Reset mutation data before re-optimizing to prevent showing stale results
+        optimizeMutation.reset();
         optimizeMutation.mutate();
       }
     }
