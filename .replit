@@ -8,7 +8,7 @@ packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "glibcLocales", "
 
 [deployment]
 deploymentTarget = "autoscale"
-build = ["npm", "run", "build"]
+build = ["sh", "build.sh"]
 run = ["sh", "start-production.sh"]
 
 [[ports]]
