@@ -9,39 +9,11 @@ packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "glibcLocales", "
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+run = ["sh", "start-production.sh"]
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 8000
-externalPort = 8000
-
-[[ports]]
-localPort = 33531
-externalPort = 3001
-
-[[ports]]
-localPort = 37647
-externalPort = 5000
-
-[[ports]]
-localPort = 38575
-externalPort = 4200
-
-[[ports]]
-localPort = 42787
-externalPort = 3002
-
-[[ports]]
-localPort = 45337
-externalPort = 3003
-
-[[ports]]
-localPort = 46299
-externalPort = 3000
 
 [env]
 PORT = "5000"
