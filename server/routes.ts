@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 
+// Python API configuration (matches server/index.ts)
 const PYTHON_API_PORT = 8000;
 const PYTHON_API_URL = `http://localhost:${PYTHON_API_PORT}`;
 

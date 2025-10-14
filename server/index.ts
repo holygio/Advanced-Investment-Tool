@@ -72,21 +72,23 @@ app.use((req, res, next) => {
     }
   });
 
-  // Wait a bit for Python server to start
-  await new Promise(resolve => setTimeout(resolve, isDev ? 2000 : 5000));
+  // Wait for Python server to start (longer in production for cold starts)
+  const pythonStartDelay = isDev ? 3000 : 8000;
+  await new Promise(resolve => setTimeout(resolve, pythonStartDelay));
   
-  // Verify Python API is running
+  // Verify Python API is running (non-blocking)
   try {
-    const healthCheck = await fetch(`${PYTHON_API_URL}/api/health`);
+    const healthCheck = await fetch(`${PYTHON_API_URL}/api/health`, {
+      signal: AbortSignal.timeout(2000)
+    });
     if (healthCheck.ok) {
       const health = await healthCheck.json();
-      log(`✅ Python API health check: ${health.message}`);
+      log(`✅ Python API: ${health.message}`);
     } else {
-      log(`⚠️ Python API health check failed with status ${healthCheck.status}`);
+      log(`⚠️ Python API health check failed (status ${healthCheck.status})`);
     }
   } catch (err) {
-    log(`❌ Python API is not responding: ${err}`);
-    log(`⚠️ Make sure Python dependencies are installed`);
+    log(`⚠️ Python API health check failed - will retry on first API call`);
   }
 
   // Serve credentials.json before Vite middleware (editable file)
