@@ -101,7 +101,7 @@ export default function AccessGateway() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full text-white font-semibold transition-colors"
+              className="w-full text-white font-semibold transition-colors hover:opacity-90 active:opacity-95"
               style={{
                 backgroundColor: "#D4AF37",
                 borderColor: "#D4AF37"

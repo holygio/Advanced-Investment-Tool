@@ -9,6 +9,7 @@ import { GlobalStateProvider } from "@/contexts/global-state-context";
 import { ModeProvider } from "@/contexts/mode-context";
 
 // Pages
+import AccessGateway from "@/pages/access-gateway";
 import Landing from "@/pages/landing";
 import PortfolioBuilder from "@/pages/portfolio-builder";
 import CAPMTester from "@/pages/capm-tester";
@@ -24,6 +25,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/">
+        <AccessGateway />
+      </Route>
+      <Route path="/dashboard">
         <ModuleLayoutWrapper>
           <Landing />
         </ModuleLayoutWrapper>
