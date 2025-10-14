@@ -6,6 +6,9 @@ import fs from "fs";
 import path from "path";
 
 const app = express();
+const PYTHON_API_PORT = 8000;
+const PYTHON_API_URL = `http://localhost:${PYTHON_API_PORT}`;
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
@@ -71,16 +74,35 @@ app.use((req, res, next) => {
 
   // Wait a bit for Python server to start
   await new Promise(resolve => setTimeout(resolve, isDev ? 2000 : 5000));
+  
+  // Verify Python API is running
+  try {
+    const healthCheck = await fetch(`${PYTHON_API_URL}/api/health`);
+    if (healthCheck.ok) {
+      const health = await healthCheck.json();
+      log(`✅ Python API health check: ${health.message}`);
+    } else {
+      log(`⚠️ Python API health check failed with status ${healthCheck.status}`);
+    }
+  } catch (err) {
+    log(`❌ Python API is not responding: ${err}`);
+    log(`⚠️ Make sure Python dependencies are installed`);
+  }
 
   // Serve credentials.json before Vite middleware (editable file)
   app.get('/credentials.json', (_req, res) => {
-    const credentialsPath = path.resolve(process.cwd(), 'public', 'credentials.json');
+    // In production, credentials are in dist/public, in dev they're in public/
+    const isDev = app.get("env") === "development";
+    const credentialsPath = isDev 
+      ? path.resolve(process.cwd(), 'public', 'credentials.json')
+      : path.resolve(process.cwd(), 'dist', 'public', 'credentials.json');
+    
     try {
       const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
-      log('Serving credentials from file');
+      log(`Serving credentials from ${isDev ? 'public' : 'dist/public'}`);
       res.json(credentials);
     } catch (err) {
-      log(`Failed to load credentials: ${err}`);
+      log(`Failed to load credentials from ${credentialsPath}: ${err}`);
       res.status(500).json({ error: 'Failed to load credentials' });
     }
   });

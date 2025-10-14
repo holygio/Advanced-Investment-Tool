@@ -17,4 +17,8 @@ cp -r server/api/* dist/api/
 echo "Copying requirements.txt to dist..."
 cp requirements.txt dist/
 
+echo "Copying credentials.json to dist/public..."
+mkdir -p dist/public
+cp public/credentials.json dist/public/
+
 echo "Build complete!"
