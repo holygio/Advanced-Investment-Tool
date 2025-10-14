@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { TrendingUp } from "lucide-react";
 
 export default function AccessGateway() {
-  const [, setLocation] = useLocation();
   const [password, setPassword] = useState("");
   const [accessCode, setAccessCode] = useState("");
   const [error, setError] = useState("");
@@ -23,10 +21,9 @@ export default function AccessGateway() {
       const data = await response.json();
 
       if (password.trim() === data.password && accessCode.trim() === data.access_code) {
-        // Store authentication state
+        // Store authentication state and reload to trigger app re-render
         sessionStorage.setItem("auth", "true");
-        // Redirect to dashboard
-        setLocation("/dashboard");
+        window.location.href = "/";
       } else {
         setError("Invalid password or access code.");
       }
@@ -44,7 +41,7 @@ export default function AccessGateway() {
           {/* Header */}
           <div className="text-center mb-8 space-y-3">
             <div className="flex items-center justify-center gap-3">
-              <TrendingUp className="h-8 w-8" style={{ color: "#D4AF37" }} />
+              <TrendingUp className="h-8 w-8 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900">
                 Advanced Investments Lab
               </h1>
@@ -69,7 +66,7 @@ export default function AccessGateway() {
                 placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border-gray-300 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
                 data-testid="input-password"
               />
@@ -85,7 +82,7 @@ export default function AccessGateway() {
                 placeholder="Enter access code"
                 value={accessCode}
                 onChange={(e) => setAccessCode(e.target.value)}
-                className="border-gray-300 focus:border-[#D4AF37] focus:ring-[#D4AF37]"
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
                 data-testid="input-access-code"
               />
@@ -101,11 +98,7 @@ export default function AccessGateway() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full text-white font-semibold transition-colors hover:opacity-90 active:opacity-95"
-              style={{
-                backgroundColor: "#D4AF37",
-                borderColor: "#D4AF37"
-              }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors"
               disabled={isLoading}
               data-testid="button-enter-lab"
             >
