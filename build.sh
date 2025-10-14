@@ -14,4 +14,7 @@ echo "Copying Python API files to dist..."
 mkdir -p dist/api
 cp -r server/api/* dist/api/
 
+echo "Copying requirements.txt to dist..."
+cp requirements.txt dist/
+
 echo "Build complete!"

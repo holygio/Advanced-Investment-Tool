@@ -53,7 +53,7 @@ app.use((req, res, next) => {
   }
   
   const pythonServer = spawn('python', uvicornArgs, {
-    cwd: 'server',
+    cwd: isDev ? 'server' : 'dist',
     stdio: 'inherit'
   });
 
