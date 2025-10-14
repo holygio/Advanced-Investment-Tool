@@ -75,7 +75,14 @@ export default function PortfolioBuilder() {
 
   // Auto-trigger optimization when price data loads OR constraints change
   useEffect(() => {
-    if (priceData?.returns && !loadingPrices && !optimizeMutation.isPending) {
+    console.log('[Portfolio] useEffect triggered', {
+      hasPriceData: !!priceData?.returns,
+      loadingPrices,
+      isPending: optimizeMutation.isPending,
+      tickersCount: globalState.tickers.length
+    });
+    
+    if (priceData?.returns && !loadingPrices) {
       const currentParams = JSON.stringify({
         tickers: globalState.tickers,
         rf: globalState.riskFreeRate,
@@ -85,10 +92,11 @@ export default function PortfolioBuilder() {
       
       // Only optimize if parameters have changed
       if (lastOptimizedParams.current !== currentParams) {
+        console.log('[Portfolio] Triggering optimization');
         lastOptimizedParams.current = currentParams;
-        // Reset mutation data before re-optimizing to prevent showing stale results
-        optimizeMutation.reset();
         optimizeMutation.mutate();
+      } else {
+        console.log('[Portfolio] Skipping optimization - params unchanged');
       }
     }
   }, [priceData, loadingPrices, globalState.riskFreeRate, globalState.allowShortSelling, globalState.maxWeight]);
