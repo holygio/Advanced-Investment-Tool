@@ -1,0 +1,121 @@
+Goal
+Add a clean, minimal Access Gateway Page to the Advanced Investments Interactive Lab.
+All users must enter a single shared password and single shared access code before entering the platform.
+
+No per-user authentication, no databases, no APIs — everything should run locally and offline, using one editable configuration file.
+
+🧩 Structure
+
+Create a new folder in the project:
+
+/access/
+  ├── index.html
+  ├── script.js
+  ├── style.css
+  └── credentials.json
+
+⚙️ Requirements
+1️⃣ index.html
+
+A minimalist page titled
+“Advanced Investments Lab — Access Gateway”
+
+Content:
+
+Centered card layout with:
+
+Title: “Welcome to the Advanced Investments Interactive Lab”
+
+Subtitle: “Enter your access credentials to continue”
+
+Two input fields:
+
+Password (placeholder: “Enter password”)
+
+Access Code (placeholder: “Enter access code”)
+
+A gold “Enter Lab” button.
+
+Below the form, a small note in gray text:
+
+“You received these credentials after payment.
+Need help? Contact Giovanni.”
+
+2️⃣ script.js
+
+The logic should:
+
+Fetch /access/credentials.json
+
+Compare both fields (password and access code) with the stored values
+
+If correct → redirect to /app/dashboard
+
+If incorrect → show an inline red error message (no alerts)
+
+Example logic:
+
+function checkAccess() {
+  const password = document.getElementById("password").value.trim();
+  const code = document.getElementById("code").value.trim();
+
+  fetch("credentials.json")
+    .then(response => response.json())
+    .then(data => {
+      const errorMsg = document.getElementById("error");
+      if (password === data.password && code === data.access_code) {
+        window.location.href = "/app/dashboard";
+      } else {
+        errorMsg.textContent = "Invalid password or access code.";
+        errorMsg.style.color = "red";
+      }
+    });
+}
+
+
+Bind the function to the button:
+
+<button onclick="checkAccess()">Enter Lab</button>
+<p id="error"></p>
+
+3️⃣ style.css
+
+Design must match the aesthetic of your Lab:
+
+White background, centered container with soft shadow and rounded corners
+
+Gold “Enter Lab” button (hover: darker gold)
+
+Font: Inter, Lato, or similar modern sans-serif
+
+Responsive layout for both desktop and mobile
+
+Maintain the academic, minimalist tone used in the rest of the project
+
+4️⃣ credentials.json
+
+Editable JSON file with shared credentials (same for everyone):
+
+{
+  "password": "advancedlab2025",
+  "access_code": "INV-LAB"
+}
+
+
+You can update these two fields anytime directly from Replit — for example, to rotate the access credentials monthly or per cohort.
+
+✅ Acceptance Criteria
+
+Both password and code must match exactly to grant access.
+
+If correct → redirect to /app/dashboard.
+
+If incorrect → show inline red message under the form.
+
+Works 100% offline (no external calls or authentication services).
+
+Easy to edit credentials manually from one file (credentials.json).
+
+Text references should say only “Contact Giovanni”, not full name.
+
+Style consistent with the Lab (white, gold, dark gray color palette).
