@@ -1,0 +1,126 @@
+🧠 Replit AI Agent Prompt (Full Instruction)
+🎯 MAIN GOAL:
+Refactor the portfolio optimization app so it uses a **static dataset (10 years of daily data)** stored locally inside Replit, instead of downloading from Yahoo Finance or any API.
+
+The app must:
+✅ Load data instantly from a CSV file (no web calls).
+✅ Be limited to 10 fixed tickers.
+✅ Cover exactly 10 years (2015–2025).
+✅ Work offline and reproduce the same results for all users.
+
+---
+
+### 1️⃣ DATA PREPARATION (done locally before upload)
+
+Guide for the developer or project owner:
+-----------------------------------------
+To prepare the dataset, run this Python script *once locally* (on a PC or Google Colab):
+
+```python
+import yfinance as yf
+import pandas as pd
+
+tickers = ["SPY","QQQ","IWM","XLF","TLT","HYG","GLD","SLV","UUP","VIXY"]
+
+start_date = "2015-01-01"
+end_date   = "2025-01-01"
+
+print("Downloading data... This may take 1–2 minutes.")
+data = yf.download(tickers, start=start_date, end=end_date, progress=True)["Adj Close"]
+data = data.dropna(how="all")
+data.to_csv("prices_10y.csv")
+print("✅ Saved to prices_10y.csv (", data.shape, ")")
+
+
+Then upload this file into the Replit project inside a new folder called data/:
+
+/data/prices_10y.csv
+
+2️⃣ LOAD LOGIC IN REPLIT
+
+Create or update a file data_loader.py (or edit data.py) with this function:
+
+import pandas as pd
+
+TICKERS = ["SPY","QQQ","IWM","XLF","TLT","HYG","GLD","SLV","UUP","VIXY"]
+
+def load_static_prices():
+    """
+    Loads pre-downloaded Adjusted Close prices for 10 tickers (2015–2025).
+    Data is stored locally in /data/prices_10y.csv.
+    """
+    df = pd.read_csv("data/prices_10y.csv", index_col=0, parse_dates=True)
+    df = df[TICKERS]  # enforce ticker order
+    print(f"✅ Loaded dataset with {df.shape[0]} days × {df.shape[1]} assets.")
+    return df
+
+3️⃣ UPDATE THE APP CONFIGURATION
+
+In your main app file (app.py or portfolio_app.py):
+
+Replace all dynamic fetching functions (yfinance, TwelveData, Finnhub, etc.)
+→ with prices = load_static_prices().
+
+Remove or disable any inputs asking for:
+
+“Years of data” → force it to 10 years (2015–2025)
+
+“Custom tickers” → instead show the fixed list below.
+
+4️⃣ USER INTERFACE / INSTRUCTIONS
+
+Add a clear message in the UI (or print at startup):
+
+📊 This educational version uses a fixed dataset:
+  - Period: 2015–2025 (10 years of daily data)
+  - Available tickers (10 total):
+    SPY, QQQ, IWM, XLF, TLT, HYG, GLD, SLV, UUP, VIXY
+💡 You can select any subset of these tickers for optimization,
+   but you cannot add new ones.
+
+
+If the app has a dropdown or multiselect, populate it only with these tickers.
+
+5️⃣ PERFORMANCE & SAFETY
+
+Loading the CSV should take < 2 seconds.
+
+File size: around 2–3 MB — perfect for Replit free tier.
+
+No network calls or API keys should remain anywhere in the code.
+
+Make sure to import pandas as pd and parse_dates=True for correct time indexing.
+
+6️⃣ TESTING
+
+After implementing:
+
+Run load_static_prices() → it should print dataset shape (~2500 rows × 10 columns).
+
+Run the optimizer → it should build portfolios normally.
+
+Check that users cannot exceed the fixed 10-ticker universe or 10-year range.
+
+🏁 FINAL DELIVERABLE
+
+A working Replit app that:
+✅ Loads data from /data/prices_10y.csv
+✅ Works fully offline
+✅ Uses exactly 10 tickers and 10 years
+✅ Tells users these limits clearly
+✅ Keeps optimization, CAPM, and visualization features working as before
+
+
+---
+
+### ✅ What to do next
+1. Copy and paste this prompt into your **Replit AI Agent** chat.  
+2. Then upload your prepared file `prices_10y.csv` into a `data/` folder.  
+3. The agent will automatically:  
+   - Replace dynamic fetching with static loading  
+   - Update the UI/configs  
+   - Add instructions for users about the fixed tickers  
+
+---
+
+Would you like me to add a **follow-up mini prompt** to create the dropdown (so users can s

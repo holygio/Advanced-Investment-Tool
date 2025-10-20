@@ -1,0 +1,89 @@
+🧠 Replit AI Agent Prompt
+🎯 TASK:
+Update the portfolio optimization app to use a **static dataset (10 years of daily prices)** for 10 predefined tickers.
+Remove all live API calls or yfinance downloads inside the Replit app — it must load data locally from a CSV file.
+
+---
+
+### DETAILS
+
+1️⃣ **Static Dataset**
+- The data file is `data/prices_10y.csv`, already uploaded to the project.
+- It contains Adjusted Close prices from **2015-01-01 to 2025-01-01**.
+- The tickers (columns) are:
+  SPY, QQQ, IWM, XLF, TLT, HYG, GLD, SLV, UUP, VIXY.
+
+2️⃣ **Load Logic**
+Create a function (or modify the existing `load_static_prices()` in `data.py`) that:
+```python
+def load_static_prices():
+    """
+    Load static dataset of 10 assets (2015–2025).
+    Users can choose any subset of these tickers for optimization,
+    but cannot use others outside this list.
+    """
+
+
+Loads the file: data/prices_10y.csv
+
+Parses dates properly (parse_dates=True, index_col=0)
+
+Returns a pandas DataFrame of shape [~2500 rows × 10 columns].
+
+3️⃣ Portfolio Configuration (10 years only)
+
+Change any “lookback period” or “years” configuration from 20 years → 10 years.
+
+Update any UI or config text to read:
+
+“Data covers the last 10 years (2015–2025) for 10 pre-selected ETFs.”
+
+Disable any inputs that try to fetch or extend data beyond 10 years.
+
+4️⃣ User Interface / Instructions
+
+In the UI (CLI prompt or web interface), add a visible note:
+
+“You can build portfolios using any subset of these 10 tickers:
+SPY, QQQ, IWM, XLF, TLT, HYG, GLD, SLV, UUP, VIXY.
+Other tickers are not available in this offline version.”
+
+Allow users to select fewer than 10 tickers (e.g., choose 4 or 5),
+but the available tickers list must remain fixed.
+
+5️⃣ Performance Optimization
+
+Make sure data loading is instant (<2 seconds).
+
+Remove all network requests (no yfinance, TwelveData, Finnhub, etc.).
+
+If any data-fetch functions exist, disable or comment them out.
+
+6️⃣ Testing
+
+Verify load_static_prices() works by printing shape and column names.
+
+Ensure the optimizer and plotting functions use this dataset only.
+
+Confirm that the app cannot crash if a user selects fewer than 10 tickers.
+
+DELIVERABLE
+
+A fully working version of the portfolio optimization app that:
+✅ Loads prices from data/prices_10y.csv
+✅ Works offline (no external API)
+✅ Limits users to the 10 specified tickers
+✅ Uses only the last 10 years of data
+✅ Updates configuration/labels accordingly
+
+
+---
+
+📌 **Next step for you:**
+Paste this prompt directly into the **Replit AI Agent chat**.  
+It will:
+- Replace the data-fetching logic with a static loader,  
+- Adjust configuration from 20→10 years,  
+- Add user guidance about the fixed tickers.  
+
+Would you like me to include a short follow-up prompt so the agent also builds a **dropdown 
