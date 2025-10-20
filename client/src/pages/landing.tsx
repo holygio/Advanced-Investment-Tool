@@ -65,7 +65,7 @@ export default function Landing() {
               <ul className="space-y-3 ml-8">
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">•</span>
-                  <span>Real market data from Yahoo Finance</span>
+                  <span><strong>Static Dataset (2015-2025):</strong> 10 years of historical data for 10 pre-selected ETFs (SPY, QQQ, IWM, XLF, TLT, HYG, GLD, SLV, UUP, VIXY) - no API costs, instant data loading!</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-1">•</span>

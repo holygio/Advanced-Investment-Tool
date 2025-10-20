@@ -6,9 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Play, Info, Database } from "lucide-react";
+import { Play, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState } from "react";
 import { useLocation } from "wouter";
 
@@ -58,20 +57,6 @@ export function PortfolioConfigSidebar() {
       </div>
 
       <div className="flex-1 overflow-auto p-6 space-y-6">
-        {/* Static Dataset Info */}
-        <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-          <Database className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <AlertTitle className="text-blue-900 dark:text-blue-100 text-sm font-semibold">
-            Static Dataset (2015-2025)
-          </AlertTitle>
-          <AlertDescription className="text-blue-800 dark:text-blue-200 text-xs space-y-1">
-            <p>Using 10 years of historical data for 10 pre-selected ETFs.</p>
-            <p className="font-semibold mt-2">Available tickers:</p>
-            <p className="font-mono">SPY, QQQ, IWM, XLF, TLT, HYG, GLD, SLV, UUP, VIXY</p>
-            <p className="italic mt-2">No API costs - instant data loading!</p>
-          </AlertDescription>
-        </Alert>
-
         {/* Investment Universe */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
