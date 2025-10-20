@@ -232,14 +232,18 @@ async def fetch_prices(request: FetchPricesRequest):
                 detail=f"Failed to fetch data for all tickers: {', '.join(request.tickers)}. Both Twelve Data and yfinance are unavailable."
             )
         
-        # If SOME tickers failed, log warning but continue
+        # If SOME tickers failed, log warning but continue WITHOUT caching
+        # This allows retries on the next request in case the failure was transient
         if failed_tickers:
             print(f"⚠️ Warning: Failed to fetch data for {len(failed_tickers)} ticker(s): {', '.join(failed_tickers)}")
+            print(f"⚠️ Skipping cache to allow retry on next request")
+            response = FetchPricesResponse(prices=prices_data, returns=returns_data)
+            return response
         
-        # Cache the response for instant future access
+        # Only cache if ALL tickers succeeded
         response = FetchPricesResponse(prices=prices_data, returns=returns_data)
         _price_cache[cache_key] = response
-        print(f"💾 Cached response for {len(prices_data)}/{len(request.tickers)} ticker(s)")
+        print(f"💾 Cached complete response for {len(prices_data)} ticker(s)")
         
         return response
     

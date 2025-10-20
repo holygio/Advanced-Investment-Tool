@@ -1,0 +1,95 @@
+🧠 Replit AI Agent Prompt
+🚀 PROJECT TASK: Fix unreliable Yahoo Finance scraping in our portfolio optimization app by adding a robust data-fetching module with automatic fallback to Twelve Data API.
+
+### CONTEXT
+- Our app currently uses yfinance to fetch historical prices.
+- This works in development but fails in Replit production deployments because:
+  - yfinance scrapes Yahoo (not an official API),
+  - Replit’s outbound connections block scrapers,
+  - Yahoo throttles scraping in hosted environments.
+- We want a production-grade, free, reliable solution.
+
+### GOAL
+Implement a **data_fetcher.py** module that:
+1. **Tries yfinance first** (fast, free, ideal for local dev).
+2. **Waits at most 10 seconds** for a response (timeout safeguard).
+3. **If yfinance fails or times out**, automatically falls back to **Twelve Data API**.
+4. Uses an API key stored in Replit Secrets → `TWELVE_API_KEY`.
+5. Returns a pandas DataFrame with:
+   - Datetime index (ascending order)
+   - Column name: “Adj Close”
+6. Optionally caches successful API results in a `/cache` folder (CSV per ticker) to stay under the free-tier limit.
+7. Handles errors gracefully (never crash the app if one ticker fails).
+
+### IMPLEMENTATION DETAILS
+- Languages/Libraries: Python 3, requests, pandas, yfinance, os, datetime.
+- Function signature:
+  ```python
+  def get_stock_data(ticker: str, start: datetime, end: datetime) -> pd.DataFrame:
+      """
+      1️⃣ Try yfinance first (10s timeout)
+      2️⃣ If it fails or returns empty → fallback to Twelve Data API
+      3️⃣ Return DataFrame with index=datetime, column=‘Adj Close’
+      """
+
+
+Twelve Data endpoint:
+
+https://api.twelvedata.com/time_series
+params = {
+    "symbol": ticker,
+    "interval": "1day",
+    "start_date": start.strftime("%Y-%m-%d"),
+    "end_date": end.strftime("%Y-%m-%d"),
+    "apikey": os.getenv("TWELVE_API_KEY"),
+    "format": "JSON",
+    "outputsize": 5000
+}
+
+
+Handle cases where Twelve Data returns errors or missing “values” key.
+
+Log each step clearly:
+
+[INFO] Fetching via yfinance...
+
+[WARN] yfinance failed, using Twelve Data...
+
+[OK] Success for {ticker}
+
+[ERROR] Both sources failed for {ticker}
+
+BONUS (if easy)
+
+Add small helper to fetch multiple tickers at once and merge results by date:
+
+def get_multiple_stocks(tickers: list, start, end) -> pd.DataFrame:
+    # Loops through get_stock_data() and concatenates columns
+
+
+Ensure output columns are the ticker symbols.
+
+TESTING
+
+Run get_stock_data("SPY", start, end) locally to verify yfinance works.
+
+Deploy on Replit and confirm it automatically switches to Twelve Data when scraping is blocked.
+
+Verify caching works (second call loads from cache folder instantly).
+
+DELIVERABLE
+
+A single Python file data_fetcher.py implementing this logic.
+Include comments explaining:
+
+Why yfinance fails in production,
+
+Why Twelve Data is used as fallback,
+
+How caching and timeouts improve reliability.
+
+
+---
+
+Paste this entire prompt into the **Replit AI Agent chat** (inside your Replit workspace).  
+It’ll automatically generate and wire up the new `data_fetcher.py` module, ready to integrate into your portfolio optimization app.
