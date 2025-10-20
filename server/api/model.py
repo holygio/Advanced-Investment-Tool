@@ -40,10 +40,19 @@ class CAPMResponse(BaseModel):
 @router.post("/model/capm", response_model=CAPMResponse)
 async def run_capm(request: CAPMRequest):
     try:
-        # Convert returns to DataFrame
-        returns_df = pd.DataFrame()
+        # Convert returns to DataFrame with proper date alignment
+        returns_dict = {}
         for ticker, returns in request.returns.items():
-            returns_df[ticker] = [r.ret for r in returns]
+            # Create a Series with dates as index
+            dates = [r.date for r in returns]
+            values = [r.ret for r in returns]
+            returns_dict[ticker] = pd.Series(values, index=pd.to_datetime(dates))
+        
+        # Create DataFrame from dict - pandas will align by index (dates)
+        returns_df = pd.DataFrame(returns_dict)
+        
+        # Drop rows with any NaN values (missing data)
+        returns_df = returns_df.dropna()
         
         # Get market returns
         if request.market not in returns_df.columns:
