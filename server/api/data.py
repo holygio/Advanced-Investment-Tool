@@ -10,8 +10,8 @@ import os
 
 router = APIRouter()
 
-# Fixed ticker universe for static dataset
-AVAILABLE_TICKERS = ["SPY", "QQQ", "IWM", "XLF", "TLT", "HYG", "GLD", "SLV", "UUP", "VIXY"]
+# Fixed ticker universe for static dataset (includes S&P 500 index for CAPM)
+AVAILABLE_TICKERS = ["SPY", "QQQ", "IWM", "XLF", "TLT", "HYG", "GLD", "SLV", "UUP", "VIXY", "^GSPC"]
 
 # Simple in-memory cache for processed requests
 _price_cache = {}
@@ -33,13 +33,22 @@ def load_static_data():
     try:
         df = pd.read_csv(_DATA_PATH, index_col=0, parse_dates=True)
         
-        # Ensure we have all tickers in the right order
-        df = df[AVAILABLE_TICKERS]
+        # Verify we have all expected tickers
+        missing_tickers = [t for t in AVAILABLE_TICKERS if t not in df.columns]
+        if missing_tickers:
+            print(f"⚠️ Warning: Missing tickers in dataset: {missing_tickers}")
+            print(f"   Available columns: {list(df.columns)}")
+            # Filter to only available tickers
+            available = [t for t in AVAILABLE_TICKERS if t in df.columns]
+            df = df[available]
+        else:
+            # Ensure we have all tickers in the right order
+            df = df[AVAILABLE_TICKERS]
         
         _STATIC_DATA = df
         print(f"✅ Loaded static dataset: {df.shape[0]} days × {df.shape[1]} assets")
         print(f"   Date range: {df.index[0].strftime('%Y-%m-%d')} to {df.index[-1].strftime('%Y-%m-%d')}")
-        print(f"   Available tickers: {', '.join(AVAILABLE_TICKERS)}")
+        print(f"   Available tickers: {', '.join(df.columns.tolist())}")
         
         return df
     

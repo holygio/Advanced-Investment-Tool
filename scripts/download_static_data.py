@@ -8,8 +8,8 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime
 
-# Fixed ticker universe
-TICKERS = ["SPY", "QQQ", "IWM", "XLF", "TLT", "HYG", "GLD", "SLV", "UUP", "VIXY"]
+# Fixed ticker universe (includes S&P 500 index for CAPM)
+TICKERS = ["SPY", "QQQ", "IWM", "XLF", "TLT", "HYG", "GLD", "SLV", "UUP", "VIXY", "^GSPC"]
 
 # 10-year period
 START_DATE = "2015-01-01"
