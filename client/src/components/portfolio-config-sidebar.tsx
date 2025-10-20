@@ -29,14 +29,14 @@ export function PortfolioConfigSidebar() {
 
   const handleLookbackYearsChange = (years: number[]) => {
     const lookbackYears = years[0];
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setFullYear(endDate.getFullYear() - lookbackYears);
+    const datasetEndDate = new Date("2024-12-31");
+    const startDate = new Date(datasetEndDate);
+    startDate.setFullYear(datasetEndDate.getFullYear() - lookbackYears);
     
     updateGlobalState({
       lookbackYears,
       startDate: startDate.toISOString().split("T")[0],
-      endDate: endDate.toISOString().split("T")[0],
+      endDate: datasetEndDate.toISOString().split("T")[0],
     });
   };
 

@@ -22,13 +22,13 @@ const GlobalStateContext = createContext<GlobalStateContextType | undefined>(und
 export function GlobalStateProvider({ children }: { children: ReactNode }) {
   const [globalState, setGlobalState] = useState<GlobalState>({
     tickers: ["SPY", "QQQ", "IWM", "XLF", "TLT", "HYG", "GLD", "SLV", "UUP", "VIXY"],  // Multi-asset portfolio: equities (SPY/QQQ/IWM/XLF), bonds (TLT/HYG), commodities (GLD/SLV), FX (UUP), volatility (VIXY)
-    startDate: "2018-01-01",
-    endDate: new Date().toISOString().split("T")[0],
+    startDate: "2015-01-01",
+    endDate: "2024-12-31",
     riskFreeRate: 0.025,
     marketProxy: "^GSPC",
-    lookbackYears: 5,
+    lookbackYears: 10,
     allowShortSelling: false,
-    maxWeight: 0.2,
+    maxWeight: 0.5,
   });
 
   const updateGlobalState = (updates: Partial<GlobalState>) => {
