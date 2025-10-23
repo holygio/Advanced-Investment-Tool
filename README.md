@@ -12,9 +12,7 @@ It’s designed to help students and finance enthusiasts **bridge the gap betwee
 
 - **App link:** [https://advanced-investment-tool.replit.app](https://advanced-investment-tool.replit.app)  
 - **Password:** `advancedlab2025`  
-- **Access code:** `INV-LAB-68`  
-
-⚠️ Each access code is **personal and account-linked** — it will **not work if shared** with others.  
+- **Access code:** `INV-LAB-68`   
 
 ---
 
